@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -38,7 +38,7 @@ RDEPEND="
 	dev-python/dbus-python[${PYTHON_USEDEP}]
 	dev-python/pillow[${PYTHON_USEDEP}]
 	dev-python/numpy[${PYTHON_USEDEP}]
-	media-libs/mlt[python,sdl,${PYTHON_USEDEP}]
+	media-libs/mlt[python,sdl1(-),${PYTHON_USEDEP}]
 	gnome-base/librsvg:2[introspection]
 	x11-libs/gtk+:3[introspection]
 	frei0r? ( media-plugins/frei0r-plugins )
