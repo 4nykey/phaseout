@@ -1,8 +1,11 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
 inherit qt4-build-multilib
+SRC_URI+="
+https://src.fedoraproject.org/rpms/qt/raw/b8994e8/f/qt-4.8-poll.patch
+"
 
 DESCRIPTION="Cross-platform application development framework"
 
@@ -36,9 +39,10 @@ MULTILIB_WRAPPED_HEADERS=(
 PATCHES=(
 	"${FILESDIR}/${PN}-4.8.5-honor-ExcludeSocketNotifiers-in-glib-event-loop.patch" # bug 514968
 	"${FILESDIR}/${PN}-4.8.5-qeventdispatcher-recursive.patch" # bug 514968
-	"${FILESDIR}/${PN}-4.8.7-libressl.patch" # bug 584796
-	"${FILESDIR}/${PN}-4.8.7-moc.patch" # bug 556104, 635394
 	"${FILESDIR}"/openssl-1.1.diff
+	"${FILESDIR}"/QTBUG-5990.diff
+	"${FILESDIR}"/natron_custom-threadpool.diff
+	"${DISTDIR}"/qt-4.8-poll.patch
 )
 
 QT4_TARGET_DIRECTORIES="

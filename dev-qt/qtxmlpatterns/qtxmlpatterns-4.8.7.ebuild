@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -24,6 +24,7 @@ QT4_TARGET_DIRECTORIES="
 
 QCONFIG_ADD="xmlpatterns"
 QCONFIG_DEFINE="QT_XMLPATTERNS"
+PATCHES=( "${FILESDIR}"/qt-everywhere-opensource-src-4.8.7-gcc6.patch )
 
 multilib_src_configure() {
 	local myconf=(

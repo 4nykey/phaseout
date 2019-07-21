@@ -1,0 +1,44 @@
+From 1244326c688e9eb73b64d152c06a6992882d9ee0 Mon Sep 17 00:00:00 2001
+From: Thiago Macieira <thiago.macieira@intel.com>
+Date: Fri, 19 Jul 2013 15:27:54 -0700
+Subject: [PATCH] Force a no-WNOHANG wait for a child process that failed to start
+
+There's a race condition in the case a process fails to start. We use
+a pipe with the O_CLOEXEC flag set to be notified of when exec()
+happened (childStartedPipe). If the child starts successfully, the
+pipe closes with nothing getting written. If execve(2) failed, the
+child process writes to that pipe before exiting, still in QProcess
+code.
+
+That writing causes the pipe to become readble in the parent process
+possibly before the child actually exits (in the next line, _exit). If
+the parent process then calls waitpid(2) with WNOHANG and the child
+process hasn't exited yet, the waiting will fail and we will never try
+again (### why don't we try again?).
+
+We can detect that situation because reading from the deathPipe will
+result in -EWOULDBLOCK (that pipe is written to by the process
+manager). So simply force it to waitpid(2) to wait if we read nothing.
+
+Task-number: QTBUG-5990
+Change-Id: Ied60cbcd1854d09c1538319038b7e7ae9ac9a5cf
+---
+
+diff --git a/src/corelib/io/qprocess_unix.cpp b/src/corelib/io/qprocess_unix.cpp
+index e9957d2..eb74c8e 100644
+--- a/src/corelib/io/qprocess_unix.cpp
++++ b/src/corelib/io/qprocess_unix.cpp
+@@ -1282,11 +1282,11 @@
+ 
+     // read a byte from the death pipe
+     char c;
+-    qt_safe_read(deathPipe[0], &c, 1);
++    qint64 readcount = qt_safe_read(deathPipe[0], &c, 1);
+ 
+     // check if our process is dead
+     int exitStatus;
+-    if (qt_safe_waitpid(pid_t(pid), &exitStatus, WNOHANG) > 0) {
++    if (qt_safe_waitpid(pid_t(pid), &exitStatus, readcount > 0 ? WNOHANG : 0) > 0) {
+         processManager()->remove(q);
+         crashed = !WIFEXITED(exitStatus);
+         exitCode = WEXITSTATUS(exitStatus);
