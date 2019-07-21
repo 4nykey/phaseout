@@ -37,6 +37,15 @@ case ${PV} in
 		S=${WORKDIR}/${MY_P}
 		;;
 esac
+MY_DEB=(
+	https://salsa.debian.org/qt-kde-team/qt/qt4-x11/-/archive/
+	a25f3b4
+	190714
+)
+SRC_URI+="
+	${MY_DEB[0]}/${MY_DEB[1]}/qt4-x11-${MY_DEB[1]}.tar.bz2
+	-> qt4-debian-${MY_DEB[2]}_${MY_DEB[1]}.tar.bz2
+"
 
 EGIT_REPO_URI=(
 	"git://code.qt.io/qt/qt.git"
@@ -289,6 +298,14 @@ qt4-build-multilib_src_prepare() {
 		sed -i -e '/^QMAKE_LFLAGS_THREAD/a QMAKE_LFLAGS_DYNAMIC_LIST = -Wl,--dynamic-list,' \
 			mkspecs/$(qt4_get_mkspec)/qmake.conf || die
 	fi
+
+	# debian patches
+	local _d="${WORKDIR}/qt4-x11-${MY_DEB[1]}/debian/patches/"
+	epatch $(sed \
+		-e '/^\(#\|$\)/d' \
+		-e '/qt-everywhere-opensource-src-4.8.7-gcc6.patch/d' \
+		-e "s:^:${_d}&:" \
+		"${_d}"series)
 
 	# apply patches
 	[[ ${PATCHES[@]} ]] && epatch "${PATCHES[@]}"
