@@ -1,7 +1,7 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit toolchain-funcs
 if [[ -z ${PV%%*9999} ]]; then
@@ -9,12 +9,12 @@ if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
 	inherit vcs-snapshot
-	MY_PV="6aaeeed"
+	MY_PV="5c20f5d"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-2d77ebf'
-	MY_SUP='openfx-supportext-ace86e0'
-	MY_OIO="openfx-io-350fd1c"
-	MY_SEQ='SequenceParsing-6441ec7'
+	MY_OFX='openfx-f5f4139'
+	MY_SUP='openfx-supportext-961aabd'
+	MY_OIO='openfx-io-644df5d'
+	MY_SEQ='SequenceParsing-977e36f'
 	MY_TIN='tinydir-3aae922'
 	# PNGVERSION in Extra/Makefile
 	MY_PNG="lodepng-a70c086"

@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -10,10 +10,13 @@ if [[ -z ${PV%%*9999} ]]; then
 	EGIT_BRANCH="RB-${PV%.*}"
 	inherit git-r3
 else
-	MY_PV="8dcbafe"
-	[[ -n ${PV%%*_p*} ]] && MY_PV="${PV}"
-	MY_OFX='openfx-2d77ebf'
-	MY_SEQ='SequenceParsing-6441ec7'
+	MY_PV="e496f33"
+	if [[ -n ${PV%%*_p*} ]]; then
+		inherit eapi7-ver
+		MY_PV="v$(ver_rs 4 '.' $(ver_rs 3 '-'))"
+	fi
+	MY_OFX='openfx-5d9ac2c'
+	MY_SEQ='SequenceParsing-dc7bf39'
 	MY_TIN='tinydir-3aae922'
 	MY_MCK='google-mock-17945db'
 	MY_TST='google-test-50d6fc3'
@@ -54,7 +57,7 @@ RDEPEND="
 	dev-libs/boost
 	media-libs/fontconfig
 	dev-libs/expat
-	x11-libs/cairo[static-libs]
+	x11-libs/cairo
 	dev-python/pyside:0[X,opengl,${PYTHON_USEDEP}]
 	dev-python/shiboken:0[${PYTHON_USEDEP}]
 "
@@ -64,10 +67,10 @@ DEPEND="
 "
 RDEPEND="
 	${RDEPEND}
-	~media-plugins/openfx-io-${PV}
-	~media-plugins/openfx-misc-${PV}
-	~media-plugins/openfx-arena-${PV}
-	gmic? ( ~media-plugins/openfx-gmic-${PV} )
+	media-plugins/openfx-io
+	media-plugins/openfx-misc
+	media-plugins/openfx-arena
+	gmic? ( media-plugins/openfx-gmic )
 "
 
 pkg_pretend() {
@@ -100,7 +103,11 @@ src_prepare() {
 		"${FILESDIR}"/config.pri > "${S}"/config.pri
 
 	sed \
-		-e '/INCLUDEPATH.*OSMESA_INCLUDES/d' \
+		-e '/X11.*fonts/d' \
+		-e '/-Wl,-rpath/d' \
+		-e "/\//s:\<lib\>:$(get_libdir):" \
+		-e "s:\([^-]\)pkg-config:\1$(tc-getPKG_CONFIG):" \
+		-e 's:LIBS +=.*libcairo\.a:PKGCONFIG += cairo:' \
 		-i global.pri
 }
 

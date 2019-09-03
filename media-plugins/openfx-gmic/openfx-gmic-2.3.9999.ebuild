@@ -1,18 +1,18 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit toolchain-funcs
-MY_GC="gmic-community-3cf75fd"
+MY_GC="gmic-community-804e54c"
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
 	inherit vcs-snapshot
-	MY_PV="3f9c59e"
+	MY_PV="fe621e3"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-2d77ebf'
+	MY_OFX='openfx-f5f4139'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
@@ -30,7 +30,7 @@ SLOT="0"
 IUSE="openmp"
 
 RDEPEND="
-	>=media-gfx/gmic-2.3.3:=[curl,fftw,openmp?]
+	>=media-gfx/gmic-2.7.0:=[curl,fftw,openmp?]
 "
 DEPEND="${RDEPEND}"
 
