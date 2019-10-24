@@ -4,15 +4,15 @@
 EAPI=7
 
 inherit toolchain-funcs
-MY_GC="gmic-community-804e54c"
+MY_GC="gmic-community-4cb2a8a"
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
 	inherit vcs-snapshot
-	MY_PV="fe621e3"
+	MY_PV="27d30e1"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-f5f4139'
+	MY_OFX='openfx-cc363a7'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
@@ -30,7 +30,7 @@ SLOT="0"
 IUSE="openmp"
 
 RDEPEND="
-	>=media-gfx/gmic-2.7.0:=[curl,fftw,openmp?]
+	>=media-gfx/gmic-2.7.4:=[curl,fftw,openmp?]
 "
 DEPEND="${RDEPEND}"
 
@@ -56,7 +56,7 @@ src_prepare() {
 		-i GMIC_OFX/Makefile
 	echo 'LINKFLAGS += -lcgmic' >> GMIC_OFX/Makefile
 	sed \
-		-e "s:PLUGINPATH=\"/:PLUGINPATH=\"${ED}:" \
+		-e "s:PLUGINPATH=\"/:PLUGINPATH=\"${ED}/:" \
 		-e 's,^install:,&\n\tmkdir -p "$(PLUGINPATH)",' \
 		-i openfx/Examples/Makefile.master
 }

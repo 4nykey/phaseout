@@ -15,8 +15,8 @@ else
 		inherit eapi7-ver
 		MY_PV="v$(ver_rs 4 '.' $(ver_rs 3 '-'))"
 	fi
-	MY_OFX='openfx-5d9ac2c'
-	MY_SEQ='SequenceParsing-dc7bf39'
+	MY_OFX='openfx-cc363a7'
+	MY_SEQ='SequenceParsing-977e36f'
 	MY_TIN='tinydir-3aae922'
 	MY_MCK='google-mock-17945db'
 	MY_TST='google-test-50d6fc3'

@@ -8,15 +8,15 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	inherit vcs-snapshot
-	MY_PV="644df5d"
+	MY_PV="f31d7b6"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-f5f4139'
-	MY_SUP='openfx-supportext-961aabd'
+	MY_P="${PN}-${MY_PV}"
+	MY_OFX='openfx-cc363a7'
+	MY_SUP='openfx-supportext-6f7cdfe'
 	MY_SEQ='SequenceParsing-977e36f'
 	MY_TIN='tinydir-3aae922'
 	SRC_URI="
-		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
+		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${MY_P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_SUP%-*}/tar.gz/${MY_SUP##*-} -> ${MY_SUP}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_SEQ%-*}/tar.gz/${MY_SEQ##*-} -> ${MY_SEQ}.tar.gz
@@ -24,6 +24,7 @@ else
 	"
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
+	S="${WORKDIR}/${MY_P}"
 fi
 
 DESCRIPTION="A set of Readers/Writers plugins written using the OpenFX standard"
