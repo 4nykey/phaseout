@@ -1,19 +1,18 @@
 # Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="xml(+)"
 DISTUTILS_SINGLE_IMPL=1
 PLOCALES="cs de es fi fr it"
-inherit l10n gnome2 distutils-r1
+inherit l10n distutils-r1 xdg
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/jliljebl/${PN}.git"
 	SRC_URI=
 else
-	inherit vcs-snapshot
 	SRC_URI="
 		mirror://githubcl/jliljebl/${PN}/tar.gz/v${PV} -> ${P}.tar.gz
 	"
