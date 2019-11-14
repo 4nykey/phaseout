@@ -99,11 +99,6 @@ DOCS=( AUTHORS ChangeLog NEWS README docs/{framework,melt,mlt{++,-xml}}.txt )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-6.10.0-swig-underlinking.patch
-	"${FILESDIR}"/${P}-mlt_consumer-race-condition.patch
-	"${FILESDIR}"/${P}-rotoscoping-interpolation.patch
-	"${FILESDIR}"/${P}-crop-filter.patch
-	"${FILESDIR}"/${P}-consumer_multi-does-not-correctly-handle-in-point.patch
-	"${FILESDIR}"/${P}-bad-aspect-ratio-resulting-in-black.patch
 )
 
 pkg_setup() {
@@ -119,12 +114,6 @@ src_prepare() {
 	done
 
 	sed -i -e "s/env ruby/${USE_RUBY}/" src/swig/ruby/* || die
-
-	# fix python include dir
-	if use python; then
-		python_export PYTHON_INCLUDEDIR
-		sed -e "/PYTHON_INCLUDE=/s:=.*:=${PYTHON_INCLUDEDIR}:" -i src/swig/python/build
-	fi
 }
 
 src_configure() {
