@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -13,9 +13,9 @@ else
 	MY_PV="e496f33"
 	if [[ -n ${PV%%*_p*} ]]; then
 		inherit eapi7-ver
-		MY_PV="v$(ver_rs 4 '.' $(ver_rs 3 '-'))"
+		MY_PV="v$(ver_rs 3 '-')"
 	fi
-	MY_OFX='openfx-cc363a7'
+	MY_OFX='openfx-1645fd7'
 	MY_SEQ='SequenceParsing-977e36f'
 	MY_TIN='tinydir-3aae922'
 	MY_MCK='google-mock-17945db'
@@ -58,8 +58,10 @@ RDEPEND="
 	media-libs/fontconfig
 	dev-libs/expat
 	x11-libs/cairo
-	dev-python/pyside:0[X,opengl,${PYTHON_USEDEP}]
-	dev-python/shiboken:0[${PYTHON_USEDEP}]
+	$(python_gen_cond_dep '
+		dev-python/pyside:0[X,opengl,${PYTHON_MULTI_USEDEP}]
+		dev-python/shiboken:0[${PYTHON_MULTI_USEDEP}]
+	')
 "
 DEPEND="
 	${RDEPEND}

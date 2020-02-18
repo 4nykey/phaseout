@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -9,15 +9,14 @@ if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
 	inherit vcs-snapshot
-	MY_PV="3ffa0a3"
+	MY_PV="db641a7"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-cc363a7'
+	MY_OFX='openfx-1645fd7'
 	MY_SUP='openfx-supportext-6f7cdfe'
-	MY_OIO='openfx-io-60096b7'
+	MY_OIO='openfx-io-587643d'
 	MY_SEQ='SequenceParsing-977e36f'
 	MY_TIN='tinydir-3aae922'
-	# PNGVERSION in Extra/Makefile
-	MY_PNG="lodepng-a70c086"
+	MY_PNG="lodepng-5a0dba1"
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
@@ -48,7 +47,7 @@ RDEPEND="
 	dev-libs/libzip
 	gnome-base/librsvg
 	x11-libs/pango
-	app-text/poppler
+	>=app-text/poppler-0.83
 	virtual/opencl
 "
 DEPEND="${RDEPEND}"
@@ -76,8 +75,8 @@ src_prepare() {
 		mv "${WORKDIR}"/${MY_OIO}/* "${S}"/OpenFX-IO
 		mv "${WORKDIR}"/${MY_SEQ}/* "${S}"/OpenFX-IO/IOSupport/SequenceParsing
 		mv "${WORKDIR}"/${MY_TIN}/* "${S}"/OpenFX-IO/IOSupport/SequenceParsing/tinydir
+		mv "${WORKDIR}"/${MY_PNG}/* "${S}"/lodepng
 	fi
-	mv "${WORKDIR}"/${MY_PNG}/lodepng.{h,cpp} "${S}"/Extra
 }
 
 src_compile() {

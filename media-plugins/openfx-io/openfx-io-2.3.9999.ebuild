@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -8,10 +8,10 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	MY_PV="f31d7b6"
+	MY_PV="587643d"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
 	MY_P="${PN}-${MY_PV}"
-	MY_OFX='openfx-cc363a7'
+	MY_OFX='openfx-1645fd7'
 	MY_SUP='openfx-supportext-6f7cdfe'
 	MY_SEQ='SequenceParsing-977e36f'
 	MY_TIN='tinydir-3aae922'
