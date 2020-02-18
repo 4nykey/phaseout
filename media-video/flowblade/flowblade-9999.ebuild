@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -13,8 +13,13 @@ if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/jliljebl/${PN}.git"
 	SRC_URI=
 else
+	MY_PV="v${PV}"
+	if [[ -z ${PV%%*_p*} ]]; then
+		inherit vcs-snapshot
+		MY_PV="6a18025"
+	fi
 	SRC_URI="
-		mirror://githubcl/jliljebl/${PN}/tar.gz/v${PV} -> ${P}.tar.gz
+		mirror://githubcl/jliljebl/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 	"
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
@@ -33,11 +38,13 @@ S="${WORKDIR}/${P}/${PN}-trunk"
 
 RDEPEND="
 	${PYTHON_DEPS}
-	dev-python/pygobject:3[cairo,${PYTHON_USEDEP}]
-	dev-python/dbus-python[${PYTHON_USEDEP}]
-	dev-python/pillow[${PYTHON_USEDEP}]
-	dev-python/numpy[${PYTHON_USEDEP}]
-	media-libs/mlt[python,sdl1(-),${PYTHON_USEDEP}]
+	$(python_gen_cond_dep '
+		dev-python/pygobject:3[cairo,${PYTHON_MULTI_USEDEP}]
+		dev-python/dbus-python[${PYTHON_MULTI_USEDEP}]
+		dev-python/pillow[${PYTHON_MULTI_USEDEP}]
+		dev-python/numpy[${PYTHON_MULTI_USEDEP}]
+		media-libs/mlt[python,sdl1(-),${PYTHON_SINGLE_USEDEP}]
+	')
 	gnome-base/librsvg:2[introspection]
 	x11-libs/gtk+:3[introspection]
 	frei0r? ( media-plugins/frei0r-plugins )
