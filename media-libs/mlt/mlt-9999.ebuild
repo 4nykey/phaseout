@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -6,8 +6,16 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/mltframework/${PN}.git"
 else
-	SRC_URI="https://github.com/mltframework/${PN}/releases/download/v${PV}/${P}.tar.gz"
+	MY_PV="v${PV}"
+	if [[ -n ${PV%%*_p*} ]]; then
+		inherit vcs-snapshot
+		MY_PV="af9b088"
+	fi
+	SRC_URI="
+		mirror://githubcl/mltframework/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
+	"
 	KEYWORDS="~amd64 ~x86"
+	RESTRICT="primaryuri"
 fi
 
 PYTHON_COMPAT=( python2_7 python3_{6,7} )
@@ -24,7 +32,7 @@ LICENSE="GPL-3"
 SLOT="0"
 IUSE="compressed-lumas cpu_flags_x86_mmx cpu_flags_x86_sse cpu_flags_x86_sse2 debug ffmpeg
 fftw frei0r gtk jack kdenlive kernel_linux libav libsamplerate lua melt opencv opengl python
-qt5 rtaudio ruby sdl sdl1 vdpau vidstab xine xml"
+qt5 rtaudio rubberband ruby sdl sdl1 vdpau vidstab xine xml"
 # java perl php tcl
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
@@ -87,7 +95,9 @@ DEPEND="
 	)
 	vidstab? ( media-libs/vidstab )
 	xine? ( >=media-libs/xine-lib-1.1.2_pre20060328-r7 )
-	xml? ( >=dev-libs/libxml2-2.5 )"
+	xml? ( >=dev-libs/libxml2-2.5 )
+	rubberband? ( media-libs/rubberband )
+"
 #	java? ( >=virtual/jre-1.5 )
 #	perl? ( dev-lang/perl )
 #	php? ( dev-lang/php )
@@ -141,6 +151,7 @@ src_configure() {
 		$(use_enable opengl)
 		$(use_enable qt5 qt)
 		$(use_enable rtaudio)
+		$(use_enable rubberband)
 		$(use_enable sdl1 sdl)
 		$(use_enable sdl sdl2)
 		$(use_enable vidstab vid.stab )
