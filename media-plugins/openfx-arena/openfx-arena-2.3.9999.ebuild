@@ -9,14 +9,14 @@ if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
 	inherit vcs-snapshot
-	MY_PV="db641a7"
+	MY_PV="53cb2e9"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-1645fd7'
-	MY_SUP='openfx-supportext-6f7cdfe'
-	MY_OIO='openfx-io-587643d'
-	MY_SEQ='SequenceParsing-977e36f'
+	MY_OFX='openfx-db5aa97'
+	MY_SUP='openfx-supportext-53c12bd'
+	MY_OIO='openfx-io-4b84d12'
+	MY_SEQ='SequenceParsing-1bbcd07'
 	MY_TIN='tinydir-3aae922'
-	MY_PNG="lodepng-5a0dba1"
+	MY_PNG="lodepng-e34ac04"
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz

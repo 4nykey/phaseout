@@ -4,15 +4,15 @@
 EAPI=7
 
 inherit toolchain-funcs
-MY_GC="gmic-community-09f1dda"
+MY_GC="gmic-community-e5a2366"
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
 	inherit vcs-snapshot
-	MY_PV="fdf6eec"
+	MY_PV="8805f49"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-1645fd7'
+	MY_OFX='openfx-db5aa97'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
@@ -30,7 +30,7 @@ SLOT="0"
 IUSE="openmp"
 
 RDEPEND="
-	>=media-gfx/gmic-2.7.4:=[curl,fftw,openmp?]
+	>=media-gfx/gmic-2.8.4:=[curl,fftw,openmp?]
 "
 DEPEND="${RDEPEND}"
 

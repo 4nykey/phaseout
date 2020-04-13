@@ -8,12 +8,12 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	MY_PV="587643d"
+	MY_PV="4b84d12"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
 	MY_P="${PN}-${MY_PV}"
-	MY_OFX='openfx-1645fd7'
-	MY_SUP='openfx-supportext-6f7cdfe'
-	MY_SEQ='SequenceParsing-977e36f'
+	MY_OFX='openfx-db5aa97'
+	MY_SUP='openfx-supportext-53c12bd'
+	MY_SEQ='SequenceParsing-1bbcd07'
 	MY_TIN='tinydir-3aae922'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${MY_P}.tar.gz
