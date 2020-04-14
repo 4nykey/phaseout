@@ -21,7 +21,7 @@ LICENSE="|| ( CeCILL-C CeCILL-2 )"
 SLOT="0"
 IUSE="
 bash-completion +cli curl ffmpeg fftw gimp graphicsmagick jpeg krita
-opencv openexr openmp png qt5 static-libs tiff v4l X zlib
+opencv openexr openmp png qt5 static-libs tiff v4l X zlib +cgmic
 "
 REQUIRED_USE="
 || ( cli gimp krita )
@@ -133,7 +133,7 @@ src_compile() {
 		$(usex fftw '' 'FFTW_CFLAGS= FFTW_LIBS=')
 	)
 	tc-env_build emake "${myemakeargs[@]}" lib
-	tc-env_build emake "${myemakeargs[@]}" libc $(usev cli)
+	tc-env_build emake "${myemakeargs[@]}" $(usex cgmic libc '') $(usev cli)
 
 	use qt5 || return
 	for _t in cli gimp krita; do
@@ -144,7 +144,7 @@ src_compile() {
 
 src_install() {
 	local _l
-	for _l in libgmic libcgmic; do
+	for _l in libgmic $(usex cgmic libcgmic ''); do
 		newlib.so src/${_l}.so ${_l}.so.${PV}
 		dosym ${_l}.so.${PV} /usr/$(get_libdir)/${_l}.so.${PV%%.*}
 		dosym ${_l}.so.${PV} /usr/$(get_libdir)/${_l}.so

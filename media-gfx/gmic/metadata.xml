@@ -5,6 +5,7 @@
 		<email>4nykey@gmail.com</email>
 	</maintainer>
 	<use>
+		<flag name="cgmic">Build the G'MIC library with the C API</flag>
 		<flag name="cli">Build CLI interface</flag>
 		<flag name="krita">Build a plugin for krita</flag>
 		<flag name="opencv">Enable support for webcams using the OpenCV library</flag>
