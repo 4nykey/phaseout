@@ -30,7 +30,7 @@ SLOT="0"
 IUSE="openmp"
 
 RDEPEND="
-	>=media-gfx/gmic-2.8.4:=[curl,fftw,openmp?]
+	>=media-gfx/gmic-2.8.4:=[cgmic(-),curl,fftw,openmp?]
 "
 DEPEND="${RDEPEND}"
 
