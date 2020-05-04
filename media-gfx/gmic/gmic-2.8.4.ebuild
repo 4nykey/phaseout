@@ -37,7 +37,7 @@ DEPEND="
 	qt5? ( dev-qt/qtwidgets:5 )
 	graphicsmagick? ( media-gfx/graphicsmagick )
 	jpeg? ( virtual/jpeg:0 )
-	opencv? ( media-libs/opencv )
+	opencv? ( media-libs/opencv:= )
 	openexr? (
 		media-libs/ilmbase
 		media-libs/openexr
@@ -60,6 +60,9 @@ RDEPEND="
 BDEPEND="
 	virtual/pkgconfig
 "
+PATCHES=(
+	"${FILESDIR}"/${PN}-opencv4.diff
+)
 
 pkg_pretend() {
 	if use openmp ; then
