@@ -39,8 +39,8 @@ case ${PV} in
 esac
 MY_DEB=(
 	https://salsa.debian.org/qt-kde-team/qt/qt4-x11/-/archive/
-	a25f3b4
-	190714
+	df517fc
+	200204
 )
 SRC_URI+="
 	${MY_DEB[0]}/${MY_DEB[1]}/qt4-x11-${MY_DEB[1]}.tar.bz2
