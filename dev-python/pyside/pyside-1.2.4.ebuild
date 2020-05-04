@@ -1,17 +1,16 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 PYTHON_COMPAT=( python2_7 python3_{6,7} )
 
 inherit cmake-utils multilib python-r1 virtualx
 
-MY_P="${PN}-qt4.8+${PV}"
-
+MY_P="PySide-${PV}"
 DESCRIPTION="Python bindings for the Qt framework"
 HOMEPAGE="http://wiki.qt.io/PySide"
-SRC_URI="http://download.qt-project.org/official_releases/${PN}/${MY_P}.tar.bz2"
+SRC_URI="http://download.qt-project.org/official_releases/${PN}/${MY_P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
@@ -55,15 +54,12 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	>=dev-qt/qtgui-${QT_PV}
 "
-
-S=${WORKDIR}/${MY_P}
-
-DOCS=( ChangeLog )
+S="${WORKDIR}/${MY_P}/sources/${PN}"
 
 src_prepare() {
 	# Fix generated pkgconfig file to require the shiboken
 	# library suffixed with the correct python version.
-	sed -i -e '/^Requires:/ s/shiboken$/&@SHIBOKEN_PYTHON_SUFFIX@/' \
+	sed -i -e '/^Requires:/ s:\<shiboken\>:&@SHIBOKEN_PYTHON_SUFFIX@:' \
 		libpyside/pyside.pc.in || die
 
 	if use prefix; then
@@ -71,26 +67,26 @@ src_prepare() {
 		sed -i -e '1iinclude(rpath.cmake)' CMakeLists.txt || die
 	fi
 
-	epatch "${FILESDIR}/qgtkstyle-${PV}.patch" # bug 530764
+	eapply "${FILESDIR}/qgtkstyle-${PV}.patch" # bug 530764
 
 	cmake-utils_src_prepare
 }
 
 src_configure() {
 	local mycmakeargs=(
-		$(cmake-utils_use_build test TESTS)
-		$(cmake-utils_use_disable X QtGui)
-		$(cmake-utils_use_disable X QtTest)
-		$(cmake-utils_use_disable declarative QtDeclarative)
-		$(cmake-utils_use_disable help QtHelp)
-		$(cmake-utils_use_disable multimedia QtMultimedia)
-		$(cmake-utils_use_disable opengl QtOpenGL)
-		$(cmake-utils_use_disable script QtScript)
-		$(cmake-utils_use_disable scripttools QtScriptTools)
-		$(cmake-utils_use_disable sql QtSql)
-		$(cmake-utils_use_disable svg QtSvg)
-		$(cmake-utils_use_disable webkit QtWebKit)
-		$(cmake-utils_use_disable xmlpatterns QtXmlPatterns)
+		-DBUILD_TESTS="$(usex test)"
+		-DDISABLE_QtGui="$(usex !X)"
+		-DDISABLE_QtTest="$(usex !X)"
+		-DDISABLE_QtDeclarative="$(usex !declarative)"
+		-DDISABLE_QtHelp="$(usex !help)"
+		-DDISABLE_QtMultimedia="$(usex !multimedia)"
+		-DDISABLE_QtOpenGL="$(usex !opengl)"
+		-DDISABLE_QtScript="$(usex !script)"
+		-DDISABLE_QtScriptTools="$(usex !scripttools)"
+		-DDISABLE_QtSql="$(usex !sql)"
+		-DDISABLE_QtSvg="$(usex !svg)"
+		-DDISABLE_QtWebKit="$(usex !webkit)"
+		-DDISABLE_QtXmlPatterns="$(usex !xmlpatterns)"
 	)
 
 	configuration() {
@@ -111,13 +107,14 @@ src_test() {
 	local PYTHONDONTWRITEBYTECODE
 	export PYTHONDONTWRITEBYTECODE
 
-	VIRTUALX_COMMAND="cmake-utils_src_test" python_foreach_impl virtualmake
+	python_foreach_impl virtx cmake-utils_src_test
 }
 
 src_install() {
 	installation() {
 		cmake-utils_src_install
-		mv "${ED}"usr/$(get_libdir)/pkgconfig/${PN}{,-${EPYTHON}}.pc || die
+		mv "${ED}"/usr/$(get_libdir)/pkgconfig/${PN}{,-${EPYTHON}}.pc || die
+		python_optimize
 	}
 	python_foreach_impl installation
 }
