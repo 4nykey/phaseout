@@ -1,0 +1,52 @@
+--- a/tsDemuxGUI/main.cpp
++++ b/tsDemuxGUI/main.cpp
+@@ -1,4 +1,4 @@
+-#include <QtGui/QApplication>
++#include <QtWidgets/QApplication>
+ #include <QTranslator>
+ #include "mainwindow.h"
+ 
+--- a/tsDemuxGUI/mainwindow.h
++++ b/tsDemuxGUI/mainwindow.h
+@@ -1,9 +1,9 @@
+ #ifndef MAINWINDOW_H
+ #define MAINWINDOW_H
+ 
+-#include <QtGui/QMainWindow>
++#include <QtWidgets/QMainWindow>
+ #include <string>
+-#include <QTableWidget>
++#include <QtWidgets/QTableWidget>
+ 
+ namespace Ui
+ {
+--- a/ps3muxer/execwindow.h
++++ b/ps3muxer/execwindow.h
+@@ -1,7 +1,7 @@
+ #ifndef EXECWINDOW_H
+ #define EXECWINDOW_H
+ 
+-#include <QtGui/QDialog>
++#include <QtWidgets/QDialog>
+ #include <QProcess>
+ #include <list>
+ 
+--- a/ps3muxer/main.cpp
++++ b/ps3muxer/main.cpp
+@@ -1,4 +1,4 @@
+-#include <QtGui/QApplication>
++#include <QtWidgets/QApplication>
+ #include <QTranslator>
+ #include "mainwindow.h"
+ 
+--- a/ps3muxer/mainwindow.h
++++ b/ps3muxer/mainwindow.h
+@@ -1,7 +1,7 @@
+ #ifndef MAINWINDOW_H
+ #define MAINWINDOW_H
+ 
+-#include <QtGui/QMainWindow>
++#include <QtWidgets/QMainWindow>
+ #include <QTableWidget>
+ #include <QComboBox>
+ #include <string>
