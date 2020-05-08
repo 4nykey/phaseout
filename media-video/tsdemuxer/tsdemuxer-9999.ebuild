@@ -24,14 +24,15 @@ HOMEPAGE="https://github.com/clark15b/${PN}"
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="qt4"
+IUSE="qt5"
 
 DEPEND="
-	qt4? ( dev-qt/qtgui:4 )
+	qt5? ( dev-qt/qtgui:5 )
 "
 RDEPEND="
 	${DEPEND}
 "
+PATCHES=( "${FILESDIR}"/${PN}_qt5.diff )
 
 src_unpack() {
 	if [[ -z ${PV%%*9999} ]]; then
@@ -45,26 +46,27 @@ src_unpack() {
 }
 
 src_prepare() {
+	mv "${WORKDIR}"/${MY_PS} "${S}"/${MY_PS%-*}
 	default
 	tc-export CXX
 	sed \
 		-e "s:g++:${CXX} ${CXXFLAGS} ${LDFLAGS}:" \
 		-i Makefile
-	mv "${WORKDIR}"/${MY_PS} "${S}"/${MY_PS%-*}
 	rm -f "${S}"/getopt.h
 }
 
 src_configure() {
-	use qt4 && cd tsDemuxGUI && eqmake4 tsDemuxGUI.pro
+	use qt5 || return
+	cd tsDemuxGUI && eqmake5 tsDemuxGUI.pro
 }
 
 src_compile() {
 	default
-	use qt4 && emake -C tsDemuxGUI || die
+	use qt5 && emake -C tsDemuxGUI
 }
 
 src_install() {
 	dobin tsdemux
 	dodoc README
-	use qt4 && dobin tsDemuxGUI/tsDemuxGUI
+	use qt5 && dobin tsDemuxGUI/tsDemuxGUI
 }
