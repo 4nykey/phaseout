@@ -6,24 +6,18 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/mltframework/${PN}.git"
 else
-	MY_PV="v${PV}"
-	if [[ -n ${PV%%*_p*} ]]; then
-		inherit vcs-snapshot
-		MY_PV="af9b088"
-	fi
+	MY_PV="1c45cea"
+	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 	SRC_URI="
 		mirror://githubcl/mltframework/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 	"
 	KEYWORDS="~amd64 ~x86"
 	RESTRICT="primaryuri"
+	S="${WORKDIR}/${PN}-${MY_PV#v}"
 fi
 
-PYTHON_COMPAT=( python2_7 python3_{6,7} )
-# this ebuild currently only supports installing ruby bindings for a single ruby version
-# so USE_RUBY must contain only a single value (the latest stable) as the ebuild calls
-# /usr/bin/${USE_RUBY} directly
-USE_RUBY="ruby25"
-inherit python-single-r1 qmake-utils ruby-single toolchain-funcs
+PYTHON_COMPAT=( python3_{6,7,8,9} )
+inherit python-single-r1 qmake-utils toolchain-funcs
 
 DESCRIPTION="Open source multimedia framework for television broadcasting"
 HOMEPAGE="https://www.mltframework.org/"
@@ -31,8 +25,9 @@ HOMEPAGE="https://www.mltframework.org/"
 LICENSE="GPL-3"
 SLOT="0"
 IUSE="compressed-lumas cpu_flags_x86_mmx cpu_flags_x86_sse cpu_flags_x86_sse2 debug ffmpeg
-fftw frei0r gtk jack kdenlive kernel_linux libav libsamplerate lua melt opencv opengl python
-qt5 rtaudio rubberband ruby sdl sdl1 vdpau vidstab xine xml"
+fftw frei0r gtk jack kdenlive kernel_linux libsamplerate lua melt opencv opengl python
+qt5 rtaudio sdl vdpau vidstab xine xml"
+IUSE+=" rubberband sdl1 sox"
 # java perl php tcl
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
@@ -42,24 +37,21 @@ SWIG_DEPEND=">=dev-lang/swig-2.0"
 #	perl? ( ${SWIG_DEPEND} )
 #	php? ( ${SWIG_DEPEND} )
 #	tcl? ( ${SWIG_DEPEND} )
+#	ruby? ( ${SWIG_DEPEND} )
 BDEPEND="
 	virtual/pkgconfig
 	compressed-lumas? ( virtual/imagemagick-tools[png] )
 	lua? ( ${SWIG_DEPEND} virtual/pkgconfig )
 	python? ( ${SWIG_DEPEND} )
-	ruby? ( ${SWIG_DEPEND} )"
+"
 #rtaudio will use OSS on non linux OSes
 DEPEND="
 	>=media-libs/libebur128-1.2.2:=
-	ffmpeg? (
-		libav? ( >=media-video/libav-12:0=[vdpau?] )
-		!libav? ( media-video/ffmpeg:0=[vdpau?,-flite] )
-	)
+	ffmpeg? ( media-video/ffmpeg:0=[vdpau?,-flite] )
 	fftw? ( sci-libs/fftw:3.0= )
 	frei0r? ( media-plugins/frei0r-plugins )
 	gtk? (
 		media-libs/libexif
-		x11-libs/gtk+:2
 		x11-libs/pango
 	)
 	jack? (
@@ -85,10 +77,6 @@ DEPEND="
 		>=media-libs/rtaudio-4.1.2
 		kernel_linux? ( media-libs/alsa-lib )
 	)
-	sdl1? (
-		media-libs/libsdl[X,opengl=,video]
-		media-libs/sdl-image
-	)
 	sdl? (
 		media-libs/libsdl2[X,opengl,video]
 		media-libs/sdl2-image
@@ -97,11 +85,16 @@ DEPEND="
 	xine? ( >=media-libs/xine-lib-1.1.2_pre20060328-r7 )
 	xml? ( >=dev-libs/libxml2-2.5 )
 	rubberband? ( media-libs/rubberband )
+	sdl1? (
+		media-libs/libsdl[X,opengl=,video]
+		media-libs/sdl-image
+	)
+	sox? ( media-sound/sox )
 "
 #	java? ( >=virtual/jre-1.5 )
 #	perl? ( dev-lang/perl )
 #	php? ( dev-lang/php )
-#	sox? ( media-sound/sox )
+#	ruby? ( ${RUBY_DEPS} )
 #	tcl? ( dev-lang/tcl:0= )
 RDEPEND="${DEPEND}"
 
@@ -120,10 +113,10 @@ src_prepare() {
 
 	# respect CFLAGS LDFLAGS when building shared libraries. Bug #308873
 	for x in python lua; do
-		sed -i "/mlt.so/s: -lmlt++ :& ${CFLAGS} ${LDFLAGS} :" src/swig/$x/build || die
+		sed -i "/mlt.so/s/ -lmlt++ /& ${CFLAGS} ${LDFLAGS} /" src/swig/$x/build || die
 	done
 
-	sed -i -e "s/env ruby/${USE_RUBY}/" src/swig/ruby/* || die
+	use python && python_fix_shebang src/swig/python
 }
 
 src_configure() {
@@ -134,6 +127,7 @@ src_configure() {
 		--enable-gpl3
 		--enable-motion-est
 		--target-arch=$(tc-arch)
+		--disable-gtk2
 		--disable-kde
 		--disable-swfdec
 		$(use_enable debug)
@@ -142,7 +136,7 @@ src_configure() {
 		$(use_enable ffmpeg avformat)
 		$(use_enable fftw plus)
 		$(use_enable frei0r)
-		$(use_enable gtk gtk2)
+		$(use_enable gtk gdk)
 		$(use_enable jack jackrack)
 		$(use_enable kdenlive)
 		$(use_enable libsamplerate resample)
@@ -151,15 +145,16 @@ src_configure() {
 		$(use_enable opengl)
 		$(use_enable qt5 qt)
 		$(use_enable rtaudio)
-		$(use_enable rubberband)
-		$(use_enable sdl1 sdl)
 		$(use_enable sdl sdl2)
 		$(use_enable vidstab vid.stab )
 		$(use_enable xine)
 		$(use_enable xml)
-		--disable-sox
+		$(use_enable sox)
 	)
-		#$(use_enable sox) FIXME
+	myconf+=(
+		$(use_enable rubberband)
+		$(use_enable sdl1 sdl)
+	)
 
 	use compressed-lumas && myconf+=( --luma-compress )
 	use ffmpeg && myconf+=( --avformat-swscale )
@@ -186,8 +181,8 @@ src_configure() {
 	# see also https://www.mltframework.org/twiki/bin/view/MLT/ExtremeMakeover
 
 	local swig_lang=()
-	# TODO: java perl php tcl
-	for i in lua python ruby ; do
+	# not done: java perl php ruby tcl
+	for i in lua python ; do
 		use $i && swig_lang+=( $i )
 	done
 	[[ -z "${swig_lang}" ]] && swig_lang=( none )
@@ -200,7 +195,6 @@ src_configure() {
 src_install() {
 	default
 
-	dodir /usr/share/${PN}
 	insinto /usr/share/${PN}
 	doins -r demo
 
@@ -216,19 +210,11 @@ src_install() {
 
 	if use python; then
 		cd "${S}"/src/swig/python || die
-		insinto $(python_get_sitedir)
-		doins mlt.py
-		exeinto $(python_get_sitedir)
-		doexe _mlt.so
+		python_domodule mlt.py _mlt.so
+		chmod +x "${D}$(python_get_sitedir)/_mlt.so" || die
 		dodoc play.py
 		python_optimize
 	fi
 
-	if use ruby; then
-		cd "${S}"/src/swig/ruby || die
-		exeinto $("${EPREFIX}"/usr/bin/${USE_RUBY} -r rbconfig -e 'print RbConfig::CONFIG["sitearchdir"]')
-		doexe mlt.so
-		dodoc play.rb thumbs.rb
-	fi
-	# TODO: java perl php tcl
+	# not done: java perl php ruby tcl
 }

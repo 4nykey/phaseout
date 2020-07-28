@@ -14,7 +14,6 @@
 		<flag name="python">Build SWIG bindings for Python</flag>
 		<flag name="rtaudio">Builds rtaudio consumer for native audio support on multiple platforms.</flag>
 		<flag name="rubberband">Build a module for audio pitch-shifting based on librubberband</flag>
-		<flag name="ruby">Build SWIG bindings for Ruby</flag>
 		<flag name="sdl1">Build SDLv1 module</flag>
 		<flag name="vidstab">Enabled video stabilization with <pkg>media-libs/vidstab</pkg>.</flag>
 	</use>
