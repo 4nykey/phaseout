@@ -98,7 +98,7 @@ DEPEND="
 #	tcl? ( dev-lang/tcl:0= )
 RDEPEND="${DEPEND}"
 
-DOCS=( AUTHORS ChangeLog NEWS README docs/{framework,melt,mlt{++,-xml}}.txt )
+DOCS=( AUTHORS NEWS README docs/{framework,melt,mlt{++,-xml}}.txt )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-6.10.0-swig-underlinking.patch
@@ -194,6 +194,7 @@ src_configure() {
 
 src_install() {
 	default
+	use melt && doman docs/melt.1
 
 	insinto /usr/share/${PN}
 	doins -r demo
