@@ -1,0 +1,17 @@
+--- a/wx/lib/mixins/rubberband.py
++++ b/wx/lib/mixins/rubberband.py
+@@ -27,12 +27,12 @@ import  wx
+ # Some miscellaneous mathematical and geometrical functions
+ #
+ 
+-def isNegative(a number):
++def isNegative(aNumber):
+     """
+     x < 0:   1
+     else:    0
+     """
+-    return a number < 0
++    return aNumber < 0
+ 
+ 
+ def normalizeBox(box):

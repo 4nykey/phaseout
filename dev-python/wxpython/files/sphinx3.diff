@@ -1,0 +1,14 @@
+--- a/docs/sphinx/availability.py
++++ b/docs/sphinx/availability.py
+@@ -10,7 +10,10 @@ and lists them along with a backlink to
+ from docutils import nodes
+ 
+ from sphinx.locale import _
+-from sphinx.environment import NoUri
++try:
++    from sphinx.errors import NoUri
++except ImportError:
++    from sphinx.environment import NoUri
+ from sphinx.util.nodes import set_source_info
+ from docutils.parsers.rst import Directive
+ 
