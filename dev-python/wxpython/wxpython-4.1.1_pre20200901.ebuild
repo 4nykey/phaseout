@@ -9,7 +9,7 @@ VIRTUALX_REQUIRED="test"
 DISTUTILS_IN_SOURCE_BUILD=0
 
 MY_PN="wxPython"
-MY_PV="57702fa"
+MY_PV="bfb3356"
 [[ -n ${PV%%*_p*} ]] && MY_PV="wxPython-${PV}"
 # wxGTK version and corresponding ext/wxwidgets submodule commit or tag
 WXV=( 3.1.4 v3.1.4 )
@@ -59,7 +59,6 @@ DOCS=(
 	docs/MigrationGuide.rst
 )
 PATCHES=(
-	"${FILESDIR}"/rubberband_SyntaxError.diff
 	"${FILESDIR}"/sphinx3.diff
 )
 
