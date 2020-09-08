@@ -76,7 +76,7 @@ DEPEND="
 	ffmpeg? ( media-video/ffmpeg:= )
 	field3d? ( media-libs/Field3D:= )
 	gif? ( media-libs/giflib:0= )
-	jpeg2k? ( >=media-libs/openjpeg-1.5:0= )
+	jpeg2k? ( media-libs/openjpeg:2= )
 	opencv? ( media-libs/opencv:= )
 	opengl? (
 		media-libs/glew:=
@@ -112,6 +112,7 @@ DOCS=( {CHANGES,CREDITS,README}.md )
 PATCHES=(
 	"${FILESDIR}"/oiio-plugindir.diff
 	"${FILESDIR}"/oiio-docs.diff
+	"${FILESDIR}"/oiio-linking.diff
 )
 
 pkg_setup() {
@@ -172,6 +173,7 @@ src_configure() {
 		-DUSE_QT=$(usex qt5)
 		-DUSE_Qt5=$(usex qt5)
 		-DUSE_EMBEDDED_LIBSQUISH=ON # Missing in Gentoo
+		-DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS} -Wl,--no-undefined"
 	)
 	use python && mycmakeargs+=(
 		-DPYTHON_VERSION=${EPYTHON#python}

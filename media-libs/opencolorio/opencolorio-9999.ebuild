@@ -37,7 +37,7 @@ RESTRICT+=" test"
 RDEPEND="
 	opengl? (
 		media-libs/lcms:2
-		media-libs/openimageio
+		media-libs/openimageio:=
 		media-libs/glew:=
 		media-libs/freeglut
 		virtual/opengl
