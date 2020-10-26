@@ -93,6 +93,9 @@ src_prepare() {
 		-e '/CONFIG += openmp/d' \
 		-e '/QMAKE_[A-Z]\+FLAGS_RELEASE +=.* -s/d' \
 		-i gmic-qt/gmic_qt.pro zart/zart.pro
+	sed \
+		-e 's:\<opencv\>:&4:g' \
+		-i CMakeLists.txt src/Makefile zart/zart.pro
 }
 
 src_configure() {

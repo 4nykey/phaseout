@@ -54,7 +54,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="
 	${PYTHON_DEPS}
-	dev-libs/boost
+	dev-libs/boost:=
 	media-libs/fontconfig
 	dev-libs/expat
 	x11-libs/cairo
@@ -74,6 +74,7 @@ RDEPEND="
 	media-plugins/openfx-arena
 	gmic? ( media-plugins/openfx-gmic )
 "
+PATCHES=( ${FILESDIR}/boost.diff )
 
 pkg_pretend() {
 	use openmp && tc-check-openmp

@@ -1,0 +1,14 @@
+--- a/Engine/BezierSerialization.h
++++ b/Engine/BezierSerialization.h
+@@ -35,10 +35,10 @@ GCC_DIAG_UNUSED_LOCAL_TYPEDEFS_OFF
+ GCC_DIAG_OFF(unused-parameter)
+ #include <boost/serialization/base_object.hpp>
+ #include <boost/serialization/export.hpp>
++#include <boost/serialization/map.hpp>
+ #include <boost/serialization/list.hpp>
+ #include <boost/serialization/split_member.hpp>
+ #include <boost/serialization/version.hpp>
+-#include <boost/serialization/map.hpp>
+ GCC_DIAG_UNUSED_LOCAL_TYPEDEFS_ON
+ GCC_DIAG_ON(unused-parameter)
+ #endif
