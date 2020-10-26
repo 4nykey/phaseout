@@ -8,14 +8,3 @@
 +                                    ${HDF5_LIBRARIES}
                                      ${SZIP_LIBRARY})
  endif()
---- a/src/libOpenImageIO/CMakeLists.txt
-+++ b/src/libOpenImageIO/CMakeLists.txt
-@@ -153,7 +153,7 @@ if (USE_EXTERNAL_PUGIXML)
-     # insert include path to pugixml first, to ensure that the external
-     # pugixml is found, and not the one in OIIO's include directory.
-     target_include_directories (OpenImageIO PRIVATE BEFORE ${PUGIXML_INCLUDES})
--    target_link_libraries (OpenImageIO PRIVATE ${PUGIXML_LIBRARIES})
-+    target_link_libraries (OpenImageIO PRIVATE pugixml)
- endif()
- 
- if (FREETYPE_FOUND)
