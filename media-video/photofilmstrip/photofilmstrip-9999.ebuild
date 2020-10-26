@@ -3,18 +3,18 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_{6,7,8} )
 PYTHON_REQ_USE="sqlite"
 DISTUTILS_USE_SETUPTOOLS=no
 PLOCALES="cs de el en es fr it ko nl pt_BR ru ta tr uk"
 
 MY_PN="PFS"
-inherit distutils-r1 eutils l10n xdg
+inherit distutils-r1 optfeature l10n xdg
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/PhotoFilmStrip/${MY_PN}.git"
 else
-	MY_PV="028bb1d"
+	MY_PV="a3c6fe1"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 	SRC_URI="
 		mirror://githubcl/PhotoFilmStrip/${MY_PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
