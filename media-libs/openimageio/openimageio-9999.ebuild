@@ -166,7 +166,7 @@ src_configure() {
 		-DUSE_TBB=$(usex openvdb)
 		-DUSE_OpenVDB=$(usex openvdb)
 		-DUSE_PTex=$(usex ptex)
-		-DUSE_Webp=$(usex webp)
+		-DUSE_WebP=$(usex webp)
 		-DUSE_Nuke=OFF # Missing in Gentoo
 		-DUSE_R3DSDK=OFF # Missing in Gentoo
 		-DUSE_OPENGL=$(usex opengl)
