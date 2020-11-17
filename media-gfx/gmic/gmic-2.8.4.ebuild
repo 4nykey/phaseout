@@ -32,7 +32,7 @@ v4l? ( fftw opencv qt5 )
 
 DEPEND="
 	fftw? ( sci-libs/fftw:3.0[threads] )
-	gimp? ( media-gfx/gimp:2 )
+	gimp? ( media-gfx/gimp )
 	krita? ( media-gfx/krita )
 	qt5? ( dev-qt/qtwidgets:5 )
 	graphicsmagick? ( media-gfx/graphicsmagick )
