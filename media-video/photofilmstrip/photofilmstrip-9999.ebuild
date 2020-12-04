@@ -14,7 +14,7 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/PhotoFilmStrip/${MY_PN}.git"
 else
-	MY_PV="a3c6fe1"
+	MY_PV="a9c2c9c"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 	SRC_URI="
 		mirror://githubcl/PhotoFilmStrip/${MY_PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
@@ -37,7 +37,10 @@ RDEPEND="
 	media-libs/gstreamer-editing-services[introspection,${PYTHON_USEDEP}]
 	dev-python/pillow[${PYTHON_USEDEP}]
 	dev-python/wxpython:4.0[${PYTHON_USEDEP}]
-	media-plugins/gst-plugins-jpeg:1.0
+	|| (
+		media-libs/gst-plugins-good[jpeg(-)]
+		media-plugins/gst-plugins-jpeg:1.0
+	)
 "
 BDEPEND="
 	nls? ( sys-devel/gettext )
@@ -55,6 +58,10 @@ src_prepare() {
 	sed -i '/Version=/d' data/photofilmstrip.desktop || die "Failed to update .desktop file."
 
 	sed -e 's:True if Sphinx else ::' -i setup.py
+}
+
+python_compile() {
+	esetup.py build
 }
 
 python_install_all() {
