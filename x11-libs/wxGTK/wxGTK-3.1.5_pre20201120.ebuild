@@ -9,7 +9,7 @@ DESCRIPTION="GTK+ version of wxWidgets, a cross-platform C++ GUI toolkit"
 HOMEPAGE="https://wxwidgets.org/"
 VIRTUALX_REQUIRED="X test"
 
-MY_PV="e803408"
+MY_PV="493cc35"
 [[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 MY_CA="catch-ee4acb6"
 SRC_URI="
@@ -24,7 +24,7 @@ RESTRICT=primaryuri
 KEYWORDS="~amd64 ~x86"
 IUSE="+X debug gstreamer libnotify chm opengl pch sdl test tiff webkit"
 
-SLOT="$(ver_cut 1-2)"
+SLOT="$(ver_cut 1-2)/$(ver_cut 3)"
 
 RDEPEND="
 	dev-libs/expat[${MULTILIB_USEDEP}]
@@ -73,25 +73,11 @@ src_prepare() {
 	AT_M4DIR="${S}/build/aclocal" eautoreconf
 
 	# Versionating
+	local _s="${SLOT%/*}"
 	sed -i \
-		-e "s:\(WX_RELEASE = \).*:\1${SLOT}:" \
-		-e "s:\(WX_RELEASE_NODOT = \).*:\1${SLOT//.}:" \
-		-e "s:\(WX_VERSION = \).*:\1${PV:0:5}:" \
-		-e "s:aclocal):aclocal/wxwin${SLOT//.}.m4):" \
-		-e "s:wxstd.mo:wxstd${SLOT//.}:" \
-		-e "s:wxmsw.mo:wxmsw${SLOT//.}:" \
+		-e "s:aclocal):aclocal/wxwin${_s//.}.m4):" \
+		-e "/\.\<mo\>/s:wx\(std\|msw\):wx\1${_s//.}:" \
 		Makefile.in || die
-
-	sed -i \
-		-e "s:\(WX_RELEASE = \).*:\1${SLOT}:"\
-		utils/wxrc/Makefile.in || die
-
-	sed -i \
-		-e "s:\(WX_VERSION=\).*:\1${PV:0:5}:" \
-		-e "s:\(WX_RELEASE=\).*:\1${SLOT}:" \
-		-e "s:\(WX_SUBVERSION=\).*:\1${PV}:" \
-		-e "/WX_VERSION_TAG=/ s:\${WX_RELEASE}:${PV:0:3}:" \
-		configure || die
 }
 
 multilib_src_configure() {
@@ -149,9 +135,9 @@ multilib_src_install_all() {
 
 	# version bakefile presets
 	pushd "${ED}"/usr/share/bakefile/presets/ > /dev/null
-	local f
+	local f _s="${SLOT%/*}"
 	for f in wx*; do
-		mv "${f}" "wx${SLOT//.}${f#wx}"
+		mv "${f}" "wx${_s//.}${f#wx}"
 	done
 	popd > /dev/null
 }
