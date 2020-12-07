@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7..9} )
 inherit cmake python-single-r1
 MY_PN="oiio"
 if [[ -z ${PV%%*9999} ]]; then
@@ -58,6 +58,7 @@ BDEPEND="
 	doc? (
 		pdf? ( dev-python/breathe )
 		dev-python/sphinx_rtd_theme
+		dev-python/sphinx-tabs
 		app-doc/doxygen
 	)
 "
@@ -110,7 +111,6 @@ RDEPEND="
 "
 DOCS=( {CHANGES,CREDITS,README}.md )
 PATCHES=(
-	"${FILESDIR}"/oiio-plugindir.diff
 	"${FILESDIR}"/oiio-docs.diff
 	"${FILESDIR}"/oiio-linking.diff
 )
