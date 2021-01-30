@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_{6,7,8} )
 PYTHON_REQ_USE="xml(+)"
 DISTUTILS_SINGLE_IMPL=1
 PLOCALES="cs de es fi fr it"
@@ -13,16 +13,14 @@ if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/jliljebl/${PN}.git"
 	SRC_URI=
 else
-	MY_PV="v${PV}"
-	if [[ -z ${PV%%*_p*} ]]; then
-		inherit vcs-snapshot
-		MY_PV="6a18025"
-	fi
+	MY_PV="6a18025"
+	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 	SRC_URI="
 		mirror://githubcl/jliljebl/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 	"
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
+	S="${WORKDIR}/${PN}-${MY_PV#v}"
 fi
 
 DESCRIPTION="A non-linear PyGTK/MLT video editor"
@@ -55,6 +53,11 @@ DEPEND="
 	${RDEPEND}
 "
 DOCS=( AUTHORS README docs/{FAQ,KNOWN_ISSUES,RELEASE_NOTES,ROADMAP}.md )
+
+src_prepare() {
+	xdg_src_prepare
+	sed -e 's:share/appdata:share/metainfo:' -i setup.py
+}
 
 src_compile() {
 	rmloc() { rm -rf "${S}"/Flowblade/locale/${1}; }
