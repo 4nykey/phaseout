@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -26,7 +26,7 @@ DESCRIPTION="A color management framework for visual effects and animation"
 HOMEPAGE="https://opencolorio.org/"
 
 LICENSE="BSD"
-SLOT="0"
+SLOT="0/2.0"
 IUSE="cpu_flags_x86_sse2 doc opengl python static-libs test"
 REQUIRED_USE="
 	doc? ( python )
@@ -42,9 +42,16 @@ RDEPEND="
 		media-libs/freeglut
 		virtual/opengl
 	)
-	python? ( ${PYTHON_DEPS} )
-	>=dev-cpp/yaml-cpp-0.5
-	dev-libs/tinyxml
+	python? (
+		${PYTHON_DEPS}
+		$(python_gen_cond_dep '
+			>=dev-python/pybind11-2.6.1[${PYTHON_MULTI_USEDEP}]
+		')
+	)
+	dev-libs/expat
+	dev-cpp/yaml-cpp
+	media-libs/ilmbase
+	dev-cpp/pystring
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -57,28 +64,16 @@ BDEPEND="
 	)
 "
 
-PATCHES=(
-	"${FILESDIR}/${PN}-1.1.0-use-GNUInstallDirs-and-fix-cmake-install-location.patch"
-	"${FILESDIR}/${PN}-1.1.0-remove-building-of-bundled-programs.patch"
-	"${FILESDIR}/${PN}-1.1.0-yaml-cpp-0.6.patch"
-	"${FILESDIR}/${PN}-1.1.0-remove-Werror.patch"
-	"${FILESDIR}"/${PN}-1.1.1-docs.diff
-)
-
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
 }
 
 src_prepare() {
-	sed -e '/-Werror/d' -i src/core/CMakeLists.txt
+	sed -e '/DESTINATION lib/s:\<lib\>:${CMAKE_INSTALL_LIBDIR}:' \
+		-i src/OpenColorIO/CMakeLists.txt \
+		src/libutils/o{iio,glapp}helpers/CMakeLists.txt
+	sed -e '/-Werror/d' -i share/cmake/utils/CompilerFlags.cmake
 	cmake_src_prepare
-
-	use python || return
-	python_fix_shebang .
-	local _s=$(python_get_sitedir)
-	sed \
-		-e "/set(PYTHON_VARIANT_PATH/ s:\".*\":\"${_s#*/usr/}\":" \
-		-i share/cmake/OCIOMacros.cmake
 }
 
 src_configure() {
@@ -89,20 +84,19 @@ src_configure() {
 	# - OpenImageIO is required for building ociodisplay and ocioconvert (USE opengl)
 	# - OpenGL, GLUT and GLEW is required for building ociodisplay (USE opengl)
 	local mycmakeargs=(
-		-DOCIO_BUILD_JNIGLUE=OFF
+		-DCMAKE_CONFIGURATION_TYPES=Gentoo
 		-DOCIO_BUILD_NUKE=OFF
 		-DOCIO_BUILD_SHARED=ON
 		-DOCIO_BUILD_STATIC=$(usex static-libs)
-		-DOCIO_STATIC_JNIGLUE=OFF
-		-DOCIO_BUILD_TRUELIGHT=OFF
-		-DUSE_EXTERNAL_LCMS=ON
-		-DUSE_EXTERNAL_TINYXML=ON
-		-DUSE_EXTERNAL_YAML=ON
 		-DOCIO_BUILD_DOCS=$(usex doc)
 		-DOCIO_BUILD_APPS=$(usex opengl)
-		-DOCIO_BUILD_PYGLUE=$(usex python)
 		-DOCIO_USE_SSE=$(usex cpu_flags_x86_sse2)
 		-DOCIO_BUILD_TESTS=$(usex test)
+		-DOCIO_BUILD_GPU_TESTS=$(usex test)
+		-DOCIO_BUILD_PYTHON=$(usex python)
+	)
+	use python && mycmakeargs+=(
+		-DPython_EXECUTABLE=${PYTHON}
 	)
 	cmake_src_configure
 }
