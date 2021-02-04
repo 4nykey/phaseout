@@ -4,6 +4,7 @@
 EAPI=6
 
 PYTHON_COMPAT=( python2_7 )
+_PYTHON_ALLOW_PY27=1
 inherit flag-o-matic qmake-qt4 python-single-r1 vcs-snapshot toolchain-funcs xdg
 if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
