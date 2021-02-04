@@ -1,12 +1,11 @@
 --- a/src/cmake/modules/FindOpenJpeg.cmake
 +++ b/src/cmake/modules/FindOpenJpeg.cmake
-@@ -55,7 +55,9 @@ macro (PREFIX_FIND_LIB prefix libname li
- endmacro ()
+@@ -102,6 +102,8 @@ if (OpenJpeg_ROOT)
+       )
+ endif()
  
- # Generic search paths
 +find_package(OpenJPEG)
- set (OpenJpeg_include_paths
-+     ${OPENJPEG_INCLUDE_DIRS}
-      /usr/local/include/openjpeg-2.3
-      /usr/local/include/openjpeg-2.2
-      /usr/local/include/openjpeg-2.1
++set (OpenJpeg_include_paths ${OPENJPEG_INCLUDE_DIRS})
+ 
+ # Locate the header files
+ PREFIX_FIND_INCLUDE_DIR (OpenJpeg openjpeg.h OpenJpeg_include_paths)
