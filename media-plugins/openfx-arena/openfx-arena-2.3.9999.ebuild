@@ -35,7 +35,7 @@ HOMEPAGE="https://github.com/NatronGitHub/${PN}"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE=""
+IUSE="sox"
 
 RDEPEND="
 	media-gfx/imagemagick
@@ -49,7 +49,8 @@ RDEPEND="
 	x11-libs/pango
 	>=app-text/poppler-0.83
 	virtual/opencl
-	media-libs/opencolorio:=
+	<media-libs/opencolorio-2:=
+	sox? ( media-sound/sox )
 "
 DEPEND="${RDEPEND}"
 
@@ -69,6 +70,8 @@ src_prepare() {
 	sed \
 		-e "s:\<pkg-config\>:$(tc-getPKG_CONFIG):" \
 		-e 's:--static::' \
+		-e 's:pangocairo:& pangofc:' \
+		-e 's: -std=c++11::' \
 		-i Makefile.master
 	if [[ -n ${PV%%*9999} ]]; then
 		mv "${WORKDIR}"/${MY_OFX}/* "${S}"/OpenFX

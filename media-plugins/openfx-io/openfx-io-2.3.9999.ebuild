@@ -35,13 +35,13 @@ SLOT="0"
 IUSE=""
 
 RDEPEND="
-	media-libs/openexr
+	media-libs/openexr:=
 	media-libs/openimageio:=[color-management(+),ffmpeg,opengl,raw]
-	media-libs/opencolorio:=
-	media-libs/libpng:0
+	<media-libs/opencolorio-2:=
 	dev-libs/seexpr:0
 "
 DEPEND="${RDEPEND}"
+PATCHES=( "${FILESDIR}"/makefile.diff )
 
 src_prepare() {
 	default

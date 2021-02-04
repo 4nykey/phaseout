@@ -1,0 +1,21 @@
+--- a/Makefile.master
++++ b/Makefile.master
+@@ -34,8 +34,8 @@
+ 
+ # OpenImageIO
+ OIIO_HOME ?= /usr
+-OIIO_CXXFLAGS = -I$(OIIO_HOME)/include $(OPENEXR_CFLAGS) $(OCIO_CXXFLAGS) `pkg-config --cflags libraw_r libwebp libtiff-4 libopenjp2 libpng`
+-OIIO_LINKFLAGS = -L$(OIIO_HOME)/lib -lOpenImageIO $(OPENEXR_LINKFLAGS) $(OCIO_LINKFLAGS) `pkg-config --libs libraw_r libwebp libtiff-4 libopenjp2 libpng`
++OIIO_CXXFLAGS = `pkg-config --cflags OpenImageIO libraw`
++OIIO_LINKFLAGS = `pkg-config --libs OpenImageIO`
+ ifeq ($(OS),Linux)
+ # libraw_r may be in a separate directory for licence reasons (eg in the Natron SDK)
+ OIIO_LINKFLAGS += -Wl,-rpath,$(OIIO_HOME)/lib -Wl,-rpath,`pkg-config --variable=libdir libraw_r`
+--- a/IO/Makefile
++++ b/IO/Makefile
+@@ -100,4 +100,4 @@
+ endif
+ 
+ CXXFLAGS  += $(OPENEXR_CXXFLAGS)  $(FFMPEG_CXXFLAGS)  $(OIIO_CXXFLAGS)  $(SEEXPR_CXXFLAGS) $(OCIO_CXXFLAGS) $(PNG_CXXFLAGS)
+-LINKFLAGS += $(OPENEXR_LINKFLAGS) $(FFMPEG_LINKFLAGS) $(OIIO_LINKFLAGS)  $(SEEXPR_LINKFLAGS) $(OCIO_LINKFLAGS) $(PNG_LINKFLAGS)
++LINKFLAGS += $(OPENEXR_LINKFLAGS) $(FFMPEG_LINKFLAGS) $(OIIO_LINKFLAGS)  $(SEEXPR_LINKFLAGS) $(OCIO_LINKFLAGS) $(PNG_LINKFLAGS) -ldl
