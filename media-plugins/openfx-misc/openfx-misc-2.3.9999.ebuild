@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -8,11 +8,10 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	inherit vcs-snapshot
-	MY_PV="b3b089e"
+	MY_PV="27f7cd4"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-db5aa97'
-	MY_SUP='openfx-supportext-53c12bd'
+	MY_OFX='openfx-8326878'
+	MY_SUP='openfx-supportext-0a01bd8'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
@@ -20,6 +19,7 @@ else
 	"
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
+	S="${WORKDIR}/${PN}-${MY_PV}"
 fi
 
 DESCRIPTION="Miscellaneous OpenFX plugins for Natron"
@@ -46,7 +46,7 @@ src_compile() {
 	local myemakeargs=(
 		CXX=$(tc-getCXX)
 		CXXFLAGS_ADD="${CXXFLAGS}"
-		LDFLAGS_ADD="${LDFLAGS}"
+		LDFLAGS_ADD="${LDFLAGS} -lpthread"
 		V=1
 	)
 	emake "${myemakeargs[@]}"

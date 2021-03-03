@@ -8,15 +8,14 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	inherit vcs-snapshot
-	MY_PV="53cb2e9"
+	MY_PV="e91b916"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-db5aa97'
-	MY_SUP='openfx-supportext-53c12bd'
-	MY_OIO="openfx-io-${MY_PV}"
-	MY_SEQ='SequenceParsing-1bbcd07'
+	MY_OIO="openfx-io-10326df"
+	MY_OFX='openfx-8326878'
+	MY_SUP='openfx-supportext-0a01bd8'
+	MY_SEQ='SequenceParsing-2016fb2'
 	MY_TIN='tinydir-3aae922'
-	MY_PNG='lodepng-e34ac04'
+	MY_PNG='lodepng-7fdcc96'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
@@ -28,6 +27,7 @@ else
 	"
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
+	S="${WORKDIR}/${PN}-${MY_PV}"
 fi
 
 DESCRIPTION="Extra OpenFX plugins for Natron"
@@ -61,7 +61,7 @@ src_unpack() {
 		EGIT_REPO_URI="https://github.com/lvandeve/lodepng.git" \
 			git-r3_src_unpack
 	else
-		vcs-snapshot_src_unpack
+		default
 	fi
 }
 
@@ -71,6 +71,7 @@ src_prepare() {
 		-e "s:\<pkg-config\>:$(tc-getPKG_CONFIG):" \
 		-e 's:--static::' \
 		-e 's:pangocairo:& pangofc:' \
+		-e 's:poppler-glib:& poppler:' \
 		-e 's: -std=c++11::' \
 		-i Makefile.master
 	if [[ -n ${PV%%*9999} ]]; then

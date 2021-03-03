@@ -1,18 +1,17 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 inherit toolchain-funcs
-MY_GC="gmic-community-e5a2366"
+MY_GC="gmic-community-e6976b2"
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	inherit vcs-snapshot
 	MY_PV="8805f49"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-db5aa97'
+	MY_OFX='openfx-8326878'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
@@ -20,6 +19,7 @@ else
 	"
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
+	S="${WORKDIR}/${PN}-${MY_PV}"
 fi
 
 DESCRIPTION="OpenFX wrapper for the G'MIC framework"
@@ -41,7 +41,7 @@ src_unpack() {
 		EGIT_REPO_URI="https://github.com/dtschump/${MY_GC%-*}.git" \
 			git-r3_src_unpack
 	else
-		vcs-snapshot_src_unpack
+		default
 	fi
 }
 
