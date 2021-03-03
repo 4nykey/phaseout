@@ -5,9 +5,11 @@ EAPI=6
 
 PYTHON_COMPAT=( python2_7 )
 _PYTHON_ALLOW_PY27=1
-inherit flag-o-matic qmake-qt4 python-single-r1 vcs-snapshot toolchain-funcs xdg
+MY_PN="${PN^}"
+MY_OC="OpenColorIO-Configs-557b981"
+inherit flag-o-matic qmake-qt4 python-single-r1 toolchain-funcs xdg
 if [[ -z ${PV%%*9999} ]]; then
-	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
+	EGIT_REPO_URI="https://github.com/NatronGitHub/${MY_PN}.git"
 	EGIT_BRANCH="RB-${PV%.*}"
 	inherit git-r3
 else
@@ -16,13 +18,15 @@ else
 		inherit eapi7-ver
 		MY_PV="v$(ver_rs 3 '-')"
 	fi
-	MY_OFX='openfx-db5aa97'
-	MY_SEQ='SequenceParsing-1bbcd07'
+	MY_OFX='openfx-8326878'
+	MY_SEQ='SequenceParsing-2016fb2'
 	MY_TIN='tinydir-3aae922'
 	MY_MCK='google-mock-17945db'
 	MY_TST='google-test-50d6fc3'
 	SRC_URI="
-		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
+		mirror://githubcl/NatronGitHub/${MY_PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
+		mirror://githubcl/NatronGitHub/${MY_OC%-*}/tar.gz/${MY_OC##*-}
+		-> ${MY_OC}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-}
 		-> ${MY_OFX}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_SEQ%-*}/tar.gz/${MY_SEQ##*-}
@@ -37,16 +41,12 @@ else
 		)
 	"
 	KEYWORDS="~amd64 ~x86"
+	S="${WORKDIR}/${MY_PN}-${MY_PV#v}"
 fi
-MY_OC="OpenColorIO-Configs_557b981"
-SRC_URI+="
-	mirror://githubcl/NatronGitHub/${MY_OC%%_*}/tar.gz/${MY_OC#*_}
-	-> ${MY_OC}.tar.gz
-"
 RESTRICT="primaryuri"
 
 DESCRIPTION="Open-source video compositing software"
-HOMEPAGE="https://natron.fr"
+HOMEPAGE="http://natrongithub.github.io"
 
 LICENSE="GPL-2+ doc? ( CC-BY-SA-4.0 )"
 SLOT="0"
@@ -75,15 +75,21 @@ RDEPEND="
 	media-plugins/openfx-arena
 	gmic? ( media-plugins/openfx-gmic )
 "
-PATCHES=( ${FILESDIR}/boost.diff )
 
 pkg_pretend() {
 	use openmp && tc-check-openmp
 }
 
 src_unpack() {
-	[[ -z ${PV%%*9999} ]] && git-r3_src_unpack
-	vcs-snapshot_src_unpack
+	if [[ -z ${PV%%*9999} ]]; then
+		git-r3_src_unpack
+		EGIT_BRANCH= \
+		EGIT_CHECKOUT_DIR="${WORKDIR}/${MY_OC}" \
+		EGIT_REPO_URI="https://github.com/NatronGitHub/${MY_OC%-*}.git" \
+			git-r3_src_unpack
+	else
+		default
+	fi
 }
 
 src_prepare() {
