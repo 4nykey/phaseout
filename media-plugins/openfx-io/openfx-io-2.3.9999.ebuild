@@ -8,12 +8,12 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	MY_PV="10326df"
+	MY_PV="3b80afe"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
 	MY_P="${PN}-${MY_PV}"
-	MY_OFX='openfx-8326878'
-	MY_SUP='openfx-supportext-0a01bd8'
-	MY_SEQ='SequenceParsing-2016fb2'
+	MY_OFX='openfx-108880d'
+	MY_SUP='openfx-supportext-bde8d6a'
+	MY_SEQ='SequenceParsing-ab247c2'
 	MY_TIN='tinydir-3aae922'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${MY_P}.tar.gz
@@ -41,11 +41,15 @@ RDEPEND="
 	dev-libs/seexpr:0
 "
 DEPEND="${RDEPEND}"
-PATCHES=( "${FILESDIR}"/makefile.diff )
 
 src_prepare() {
 	default
-	sed -e "s:\<pkg-config\>:$(tc-getPKG_CONFIG):" -i Makefile.master
+	sed \
+		-e '/OIIO_CXXFLAGS =/ s:=.*:=`pkg-config --cflags OpenImageIO libraw`:' \
+		-e '/OIIO_LINKFLAGS =/ s:=.*:=`pkg-config --libs OpenImageIO`:' \
+		-e "s:\<pkg-config\>:$(tc-getPKG_CONFIG):" \
+		-i Makefile.master
+	sed -e 's:LINKFLAGS += .*:& -ldl:' -i IO/Makefile
 	if [[ -n ${PV%%*9999} ]]; then
 		mv "${WORKDIR}"/${MY_OFX}/* "${S}"/openfx
 		mv "${WORKDIR}"/${MY_SUP}/* "${S}"/SupportExt

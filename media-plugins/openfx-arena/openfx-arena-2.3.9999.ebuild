@@ -8,12 +8,12 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	MY_PV="e91b916"
+	MY_PV="e9ab79a"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OIO="openfx-io-10326df"
-	MY_OFX='openfx-8326878'
-	MY_SUP='openfx-supportext-0a01bd8'
-	MY_SEQ='SequenceParsing-2016fb2'
+	MY_OIO="openfx-io-3b80afe"
+	MY_OFX='openfx-108880d'
+	MY_SUP='openfx-supportext-bde8d6a'
+	MY_SEQ='SequenceParsing-ab247c2'
 	MY_TIN='tinydir-3aae922'
 	MY_PNG='lodepng-7fdcc96'
 	SRC_URI="
@@ -47,7 +47,7 @@ RDEPEND="
 	dev-libs/libzip
 	gnome-base/librsvg
 	x11-libs/pango
-	>=app-text/poppler-0.83
+	>=app-text/poppler-0.83:=
 	virtual/opencl
 	<media-libs/opencolorio-2:=
 	sox? ( media-sound/sox )
