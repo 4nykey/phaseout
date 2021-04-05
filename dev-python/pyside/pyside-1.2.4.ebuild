@@ -3,7 +3,8 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python2_7 python3_{6,7} )
+PYTHON_COMPAT=( python2_7 )
+_PYTHON_ALLOW_PY27=1
 
 inherit cmake-utils multilib python-r1 virtualx
 
