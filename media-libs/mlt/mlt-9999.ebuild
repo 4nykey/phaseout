@@ -1,36 +1,42 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+RESTRICT="test"
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/mltframework/${PN}.git"
 else
-	MY_PV="1c45cea"
+	MY_PV="750917d"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 	SRC_URI="
 		mirror://githubcl/mltframework/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 	"
 	KEYWORDS="~amd64 ~x86"
-	RESTRICT="primaryuri"
+	RESTRICT+=" primaryuri"
 	S="${WORKDIR}/${PN}-${MY_PV#v}"
 fi
 
-PYTHON_COMPAT=( python3_{6,7,8,9} )
-inherit python-single-r1 qmake-utils toolchain-funcs
+LUA_COMPAT=( lua5-{1..4} luajit )
+PYTHON_COMPAT=( python3_{7,8,9} )
+inherit lua python-single-r1 cmake toolchain-funcs
 
 DESCRIPTION="Open source multimedia framework for television broadcasting"
 HOMEPAGE="https://www.mltframework.org/"
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="compressed-lumas cpu_flags_x86_mmx cpu_flags_x86_sse cpu_flags_x86_sse2 debug ffmpeg
-fftw frei0r gtk jack kdenlive kernel_linux libsamplerate lua melt opencv opengl python
-qt5 rtaudio sdl vdpau vidstab xine xml"
-IUSE+=" rubberband sdl1 sox"
+IUSE="compressed-lumas cpu_flags_x86_mmx cpu_flags_x86_sse cpu_flags_x86_sse2 debug
+ffmpeg fftw frei0r gtk jack kernel_linux libsamplerate lua opencv opengl python
+qt5 rtaudio rubberband sdl vdpau vidstab xine xml"
+IUSE+=" doc sdl1 sox test"
 # java perl php tcl
 
-REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+REQUIRED_USE="lua? ( ${LUA_REQUIRED_USE} )
+	python? ( ${PYTHON_REQUIRED_USE} )"
+REQUIRED_USE+="
+	test? ( qt5 )
+"
 
 SWIG_DEPEND=">=dev-lang/swig-2.0"
 #	java? ( ${SWIG_DEPEND} >=virtual/jdk-1.5 )
@@ -60,7 +66,7 @@ DEPEND="
 		virtual/jack
 	)
 	libsamplerate? ( >=media-libs/libsamplerate-0.1.2 )
-	lua? ( >=dev-lang/lua-5.1.4-r4:= )
+	lua? ( ${LUA_DEPS} )
 	opencv? ( >=media-libs/opencv-3.2.0:= )
 	opengl? ( media-video/movit )
 	python? ( ${PYTHON_DEPS} )
@@ -77,6 +83,7 @@ DEPEND="
 		>=media-libs/rtaudio-4.1.2
 		kernel_linux? ( media-libs/alsa-lib )
 	)
+	rubberband? ( media-libs/rubberband )
 	sdl? (
 		media-libs/libsdl2[X,opengl,video]
 		media-libs/sdl2-image
@@ -84,7 +91,6 @@ DEPEND="
 	vidstab? ( media-libs/vidstab )
 	xine? ( >=media-libs/xine-lib-1.1.2_pre20060328-r7 )
 	xml? ( >=dev-libs/libxml2-2.5 )
-	rubberband? ( media-libs/rubberband )
 	sdl1? (
 		media-libs/libsdl[X,opengl=,video]
 		media-libs/sdl-image
@@ -102,6 +108,7 @@ DOCS=( AUTHORS NEWS README docs/{framework,melt,mlt{++,-xml}}.txt )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-6.10.0-swig-underlinking.patch
+	"${FILESDIR}"/${PN}-6.22.1-no_lua_bdepend.patch
 )
 
 pkg_setup() {
@@ -109,7 +116,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	default
+	cmake_src_prepare
 
 	# respect CFLAGS LDFLAGS when building shared libraries. Bug #308873
 	for x in python lua; do
@@ -120,102 +127,97 @@ src_prepare() {
 }
 
 src_configure() {
-	tc-export CC CXX
+	local mycmakeargs=(
+		-DGPL=yes
+		-DGPL3=yes
+		-DBUILD_TESTING=$(usex test)
+		-DBUILD_DOCS=$(usex doc)
+		-DMOD_AVFORMAT=$(usex ffmpeg)
+		-DMOD_FREI0R=$(usex frei0r)
+		-DMOD_GDK=$(usex gtk)
+		-DMOD_GTK2=no
+		-DMOD_JACKRACK=$(usex jack)
+		-DMOD_KDENLIVE=yes
+		-DMOD_LUMAS=$(usex compressed-lumas)
+		-DMOD_MOTION_EST=yes
+		-DMOD_OPENCV=$(usex opencv)
+		-DMOD_OPENGL=$(usex opengl)
+		-DMOD_PLUS=$(usex fftw)
+		-DMOD_QT=$(usex qt5)
+		-DMOD_RESAMPLE=$(usex libsamplerate)
+		-DMOD_RTAUDIO=$(usex rtaudio)
+		-DMOD_RUBBERBAND=$(usex rubberband)
+		-DMOD_SDL1=$(usex sdl1)
+		-DMOD_SDL2=$(usex sdl)
+		-DMOD_SOX=$(usex sox)
+		-DMOD_VIDSTAB=$(usex vidstab)
+		-DMOD_XINE=$(usex xine)
+		-DMOD_XML=$(usex xml)
 
-	local myconf=(
-		--enable-gpl
-		--enable-gpl3
-		--enable-motion-est
-		--target-arch=$(tc-arch)
-		--disable-gtk2
-		--disable-kde
-		--disable-swfdec
-		$(use_enable debug)
-		$(use_enable cpu_flags_x86_sse sse)
-		$(use_enable cpu_flags_x86_sse2 sse2)
-		$(use_enable ffmpeg avformat)
-		$(use_enable fftw plus)
-		$(use_enable frei0r)
-		$(use_enable gtk gdk)
-		$(use_enable jack jackrack)
-		$(use_enable kdenlive)
-		$(use_enable libsamplerate resample)
-		$(use_enable melt)
-		$(use_enable opencv)
-		$(use_enable opengl)
-		$(use_enable qt5 qt)
-		$(use_enable rtaudio)
-		$(use_enable sdl sdl2)
-		$(use_enable vidstab vid.stab )
-		$(use_enable xine)
-		$(use_enable xml)
-		$(use_enable sox)
+		-DSWIG_PYTHON=$(usex python)
+		-DSWIG_LUA=$(usex lua)
 	)
-	myconf+=(
-		$(use_enable rubberband)
-		$(use_enable sdl1 sdl)
+	use python && mycmakeargs+=(
+		-DPython3_EXECUTABLE="${PYTHON}"
 	)
-
-	use compressed-lumas && myconf+=( --luma-compress )
-	use ffmpeg && myconf+=( --avformat-swscale )
-	use vdpau && myconf+=( --avformat-vdpau )
-
-	if use qt5 ; then
-		myconf+=(
-			--qt-includedir=$(qt5_get_headerdir)
-			--qt-libdir=$(qt5_get_libdir)
-		)
-	fi
-
-	if use amd64 || use x86 ; then
-		myconf+=( $(use_enable cpu_flags_x86_mmx mmx) )
-	else
-		myconf+=( --disable-mmx )
-	fi
-
-	if ! use melt ; then
-		sed -i -e "s;src/melt;;" Makefile || die
-	fi
+	cmake_src_configure
 
 	# TODO: add swig language bindings
 	# see also https://www.mltframework.org/twiki/bin/view/MLT/ExtremeMakeover
+}
 
-	local swig_lang=()
-	# not done: java perl php ruby tcl
-	for i in lua python ; do
-		use $i && swig_lang+=( $i )
-	done
-	[[ -z "${swig_lang}" ]] && swig_lang=( none )
+src_compile() {
+	cmake_src_compile
 
-	econf "${myconf[@]}" --swig-languages="${swig_lang[*]}"
+	if use lua; then
+		local _b="${BUILD_DIR}"
+		BUILD_DIR="${S}"
+		# Only copy sources now to avoid unnecessary rebuilds
+		lua_copy_sources
 
-	sed -i -e s/^OPT/#OPT/ config.mak || die
+		lua_compile() {
+			pushd "${BUILD_DIR}"/src/swig/lua > /dev/null || die
+
+			sed -i -e "s| mlt_wrap.cxx| $(lua_get_CFLAGS) mlt_wrap.cxx|" build || die
+			./build
+
+			popd > /dev/null || die
+		}
+		lua_foreach_impl lua_compile
+		BUILD_DIR="${_b}"
+	fi
 }
 
 src_install() {
-	default
-	use melt && doman docs/melt.1
+	cmake_src_install
 
 	insinto /usr/share/${PN}
 	doins -r demo
 
+	#
+	# Install SWIG bindings
+	#
+
 	docinto swig
 
-	# Install SWIG bindings
-	if use lua; then
-		cd "${S}"/src/swig/lua || die
-		exeinto $(pkg-config --variable INSTALL_CMOD lua)
-		doexe mlt.so
-		dodoc play.lua
-	fi
-
 	if use python; then
-		cd "${S}"/src/swig/python || die
-		python_domodule mlt.py _mlt.so
-		chmod +x "${D}$(python_get_sitedir)/_mlt.so" || die
-		dodoc play.py
+		dodoc src/swig/python/play.py
 		python_optimize
 	fi
 
+	if use lua; then
+		BUILD_DIR="${S}"
+		lua_install() {
+			pushd "${BUILD_DIR}"/src/swig/lua > /dev/null || die
+
+			exeinto "$(lua_get_cmod_dir)"
+			doexe mlt.so
+
+			popd > /dev/null || die
+		}
+		lua_foreach_impl lua_install
+
+		dodoc "${S}"/src/swig/lua/play.lua
+	fi
 	# not done: java perl php ruby tcl
 }
