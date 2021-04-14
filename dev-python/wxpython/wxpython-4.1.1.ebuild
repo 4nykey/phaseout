@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -74,6 +74,7 @@ python_prepare_all() {
 	ln -s "${WORKDIR}"/wxGTK-${WXV} ext/wxWidgets
 	ln -s "${WORKDIR}"/${MY_NS} ext/nanosvg
 	sed -e "/revhash  = /s:=.*:= '${MY_PV}':" -i sphinxtools/postprocess.py
+	sed -e 's:class="\([^"]\+\)":class='\1':' -i ext/wxWidgets/docs/doxygen/Doxyfile
 
 	# unbundle sip
 	rm -f wx/include/wxPython/sip.h
