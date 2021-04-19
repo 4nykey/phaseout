@@ -6,8 +6,9 @@ RESTRICT="test"
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/mltframework/${PN}.git"
+	EGIT_BRANCH="v6"
 else
-	MY_PV="817e4d8"
+	MY_PV="750917d"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 	SRC_URI="
 		mirror://githubcl/mltframework/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
@@ -25,8 +26,8 @@ DESCRIPTION="Open source multimedia framework for television broadcasting"
 HOMEPAGE="https://www.mltframework.org/"
 
 LICENSE="GPL-3"
-SLOT="7"
-IUSE="cpu_flags_x86_mmx cpu_flags_x86_sse cpu_flags_x86_sse2 debug
+SLOT="0"
+IUSE="compressed-lumas cpu_flags_x86_mmx cpu_flags_x86_sse cpu_flags_x86_sse2 debug
 ffmpeg fftw frei0r gtk jack kernel_linux libsamplerate lua opencv opengl python
 qt5 rtaudio rubberband sdl vdpau vidstab xine xml"
 IUSE+=" doc sdl1 sox test"
@@ -46,6 +47,7 @@ SWIG_DEPEND=">=dev-lang/swig-2.0"
 #	ruby? ( ${SWIG_DEPEND} )
 BDEPEND="
 	virtual/pkgconfig
+	compressed-lumas? ( virtual/imagemagick-tools[png] )
 	lua? ( ${SWIG_DEPEND} virtual/pkgconfig )
 	python? ( ${SWIG_DEPEND} )
 "
@@ -108,7 +110,6 @@ DOCS=( AUTHORS NEWS README docs/{framework,melt,mlt{++,-xml}}.txt )
 PATCHES=(
 	"${FILESDIR}"/${PN}-6.10.0-swig-underlinking.patch
 	"${FILESDIR}"/${PN}-6.22.1-no_lua_bdepend.patch
-	"${FILESDIR}"/mlt7-no_symlinks.diff
 )
 
 pkg_setup() {
@@ -135,10 +136,13 @@ src_configure() {
 		-DMOD_AVFORMAT=$(usex ffmpeg)
 		-DMOD_FREI0R=$(usex frei0r)
 		-DMOD_GDK=$(usex gtk)
+		-DMOD_GTK2=no
 		-DMOD_JACKRACK=$(usex jack)
 		-DMOD_KDENLIVE=yes
+		-DMOD_LUMAS=$(usex compressed-lumas)
+		-DMOD_MOTION_EST=yes
 		-DMOD_OPENCV=$(usex opencv)
-		-DMOD_MOVIT=$(usex opengl)
+		-DMOD_OPENGL=$(usex opengl)
 		-DMOD_PLUS=$(usex fftw)
 		-DMOD_QT=$(usex qt5)
 		-DMOD_RESAMPLE=$(usex libsamplerate)
@@ -188,7 +192,7 @@ src_compile() {
 src_install() {
 	cmake_src_install
 
-	insinto /usr/share/mlt-7
+	insinto /usr/share/${PN}
 	doins -r demo
 
 	#
@@ -208,7 +212,7 @@ src_install() {
 			pushd "${BUILD_DIR}"/src/swig/lua > /dev/null || die
 
 			exeinto "$(lua_get_cmod_dir)"
-			newexe mlt.so mlt7.so
+			doexe mlt.so
 
 			popd > /dev/null || die
 		}
