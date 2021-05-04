@@ -9,8 +9,12 @@ if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
 	MY_PV="e9ab79a"
-	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OIO="openfx-io-3b80afe"
+	if [[ -n ${PV%%*_p*} ]]; then
+		MY_PV="Natron-${PV}"
+		MY_OIO="${MY_PV}"
+	else
+		MY_OIO="3b80afe"
+	fi
 	MY_OFX='openfx-108880d'
 	MY_SUP='openfx-supportext-bde8d6a'
 	MY_SEQ='SequenceParsing-ab247c2'
@@ -20,7 +24,7 @@ else
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_SUP%-*}/tar.gz/${MY_SUP##*-} -> ${MY_SUP}.tar.gz
-		mirror://githubcl/NatronGitHub/${MY_OIO%-*}/tar.gz/${MY_OIO##*-} -> ${MY_OIO}.tar.gz
+		mirror://githubcl/NatronGitHub/openfx-io/tar.gz/${MY_OIO} -> openfx-io-${MY_OIO}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_SEQ%-*}/tar.gz/${MY_SEQ##*-} -> ${MY_SEQ}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_TIN%-*}/tar.gz/${MY_TIN##*-} -> ${MY_TIN}.tar.gz
 		mirror://githubcl/lvandeve/${MY_PNG%-*}/tar.gz/${MY_PNG##*-} -> ${MY_PNG}.tar.gz
@@ -77,7 +81,7 @@ src_prepare() {
 	if [[ -n ${PV%%*9999} ]]; then
 		mv "${WORKDIR}"/${MY_OFX}/* "${S}"/OpenFX
 		mv "${WORKDIR}"/${MY_SUP}/* "${S}"/SupportExt
-		mv "${WORKDIR}"/${MY_OIO}/* "${S}"/OpenFX-IO
+		mv "${WORKDIR}"/openfx-io-${MY_OIO}/* "${S}"/OpenFX-IO
 		mv "${WORKDIR}"/${MY_SEQ}/* "${S}"/OpenFX-IO/IOSupport/SequenceParsing
 		mv "${WORKDIR}"/${MY_TIN}/* "${S}"/OpenFX-IO/IOSupport/SequenceParsing/tinydir
 		mv "${WORKDIR}"/${MY_PNG}/* "${S}"/lodepng
