@@ -12,7 +12,6 @@
 	<use>
 		<flag name="apidocs">Build API documentation</flag>
 		<flag name="examples">Install interactive demo module browser and sample applets</flag>
-		<flag name="gtk3">Build with GTK+3 instead of GTK+2</flag>
 	</use>
 	<upstream>
 		<remote-id type="sourceforge">wxpython</remote-id>
