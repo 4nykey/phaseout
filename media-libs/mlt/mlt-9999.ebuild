@@ -103,12 +103,11 @@ DEPEND="
 #	tcl? ( dev-lang/tcl:0= )
 RDEPEND="${DEPEND}"
 
-DOCS=( AUTHORS NEWS README docs/{framework,melt,mlt{++,-xml}}.txt )
-
 PATCHES=(
 	"${FILESDIR}"/${PN}-6.10.0-swig-underlinking.patch
 	"${FILESDIR}"/${PN}-6.22.1-no_lua_bdepend.patch
 	"${FILESDIR}"/mlt7-no_symlinks.diff
+	"${FILESDIR}"/mlt7-repository_init.diff
 )
 
 pkg_setup() {
@@ -128,6 +127,7 @@ src_prepare() {
 
 src_configure() {
 	local mycmakeargs=(
+		-DCMAKE_SKIP_BUILD_RPATH=yes
 		-DGPL=yes
 		-DGPL3=yes
 		-DBUILD_TESTING=$(usex test)
