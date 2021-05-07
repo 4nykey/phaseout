@@ -25,19 +25,15 @@ SLOT="0"
 BDEPEND="
 	sys-devel/libtool
 "
+PATCHES=( "${FILESDIR}"/makefile.diff )
 
 src_compile() {
-	local emake_args=(
-		CXX="$(tc-getCXX)"
-		CXXFLAGS="${CXXFLAGS}"
-	)
-	emake "${emake_args[@]}"
+	tc-env_build emake
 }
 
 src_install() {
-	dolib.so .libs/libpystring.so*
-	mkdir -p ${PN}
-	cp -a ${PN}.h ${PN}
-	doheader -r ${PN}
+	dolib.so libpystring.so*
+	insinto /usr/include/${PN}
+	doins ${PN}.h
 	einstalldocs
 }

@@ -1,0 +1,25 @@
+--- a/Makefile
++++ b/Makefile
+@@ -1,15 +1,15 @@
+ LIBTOOL = libtool
+ LIBDIR = /usr/lib
+-CXX = g++
+-CXXFLAGS = -g -O3 -Wall -Wextra -Wshadow -Wconversion -Wcast-qual -Wformat=2
+ 
+-all: libpystring.la
++all: libpystring.so
+ 
+-pystring.lo: pystring.h pystring.cpp
+-	$(LIBTOOL) --mode=compile --tag=CXX $(CXX) $(CXXFLAGS) -c pystring.cpp
++pystring.o: pystring.h pystring.cpp
++	$(CXX) $(CXXFLAGS) -fPIC -c pystring.cpp
+ 
+-libpystring.la: pystring.lo
+-	$(LIBTOOL) --mode=link --tag=CXX $(CXX) -o $@ $< -rpath $(LIBDIR)
++libpystring.so: pystring.o
++	$(CXX) -o $@.0.0.0 $< -shared -Wl,-soname -Wl,$@.0
++	ln -s $@.0.0.0 $@.0
++	ln -s $@.0.0.0 $@
+ 
+ install: libpystring.la
+ 	$(LIBTOOL) --mode=install install -c $< $(LIBDIR)/$<
