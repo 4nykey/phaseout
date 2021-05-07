@@ -39,7 +39,7 @@ SLOT="0/$(ver_cut 1-2)"
 CPU_FEATURES=( sse2 sse3 ssse3 sse4_1 sse4_2 avx avx2 avx512f f16c aes )
 
 IUSE="
-color-management dicom doc ffmpeg field3d gif heif jpeg2k libressl opencv
+color-management dicom doc ffmpeg field3d gif heif jpeg2k opencv
 opengl openvdb pdf ptex python qt5 raw test +truetype +tools webp
 ${CPU_FEATURES[@]/#/cpu_flags_x86_}
 "
@@ -65,7 +65,6 @@ BDEPEND="
 DEPEND="
 	>=dev-libs/boost-1.62:=
 	dev-libs/pugixml:=
-	>=media-libs/ilmbase-2.2.0-r1:=
 	media-libs/libpng:0=
 	webp? ( >=media-libs/libwebp-0.2.1:= )
 	>=media-libs/openexr-2.2.0-r2:=
@@ -138,21 +137,21 @@ src_configure() {
 	[[ -z ${mysimd} ]] && mysimd=("0")
 
 	local mycmakeargs=(
-		-DVERBOSE=ON
+		-DVERBOSE=yes
 		-DOIIO_BUILD_TOOLS=$(usex tools)
 		-DOIIO_BUILD_TESTS=$(usex test)
 		-DBUILD_DOCS=$(usex tools)
-		-DINSTALL_DOCS=OFF
-		-DINSTALL_FONTS=OFF
-		-DEMBEDPLUGINS=ON
+		-DINSTALL_DOCS=no
+		-DINSTALL_FONTS=no
+		-DEMBEDPLUGINS=yes
 		-DPLUGIN_SEARCH_PATH="${EROOT}/usr/lib/${PN}"
-		-DSTOP_ON_WARNING=OFF
+		-DSTOP_ON_WARNING=no
 		-DUSE_PYTHON=$(usex python)
 		-DUSE_SIMD=$(local IFS=','; echo "${mysimd[*]}")
 		# src/cmake/externalpackages.cmake
-		-DBUILD_MISSING_DEPS=OFF
-		-DUSE_JPEGTurbo=ON
-		-DUSE_EXTERNAL_PUGIXML=ON
+		-DBUILD_MISSING_DEPS=no
+		-DUSE_JPEGTurbo=yes
+		-DUSE_EXTERNAL_PUGIXML=yes
 		-DUSE_Freetype=$(usex truetype)
 		-DUSE_OpenColorIO=$(usex color-management)
 		-DUSE_OpenCV=$(usex opencv)
@@ -168,13 +167,13 @@ src_configure() {
 		-DUSE_OpenVDB=$(usex openvdb)
 		-DUSE_PTex=$(usex ptex)
 		-DUSE_WebP=$(usex webp)
-		-DUSE_Nuke=OFF # Missing in Gentoo
-		-DUSE_R3DSDK=OFF # Missing in Gentoo
+		-DUSE_Nuke=no # Missing in Gentoo
+		-DUSE_R3DSDK=no # Missing in Gentoo
 		-DUSE_OPENGL=$(usex opengl)
 		-DUSE_QT=$(usex qt5)
 		-DUSE_Qt5=$(usex qt5)
-		-DUSE_EMBEDDED_LIBSQUISH=ON # Missing in Gentoo
-		-DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS} -Wl,--no-undefined"
+		-DUSE_EMBEDDED_LIBSQUISH=yes # Missing in Gentoo
+		-DCMAKE_STRIP=/bin/true
 	)
 	use python && mycmakeargs+=(
 		-DPYTHON_VERSION=${EPYTHON#python}

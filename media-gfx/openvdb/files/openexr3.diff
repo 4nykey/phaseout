@@ -1,0 +1,91 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -337,9 +337,7 @@ if(OPENVDB_INSTALL_CMAKE_MODULES)
+   set(OPENVDB_CMAKE_MODULES
+     cmake/FindBlosc.cmake
+     cmake/FindJemalloc.cmake
+-    cmake/FindIlmBase.cmake
+     cmake/FindLog4cplus.cmake
+-    cmake/FindOpenEXR.cmake
+     cmake/FindOpenVDB.cmake
+     cmake/FindTBB.cmake
+     cmake/OpenVDBGLFW3Setup.cmake
+@@ -704,6 +702,11 @@ if(FUTURE_MINIMUM_OPENVDB_ABI_VERSION AND OpenVDB_ABI LESS FUTURE_MINIMUM_OPENVD
+   add_definitions(-DOPENVDB_USE_DEPRECATED_ABI_5)
+ endif()
+ 
++if(USE_EXR)
++  find_package(PkgConfig)
++  pkg_check_modules(OPENEXR REQUIRED OpenEXR)
++endif()
++
+ # The ABI is a global target definition, applicable to all components, so just add it
+ # via add_definitions()
+ 
+--- a/openvdb/openvdb/CMakeLists.txt
++++ b/openvdb/openvdb/CMakeLists.txt
+@@ -49,8 +49,6 @@ message(STATUS "----------------------------------------------------")
+ # Collect and configure lib dependencies
+ 
+ if(USE_EXR)
+-  find_package(IlmBase ${MINIMUM_ILMBASE_VERSION} REQUIRED)
+-  find_package(OpenEXR ${MINIMUM_OPENEXR_VERSION} REQUIRED)
+   if(OPENVDB_FUTURE_DEPRECATION AND FUTURE_MINIMUM_OPENEXR_VERSION)
+     if(${OpenEXR_VERSION} VERSION_LESS FUTURE_MINIMUM_OPENEXR_VERSION)
+       message(DEPRECATION "Support for OpenEXR versions < ${FUTURE_MINIMUM_OPENEXR_VERSION} "
+@@ -132,7 +130,6 @@ endif()
+ set(OPENVDB_CORE_DEPENDENT_LIBS
+   Boost::iostreams
+   Boost::system
+-  IlmBase::Half
+ )
+ 
+ if(WIN32)
+@@ -150,10 +147,7 @@ endif()
+ 
+ if(USE_EXR)
+   list(APPEND OPENVDB_CORE_DEPENDENT_LIBS
+-    IlmBase::IlmThread
+-    IlmBase::Iex
+-    IlmBase::Imath
+-    OpenEXR::IlmImf
++    ${OPENEXR_LIBRARIES}
+   )
+ endif()
+ 
+--- a/openvdb/openvdb/Types.h
++++ b/openvdb/openvdb/Types.h
+@@ -7,7 +7,7 @@
+ #include "version.h"
+ #include "Platform.h"
+ #include "TypeList.h" // backwards compat
+-#include <OpenEXR/half.h>
++#include <Imath/half.h>
+ #include <openvdb/math/Math.h>
+ #include <openvdb/math/BBox.h>
+ #include <openvdb/math/Quat.h>
+--- a/openvdb/openvdb/cmd/CMakeLists.txt
++++ b/openvdb/openvdb/cmd/CMakeLists.txt
+@@ -120,8 +120,6 @@ endif()
+ #### vdb_render
+ 
+ if(OPENVDB_BUILD_VDB_RENDER)
+-  find_package(IlmBase ${MINIMUM_ILMBASE_VERSION} REQUIRED COMPONENTS Half Iex IlmThread Imath)
+-  find_package(OpenEXR ${MINIMUM_OPENEXR_VERSION} REQUIRED COMPONENTS IlmImf)
+ 
+   set(VDB_RENDER_SOURCE_FILES openvdb_render.cc)
+   add_executable(vdb_render ${VDB_RENDER_SOURCE_FILES})
+@@ -132,11 +130,9 @@ if(OPENVDB_BUILD_VDB_RENDER)
+   # include paths from shared installs (including houdini) may pull in the wrong
+   # headers
+ 
++  target_include_directories(vdb_render SYSTEM PUBLIC ${OPENEXR_INCLUDE_DIRS})
+   target_link_libraries(vdb_render
+-    OpenEXR::IlmImf
+-    IlmBase::IlmThread
+-    IlmBase::Iex
+-    IlmBase::Imath
++    ${OPENEXR_LIBRARIES}
+     ${OPENVDB_BINARIES_DEPENDENT_LIBS}
+   )
+ 

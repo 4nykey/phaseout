@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8,9} )
 
 inherit cmake flag-o-matic python-single-r1
 MY_PN="OpenColorIO"
@@ -50,7 +50,7 @@ RDEPEND="
 	)
 	dev-libs/expat
 	dev-cpp/yaml-cpp
-	media-libs/ilmbase
+	media-libs/openexr:=
 	dev-cpp/pystring
 "
 DEPEND="${RDEPEND}"
@@ -73,6 +73,17 @@ src_prepare() {
 		-i src/OpenColorIO/CMakeLists.txt \
 		src/libutils/o{iio,glapp}helpers/CMakeLists.txt
 	sed -e '/-Werror/d' -i share/cmake/utils/CompilerFlags.cmake
+
+	if has_version '>=media-libs/openexr-3'; then
+		grep -rl 'IlmBase::Half' --include CMakeLists.txt | xargs \
+			sed -e 's,IlmBase::Half,OpenEXR,' -i
+		grep -rl 'OpenEXR/half\.h' src | xargs \
+			sed -e '/#include.*half\.h/ s:OpenEXR:Imath:' -i
+		sed \
+			-e '/find_package(/ s:Half 2.4.0:OpenEXR:' \
+			-i share/cmake/modules/FindExtPackages.cmake
+	fi
+
 	cmake_src_prepare
 }
 
@@ -86,7 +97,6 @@ src_configure() {
 	local mycmakeargs=(
 		-DCMAKE_CONFIGURATION_TYPES=Gentoo
 		-DOCIO_BUILD_NUKE=OFF
-		-DOCIO_BUILD_SHARED=ON
 		-DOCIO_BUILD_STATIC=$(usex static-libs)
 		-DOCIO_BUILD_DOCS=$(usex doc)
 		-DOCIO_BUILD_APPS=$(usex opengl)

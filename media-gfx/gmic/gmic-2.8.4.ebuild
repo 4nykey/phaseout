@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -15,7 +15,7 @@ else
 fi
 
 DESCRIPTION="GREYC's Magic Image Converter"
-HOMEPAGE="http://gmic.eu/ https://github.com/dtschump/gmic"
+HOMEPAGE="https://gmic.eu/ https://github.com/dtschump/gmic"
 
 LICENSE="|| ( CeCILL-C CeCILL-2 )"
 SLOT="0"
@@ -39,8 +39,7 @@ DEPEND="
 	jpeg? ( virtual/jpeg:0 )
 	opencv? ( media-libs/opencv:= )
 	openexr? (
-		media-libs/ilmbase
-		media-libs/openexr
+		media-libs/openexr:=
 	)
 	png? ( media-libs/libpng:0= )
 	tiff? ( media-libs/tiff:0 )
@@ -78,6 +77,8 @@ src_prepare() {
 	default
 	unpack man/gmic.1.gz
 	sed \
+		-e '/OPENEXR_CFLAGS =/s:-I.*:$(shell pkg-config --cflags OpenEXR):' \
+		-e '/OPENEXR_LIBS =/s:= .*:= $(shell pkg-config --libs OpenEXR):' \
 		-e "s:pkg-config:$(tc-getPKG_CONFIG):g" \
 		-e 's:$(LIBS):$(LDFLAGS) &:' \
 		-e '/-o use_lib[c]\?gmic/d' \

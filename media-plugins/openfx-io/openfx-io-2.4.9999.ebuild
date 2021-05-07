@@ -41,13 +41,15 @@ RDEPEND="
 	dev-libs/seexpr:0
 "
 DEPEND="${RDEPEND}"
+PATCHES=( "${FILESDIR}"/openexr3.diff )
 
 src_prepare() {
 	default
 	sed \
 		-e '/OIIO_CXXFLAGS =/ s:=.*:=`pkg-config --cflags OpenImageIO libraw`:' \
 		-e '/OIIO_LINKFLAGS =/ s:=.*:=`pkg-config --libs OpenImageIO`:' \
-		-e "s:\<pkg-config\>:$(tc-getPKG_CONFIG):" \
+		-e "s:\<pkg-config\>:$(tc-getPKG_CONFIG):g" \
+		-e 's:\<IlmBase\>::' \
 		-i Makefile.master
 	sed -e 's:LINKFLAGS += .*:& -ldl:' -i IO/Makefile
 	if [[ -n ${PV%%*9999} ]]; then
