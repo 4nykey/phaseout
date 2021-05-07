@@ -1,0 +1,10 @@
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -786,7 +786,6 @@ list( APPEND SOURCES
+       tracks/playabletrack/notetrack/ui/NoteTrackButtonHandle.h
+       tracks/playabletrack/notetrack/ui/NoteTrackControls.cpp
+       tracks/playabletrack/notetrack/ui/NoteTrackControls.h
+-      tracks/playabletrack/notetrack/ui/NoteTrackShifter.cpp
+       tracks/playabletrack/notetrack/ui/NoteTrackSliderHandles.cpp
+       tracks/playabletrack/notetrack/ui/NoteTrackSliderHandles.h
+       tracks/playabletrack/notetrack/ui/NoteTrackVRulerControls.cpp

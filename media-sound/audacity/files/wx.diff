@@ -1,0 +1,21 @@
+--- a/cmake-proxies/wxWidgets/CMakeLists.txt
++++ b/cmake-proxies/wxWidgets/CMakeLists.txt
+@@ -239,7 +239,7 @@ file(
+ 
+ string( REGEX MATCHALL "\".+(Audacity).+\"" ours "${output}")
+ if( NOT ours )
+-   message( FATAL_ERROR
++   message( WARNING
+       "\n########################################################################\n"
+       "Audacity version 3.0.0 or higher requires use of a customized version of "
+       "wxWidgets.  For details:\n"
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1281,6 +1280,7 @@ else()
+       TARGET
+          ${TARGET}
+       COMMAND
++         true
+          ${CMAKE_COMMAND} -D SRC="${_EXEDIR}/audacity"
+                           -D DST="${_DEST}/${_PKGLIB}"
+                           -D WXWIN="${WXWIN}"
