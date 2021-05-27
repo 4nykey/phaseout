@@ -47,7 +47,6 @@ DEPEND+="
 	dev-qt/qtx11extras:5
 "
 PATCHES=(
-	"${FILESDIR}"/melt7.diff
 )
 
 src_prepare() {
