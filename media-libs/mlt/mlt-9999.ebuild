@@ -18,7 +18,7 @@ else
 fi
 
 LUA_COMPAT=( lua5-{1..4} luajit )
-PYTHON_COMPAT=( python3_{7,8,9} )
+PYTHON_COMPAT=( python3_{7..9} )
 inherit lua python-single-r1 cmake toolchain-funcs
 
 DESCRIPTION="Open source multimedia framework for television broadcasting"
@@ -107,7 +107,6 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-6.10.0-swig-underlinking.patch
 	"${FILESDIR}"/${PN}-6.22.1-no_lua_bdepend.patch
 	"${FILESDIR}"/mlt7-no_symlinks.diff
-	"${FILESDIR}"/mlt7-repository_init.diff
 )
 
 pkg_setup() {
