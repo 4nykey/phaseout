@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7,8,9} )
+PYTHON_COMPAT=( python3_{7..9} )
 
 inherit cmake flag-o-matic python-single-r1
 MY_PN="OpenColorIO"

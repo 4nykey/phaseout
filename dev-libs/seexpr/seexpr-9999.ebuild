@@ -4,7 +4,7 @@
 EAPI=7
 
 LLVM_MAX_SLOT=10
-PYTHON_COMPAT=( python3_{7,8} )
+PYTHON_COMPAT=( python3_{7..9} )
 MY_PN="SeExpr"
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
