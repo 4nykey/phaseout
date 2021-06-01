@@ -29,9 +29,6 @@ HOMEPAGE="https://jliljebl.github.io/flowblade"
 LICENSE="GPL-3"
 SLOT="0"
 IUSE="frei0r gmic swh"
-PATCHES=(
-	"${FILESDIR}"/${PN}-modpath.diff
-)
 S="${WORKDIR}/${P}/${PN}-trunk"
 
 RDEPEND="
@@ -41,7 +38,7 @@ RDEPEND="
 		dev-python/dbus-python[${PYTHON_MULTI_USEDEP}]
 		dev-python/pillow[${PYTHON_MULTI_USEDEP}]
 		dev-python/numpy[${PYTHON_MULTI_USEDEP}]
-		media-libs/mlt[python,sdl1(-),${PYTHON_SINGLE_USEDEP}]
+		media-libs/mlt:0[python,sdl1(-),${PYTHON_SINGLE_USEDEP}]
 	')
 	gnome-base/librsvg:2[introspection]
 	x11-libs/gtk+:3[introspection]
@@ -57,6 +54,7 @@ DOCS=( AUTHORS README docs/{FAQ,KNOWN_ISSUES,RELEASE_NOTES,ROADMAP}.md )
 src_prepare() {
 	xdg_src_prepare
 	sed -e 's:share/appdata:share/metainfo:' -i setup.py
+	sed -e "s:/usr/share/flowblade/:$(python_get_sitedir)/:" -i flowblade
 }
 
 src_compile() {
