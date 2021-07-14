@@ -14,7 +14,7 @@ else
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Release-${PV}"
 	MY_OI="oiio-images-51ae42d"
 	# src/cmake/externalpackages.cmake
-	MY_RM="robin-map-0.6.2"
+	MY_RM="robin-map-0.6.3"
 	SRC_URI="
 		mirror://githubcl/OpenImageIO/${MY_PN}/tar.gz/${MY_PV}
 		-> ${P}.tar.gz
@@ -112,7 +112,6 @@ DOCS=( {CHANGES,CREDITS,README}.md )
 PATCHES=(
 	"${FILESDIR}"/oiio-docs.diff
 	"${FILESDIR}"/oiio-linking.diff
-	"${FILESDIR}"/oiio-openjpeg.diff
 )
 
 pkg_setup() {
@@ -144,7 +143,7 @@ src_configure() {
 		-DINSTALL_DOCS=no
 		-DINSTALL_FONTS=no
 		-DEMBEDPLUGINS=yes
-		-DPLUGIN_SEARCH_PATH="${EROOT}/usr/lib/${PN}"
+		-DPLUGIN_SEARCH_PATH="${EPREFIX}/usr/lib/${PN}"
 		-DSTOP_ON_WARNING=no
 		-DUSE_PYTHON=$(usex python)
 		-DUSE_SIMD=$(local IFS=','; echo "${mysimd[*]}")
@@ -162,10 +161,10 @@ src_configure() {
 		-DUSE_GIF=$(usex gif)
 		-DUSE_Libheif=$(usex heif)
 		-DUSE_LibRaw=$(usex raw)
-		-DUSE_OpenJpeg=$(usex jpeg2k)
+		-DUSE_OpenJPEG=$(usex jpeg2k)
 		-DUSE_TBB=$(usex openvdb)
 		-DUSE_OpenVDB=$(usex openvdb)
-		-DUSE_PTex=$(usex ptex)
+		-DUSE_Ptex=$(usex ptex)
 		-DUSE_WebP=$(usex webp)
 		-DUSE_Nuke=no # Missing in Gentoo
 		-DUSE_R3DSDK=no # Missing in Gentoo
@@ -174,6 +173,7 @@ src_configure() {
 		-DUSE_Qt5=$(usex qt5)
 		-DUSE_EMBEDDED_LIBSQUISH=yes # Missing in Gentoo
 		-DCMAKE_STRIP=/bin/true
+		-DCMAKE_CXX_STANDARD=14
 	)
 	use python && mycmakeargs+=(
 		-DPYTHON_VERSION=${EPYTHON#python}
