@@ -26,12 +26,12 @@ HOMEPAGE="https://www.openvdb.org"
 
 LICENSE="MPL-2.0"
 SLOT="0"
-IUSE="cpu_flags_x86_avx cpu_flags_x86_sse4_2 doc numpy python static-libs test utils abi6-compat +abi7-compat"
-RESTRICT+=" !test? ( test )"
+IUSE="cpu_flags_x86_avx cpu_flags_x86_sse4_2 doc numpy python static-libs test utils abi6-compat abi7-compat +abi8-compat"
+RESTRICT="!test? ( test )"
 
 REQUIRED_USE="
 	numpy? ( python )
-	^^ ( abi6-compat abi7-compat )
+	^^ ( abi6-compat abi7-compat abi8-compat )
 	python? ( ${PYTHON_REQUIRED_USE} )
 "
 RDEPEND="
@@ -70,7 +70,7 @@ BDEPEND="
 		dev-texlive/texlive-latex
 		dev-texlive/texlive-latexextra
 	)
-	test? ( dev-util/cppunit )
+	test? ( dev-util/cppunit dev-cpp/gtest )
 "
 
 pkg_setup() {
@@ -93,6 +93,8 @@ src_configure() {
 		version=6
 	elif use abi7-compat; then
 		version=7
+	elif use abi8-compat; then
+		version=8
 	else
 		die "Openvdb abi version is not compatible"
 	fi
