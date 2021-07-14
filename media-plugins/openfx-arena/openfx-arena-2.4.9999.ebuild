@@ -28,6 +28,7 @@ else
 		mirror://githubcl/NatronGitHub/${MY_SEQ%-*}/tar.gz/${MY_SEQ##*-} -> ${MY_SEQ}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_TIN%-*}/tar.gz/${MY_TIN##*-} -> ${MY_TIN}.tar.gz
 		mirror://githubcl/lvandeve/${MY_PNG%-*}/tar.gz/${MY_PNG##*-} -> ${MY_PNG}.tar.gz
+		https://github.com/NatronGitHub/${PN}/commit/bc06a46.patch
 	"
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
@@ -42,7 +43,7 @@ SLOT="0"
 IUSE="sox"
 
 RDEPEND="
-	media-gfx/imagemagick
+	media-gfx/imagemagick:=
 	dev-libs/librevenge
 	media-libs/libcdr
 	media-libs/lcms
@@ -85,6 +86,7 @@ src_prepare() {
 		mv "${WORKDIR}"/${MY_SEQ}/* "${S}"/OpenFX-IO/IOSupport/SequenceParsing
 		mv "${WORKDIR}"/${MY_TIN}/* "${S}"/OpenFX-IO/IOSupport/SequenceParsing/tinydir
 		mv "${WORKDIR}"/${MY_PNG}/* "${S}"/lodepng
+		eapply "${DISTDIR}"/bc06a46.patch
 	fi
 }
 
