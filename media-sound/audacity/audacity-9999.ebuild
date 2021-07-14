@@ -2,29 +2,24 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+
 if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/${PN}/${PN}.git"
 	inherit git-r3
+	REQUIRED_USE="!doc"
 else
-	if [[ -n ${PV%%*_p*} ]]; then
-		MY_P="${PN}-minsrc-${PV}"
-		SRC_URI="
-		https://github.com/${PN}/${PN}/releases/download/${PN^}-${PV}/${MY_P}.tar.xz
-		"
-	else
-		MY_P="${PN}-ff5003a"
-		SRC_URI="
-			mirror://githubcl/${PN}/${PN}/tar.gz/${MY_P#*-} -> ${P}.tar.gz
-		"
-	fi
-	SRC_URI+="
+	MY_PV="${PN^}-${PV/_rc/-RC}"
+	SRC_URI="
 		doc? (
-		https://github.com/${PN}/${PN}/releases/download/${PN^}-${PV%_p*}/${PN}-manual-${PV%_p*}.zip
+		https://github.com/${PN}/${PN}/releases/download/${PN^}-${MY_PV#*-}/${PN}-manual-${MY_PV#*-}.zip
 		)
 	"
-	RESTRICT="primaryuri"
+	[[ -z ${PV%%*_p*} ]] && MY_PV="84d5e63"
+	SRC_URI+="
+		mirror://githubcl/${PN}/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
+	"
 	KEYWORDS="~amd64 ~x86"
-	S="${WORKDIR}/${MY_P}"
+	S="${WORKDIR}/${PN}-${MY_PV}"
 fi
 inherit cmake flag-o-matic xdg
 
@@ -34,18 +29,20 @@ HOMEPAGE="https://web.audacityteam.org/"
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="
-alsa cpu_flags_x86_sse doc ffmpeg +flac id3tag jack +ladspa +lame +lv2 mad midi
+alsa cpu_flags_x86_sse doc ffmpeg +flac id3tag jack +ladspa +lv2 mad
 nls ogg oss portmidi +portmixer portsmf sbsms +soundtouch twolame vamp +vorbis
 +vst
 "
+RESTRICT="test primaryuri"
 
-RESTRICT="test"
-RESTRICT+=" primaryuri"
-
-RDEPEND="dev-libs/expat
+RDEPEND="
+	media-libs/portaudio[alsa?]
+	portmidi? ( media-libs/portmidi )
+"
+RDEPEND="
+	dev-libs/expat
 	media-libs/libsndfile
 	media-libs/libsoundtouch
-	media-libs/portaudio[alsa?]
 	media-libs/soxr
 	>=media-sound/lame-3.100-r3
 	x11-libs/wxGTK:3.1=[X]
@@ -64,7 +61,6 @@ RDEPEND="dev-libs/expat
 	)
 	mad? ( >=media-libs/libmad-0.15.1b )
 	ogg? ( media-libs/libogg )
-	portmidi? ( media-libs/portmidi )
 	sbsms? ( >=media-libs/libsbsms-2.2 )
 	soundtouch? ( >=media-libs/libsoundtouch-1.7.1 )
 	twolame? ( media-sound/twolame )
@@ -72,53 +68,52 @@ RDEPEND="dev-libs/expat
 	vorbis? ( media-libs/libvorbis )
 "
 DEPEND="${RDEPEND}"
-BDEPEND="app-arch/unzip
+BDEPEND="
+	doc? ( app-arch/unzip )
 	virtual/pkgconfig
 	nls? ( sys-devel/gettext )
 "
 
 PATCHES=(
-	"${FILESDIR}"/wx.diff
-	"${FILESDIR}"/NoteTrackShifter.diff
-	"${FILESDIR}"/pa_jack.diff
+	"${FILESDIR}"/cmake.diff
 )
 
 src_prepare() {
-	sed -e '/CMAKE_[A-Z_]\+_RPATH/d' -i CMakeLists.txt
-	sed -e '/DESTINATION/s:appdata:metainfo:' -i help/CMakeLists.txt
+	use portmidi || sed \
+		-e '/MIDI_OUT/d' -i src/Experimental.cmake
 	cmake_src_prepare
 }
 
 src_configure() {
-	local -x WX_CONFIG="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.1"
+	local _w="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.1"
 	# * always use system libraries if possible
 	# * options listed in the order that cmake-gui lists them
 	local mycmakeargs=(
+		-DCMAKE_SKIP_BUILD_RPATH=yes
+		-DwxWidgets_CONFIG_EXECUTABLE="${_w}"
 		-Daudacity_lib_preference=system
-		-Daudacity_use_expat=system
+		-Daudacity_obey_system_dependencies=yes
 		-Daudacity_use_ffmpeg=$(usex ffmpeg linked off)
 		-Daudacity_use_flac=$(usex flac system off)
-		-Daudacity_use_id3tag=$(usex id3tag system off)
+		-Daudacity_use_libid3tag=$(usex id3tag system off)
 		-Daudacity_use_ladspa=$(usex ladspa)
-		-Daudacity_use_lame=system
 		-Daudacity_use_lv2=$(usex lv2 system off)
-		-Daudacity_use_mad=$(usex mad system off)
-		-Daudacity_use_midi=$(usex portmidi system off)
+		-Daudacity_use_libmad=$(usex mad system off)
+		-Daudacity_use_midi=$(usex portmidi local off)
 		-Daudacity_use_ogg=$(usex ogg system off)
 		-Daudacity_use_pa_alsa=$(usex alsa)
 		-Daudacity_use_pa_jack=$(usex jack linked off)
 		-Daudacity_use_pa_oss=$(usex oss)
+		-Daudacity_use_portaudio=local
 		-Daudacity_use_portmixer=$(usex portmixer local off)
-		-Daudacity_use_portsmf=$(usex portsmf system off)
+		-Daudacity_use_portsmf=$(usex portsmf local off)
 		-Daudacity_use_sbsms=$(usex sbsms system off)
-		-Daudacity_use_sndfile=system
-		-Daudacity_use_soundtouch=system
-		-Daudacity_use_soxr=system
 		-Daudacity_use_twolame=$(usex twolame system off)
 		-Daudacity_use_vamp=$(usex vamp system off)
 		-Daudacity_use_vorbis=$(usex vorbis system off)
 		-Daudacity_use_vst=$(usex vst)
-		-Daudacity_use_wxwidgets=system
+		-DDISABLE_DYNAMIC_LOADING_FFMPEG=yes
+		-DDISABLE_DYNAMIC_LOADING_LAME=yes
 	)
 	cmake_src_configure
 }
