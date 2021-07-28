@@ -21,6 +21,11 @@ else
 	KEYWORDS="~amd64 ~x86"
 	S="${WORKDIR}/${PN}-${MY_PV}"
 fi
+# CImg/Makefile: CIMGVERSION
+MY_CIM='CImg-89b9d06'
+SRC_URI+="
+	mirror://githubcl/dtschump/${MY_CIM%-*}/tar.gz/${MY_CIM##*-} -> ${MY_CIM}.tar.gz
+"
 
 DESCRIPTION="Miscellaneous OpenFX plugins for Natron"
 HOMEPAGE="https://github.com/NatronGitHub/${PN}"
@@ -37,9 +42,12 @@ DEPEND="${RDEPEND}"
 src_prepare() {
 	default
 	if [[ -n ${PV%%*9999} ]]; then
-		mv "${WORKDIR}"/${MY_OFX}/* "${S}"/openfx
-		mv "${WORKDIR}"/${MY_SUP}/* "${S}"/SupportExt
+		mv "${WORKDIR}"/${MY_OFX}/* openfx
+		mv "${WORKDIR}"/${MY_SUP}/* SupportExt
 	fi
+	mv "${WORKDIR}"/${MY_CIM}/CImg.h CImg
+	mv "${WORKDIR}"/${MY_CIM}/plugins/inpaint.h CImg/Inpaint
+	sed -e '/\<curl\>/d' -i CImg/Makefile
 }
 
 src_compile() {
