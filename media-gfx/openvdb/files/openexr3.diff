@@ -16,7 +16,7 @@
  
 +if(USE_EXR)
 +  find_package(PkgConfig)
-+  pkg_check_modules(OPENEXR REQUIRED OpenEXR)
++  pkg_check_modules(OPENEXR REQUIRED OpenEXR-3)
 +endif()
 +
  # The ABI is a global target definition, applicable to all components, so just add it
@@ -49,21 +49,30 @@
 -    IlmBase::Iex
 -    IlmBase::Imath
 -    OpenEXR::IlmImf
-+    ${OPENEXR_LIBRARIES}
++    ${OPENEXR_LDFLAGS}
    )
  endif()
  
---- a/openvdb/openvdb/Types.h
-+++ b/openvdb/openvdb/Types.h
-@@ -7,7 +7,7 @@
- #include "version.h"
- #include "Platform.h"
- #include "TypeList.h" // backwards compat
--#include <OpenEXR/half.h>
-+#include <Imath/half.h>
- #include <openvdb/math/Math.h>
- #include <openvdb/math/BBox.h>
- #include <openvdb/math/Quat.h>
+@@ -429,6 +429,9 @@ if(OPENVDB_CORE_STATIC)
+     PUBLIC ../
+     PRIVATE .
+   )
++if(USE_EXR)
++  target_include_directories(openvdb_static SYSTEM PUBLIC ${OPENEXR_INCLUDE_DIRS})
++endif()
+ 
+   target_compile_definitions(openvdb_static
+     PUBLIC ${OPENVDB_CORE_PUBLIC_DEFINES} -DOPENVDB_STATICLIB
+@@ -455,6 +458,9 @@ if(OPENVDB_CORE_SHARED)
+     PUBLIC ../
+     PRIVATE .
+   )
++if(USE_EXR)
++  target_include_directories(openvdb_shared SYSTEM PUBLIC ${OPENEXR_INCLUDE_DIRS})
++endif()
+ 
+   target_compile_definitions(openvdb_shared
+     PUBLIC ${OPENVDB_CORE_PUBLIC_DEFINES} -DOPENVDB_DLL
 --- a/openvdb/openvdb/cmd/CMakeLists.txt
 +++ b/openvdb/openvdb/cmd/CMakeLists.txt
 @@ -120,8 +120,6 @@ endif()
@@ -75,7 +84,7 @@
  
    set(VDB_RENDER_SOURCE_FILES openvdb_render.cc)
    add_executable(vdb_render ${VDB_RENDER_SOURCE_FILES})
-@@ -132,11 +130,9 @@ if(OPENVDB_BUILD_VDB_RENDER)
+@@ -132,11 +130,8 @@ if(OPENVDB_BUILD_VDB_RENDER)
    # include paths from shared installs (including houdini) may pull in the wrong
    # headers
  
@@ -85,7 +94,6 @@
 -    IlmBase::IlmThread
 -    IlmBase::Iex
 -    IlmBase::Imath
-+    ${OPENEXR_LIBRARIES}
      ${OPENVDB_BINARIES_DEPENDENT_LIBS}
    )
  

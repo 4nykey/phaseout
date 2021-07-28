@@ -78,9 +78,11 @@ pkg_setup() {
 }
 
 src_prepare() {
-	if has_version '>=media-libs/openexr-3'; then
+	if has_version media-libs/openexr:3; then
 		rm -f cmake/FindOpenEXR.cmake
 		PATCHES+=( "${FILESDIR}"/openexr3.diff )
+		grep -rl 'include <\(Imath\|OpenEXR\)/' | xargs sed -i \
+			-e '/include/ s:<\(Imath\|OpenEXR\)/:<:'
 	fi
 	cmake_src_prepare
 }
