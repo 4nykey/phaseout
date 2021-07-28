@@ -51,6 +51,8 @@ src_prepare() {
 		-e "s:\<pkg-config\>:$(tc-getPKG_CONFIG):g" \
 		-e 's:\<IlmBase\>::' \
 		-i Makefile.master
+	has_version media-libs/openexr:3 && sed \
+		-e 's:\<OpenEXR\>:&-3:g' -i Makefile.master
 	sed -e 's:LINKFLAGS += .*:& -ldl:' -i IO/Makefile
 	if [[ -n ${PV%%*9999} ]]; then
 		mv "${WORKDIR}"/${MY_OFX}/* "${S}"/openfx
