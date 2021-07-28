@@ -21,6 +21,12 @@ else
 	KEYWORDS="~amd64 ~x86"
 	S="${WORKDIR}/${PN}-${MY_PV}"
 fi
+MY_TP="ThreadPool-9a42ec1"
+SRC_URI+="
+	curl? (
+		mirror://githubcl/progschj/${MY_TP%-*}/tar.gz/${MY_TP##*-} -> ${MY_TP}.tar.gz
+	)
+"
 inherit cmake flag-o-matic xdg
 
 DESCRIPTION="Free crossplatform audio editor"
@@ -29,7 +35,7 @@ HOMEPAGE="https://web.audacityteam.org/"
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="
-alsa cpu_flags_x86_sse doc ffmpeg +flac id3tag jack +ladspa +lv2 mad
+alsa curl doc ffmpeg +flac id3tag jack +ladspa +lv2 mad
 nls ogg oss portmidi +portmixer portsmf sbsms +soundtouch twolame vamp +vorbis
 +vst
 "
@@ -47,6 +53,7 @@ RDEPEND="
 	>=media-sound/lame-3.100-r3
 	x11-libs/wxGTK:3.1=[X]
 	alsa? ( media-libs/alsa-lib )
+	curl? ( net-misc/curl )
 	ffmpeg? ( media-video/ffmpeg:= )
 	flac? ( media-libs/flac[cxx] )
 	id3tag? ( media-libs/libid3tag )
@@ -82,6 +89,8 @@ src_prepare() {
 	use portmidi || sed \
 		-e '/MIDI_OUT/d' -i src/Experimental.cmake
 	cmake_src_prepare
+	use curl || return
+	mv "${WORKDIR}"/${MY_TP} "${S}"/libraries/lib-network-manager/${MY_TP%-*}
 }
 
 src_configure() {
@@ -100,6 +109,8 @@ src_configure() {
 		-Daudacity_use_lv2=$(usex lv2 system off)
 		-Daudacity_use_libmad=$(usex mad system off)
 		-Daudacity_use_midi=$(usex portmidi local off)
+		-Daudacity_has_networking=$(usex curl)
+		-Daudacity_has_updates_check=no
 		-Daudacity_use_ogg=$(usex ogg system off)
 		-Daudacity_use_pa_alsa=$(usex alsa)
 		-Daudacity_use_pa_jack=$(usex jack linked off)
