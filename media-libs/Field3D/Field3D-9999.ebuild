@@ -51,5 +51,11 @@ src_configure() {
 		$(cmake_use_find_package mpi MPI)
 		-DIlmbase_Base_Dir=/usr
 	)
+	has_version '>=media-libs/openexr-3' && \
+	mycmakeargs+=(
+		-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=yes
+		-DILMBASE_INCLUDE_DIRS="${EPREFIX}/usr/include/OpenEXR-3;${EPREFIX}/usr/include/Imath-3"
+		-DILMBASE_LIBRARY_DIRS="${EPREFIX}/usr/$(get_libdir)/OpenEXR-3;${EPREFIX}/usr/$(get_libdir)/Imath-3"
+	)
 	cmake_src_configure
 }

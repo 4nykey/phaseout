@@ -49,7 +49,7 @@ RDEPEND="
 		')
 	)
 	dev-libs/expat
-	dev-cpp/yaml-cpp
+	dev-cpp/yaml-cpp:=
 	media-libs/openexr:=
 	dev-cpp/pystring
 "

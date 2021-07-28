@@ -9,17 +9,6 @@
      pthread dl z )
    SET ( Field3D_DSO_Libraries ${Field3D_Libraries_Shared} )
    SET ( Field3D_BIN_Libraries Field3D ${Field3D_Libraries_Shared}
---- a/cmake/FindILMBase.cmake
-+++ b/cmake/FindILMBase.cmake
-@@ -44,7 +44,7 @@ FIND_PATH ( Ilmbase_Base_Dir NAMES inclu
- IF ( Ilmbase_Base_Dir )
- 
-   SET ( ILMBASE_INCLUDE_DIRS
--    ${Ilmbase_Base_Dir}/include
-+    ${Ilmbase_Base_Dir}/include/Imath
-     ${Ilmbase_Base_Dir}/include/OpenEXR
-     CACHE STRING "ILMBase include directories")
-   SET ( ILMBASE_LIBRARY_DIRS ${Ilmbase_Base_Dir}/lib64
 --- a/export/SpiMathLib.h
 +++ b/export/SpiMathLib.h
 @@ -39,7 +39,7 @@

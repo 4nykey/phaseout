@@ -67,7 +67,7 @@ DEPEND="
 	dev-libs/pugixml:=
 	media-libs/libpng:0=
 	webp? ( >=media-libs/libwebp-0.2.1:= )
-	>=media-libs/openexr-2.2.0-r2:=
+	media-libs/openexr:=
 	media-libs/tiff:0=
 	sys-libs/zlib:=
 	virtual/jpeg:0
@@ -123,6 +123,9 @@ src_prepare() {
 	mkdir -p ext
 	mv "${WORKDIR}/${MY_RM}" ext/${MY_RM%-*}
 	use test && mv "${WORKDIR}/${MY_OI}" "${WORKDIR}/${MY_OI%-*}"
+	has_version media-libs/openexr:3 || return
+	grep -rl 'include <\(Imath\|OpenEXR\)/' | xargs sed -i \
+		-e '/include/ s:<\(Imath\|OpenEXR\)/:<:'
 }
 
 src_configure() {
