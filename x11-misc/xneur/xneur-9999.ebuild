@@ -17,7 +17,7 @@ else
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
 fi
-inherit l10n autotools
+inherit plocale autotools
 
 DESCRIPTION="An utility for keyboard layout switching"
 HOMEPAGE="https://xneur.ru"

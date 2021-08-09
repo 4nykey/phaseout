@@ -7,7 +7,7 @@ PYTHON_COMPAT=( python3_{7..9} )
 PYTHON_REQ_USE="xml(+)"
 DISTUTILS_SINGLE_IMPL=1
 PLOCALES="cs de es fi fr it"
-inherit l10n distutils-r1 xdg
+inherit plocale distutils-r1 xdg
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/jliljebl/${PN}.git"
@@ -59,6 +59,6 @@ src_prepare() {
 
 src_compile() {
 	rmloc() { rm -rf "${S}"/Flowblade/locale/${1}; }
-	l10n_for_each_disabled_locale_do rmloc
+	plocale_for_each_disabled_locale rmloc
 	distutils-r1_src_compile
 }

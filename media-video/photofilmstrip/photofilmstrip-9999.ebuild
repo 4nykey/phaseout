@@ -9,7 +9,7 @@ DISTUTILS_USE_SETUPTOOLS=no
 PLOCALES="cs de el en es fr it ko nl pt_BR ru ta tr uk"
 
 MY_PN="PFS"
-inherit distutils-r1 optfeature l10n xdg
+inherit distutils-r1 optfeature plocale xdg
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/PhotoFilmStrip/${MY_PN}.git"
@@ -73,7 +73,7 @@ python_install_all() {
 		cp "${S}"/build/mo/${1}/LC_MESSAGES/${_p}.mo ${1}.mo
 		MOPREFIX=${_p} domo ${1}.mo
 	}
-	l10n_for_each_locale_do _domo
+	plocale_for_each_locale _domo
 }
 
 pkg_postinst() {

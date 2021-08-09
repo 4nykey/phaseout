@@ -4,7 +4,7 @@
 EAPI=7
 
 PLOCALES="be de es he ro ru uk"
-inherit l10n autotools xdg gnome2-utils
+inherit plocale autotools xdg gnome2-utils
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/AndrewCrewKuznetsov/xneur-devel.git"
