@@ -1,0 +1,18 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -50,13 +50,13 @@ find_package(PkgConfig REQUIRED)
+ pkg_search_module(MAGICK REQUIRED ${MAGICK_PKG_CONFIG})
+ pkg_search_module(LCMS2 REQUIRED lcms2)
+ pkg_search_module(FONTCONFIG REQUIRED fontconfig)
+-pkg_search_module(PANGO REQUIRED pangocairo)
++pkg_check_modules(PANGO REQUIRED pangocairo pangoft2)
+ pkg_search_module(XML REQUIRED libxml-2.0)
+ pkg_search_module(ZIP REQUIRED libzip)
+ pkg_search_module(SVG REQUIRED librsvg-2.0)
+ pkg_search_module(GLIB REQUIRED glib-2.0)
+ pkg_search_module(CAIRO REQUIRED cairo)
+-pkg_search_module(POPPLER REQUIRED poppler-glib)
++pkg_check_modules(POPPLER REQUIRED poppler poppler-glib)
+ pkg_check_modules(REVENGE REQUIRED librevenge-0.0 librevenge-generators-0.0 librevenge-stream-0.0)
+ pkg_search_module(CDR REQUIRED libcdr-0.1)
+ add_compile_options(${MAGICK_CFLAGS}) # we need the magick flags

@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit toolchain-funcs
+inherit cmake
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
@@ -15,11 +15,11 @@ else
 	else
 		MY_OIO="3b80afe"
 	fi
-	MY_OFX='openfx-108880d'
-	MY_SUP='openfx-supportext-bde8d6a'
-	MY_SEQ='SequenceParsing-ab247c2'
-	MY_TIN='tinydir-3aae922'
-	MY_PNG='lodepng-7fdcc96'
+	MY_OFX='openfx-f46d822'
+	MY_SUP='openfx-supportext-76f9748'
+	MY_SEQ='SequenceParsing-103c528'
+	MY_TIN='tinydir-64fb1d4'
+	MY_PNG='lodepng-8c6a9e3'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
@@ -28,7 +28,6 @@ else
 		mirror://githubcl/NatronGitHub/${MY_SEQ%-*}/tar.gz/${MY_SEQ##*-} -> ${MY_SEQ}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_TIN%-*}/tar.gz/${MY_TIN##*-} -> ${MY_TIN}.tar.gz
 		mirror://githubcl/lvandeve/${MY_PNG%-*}/tar.gz/${MY_PNG##*-} -> ${MY_PNG}.tar.gz
-		https://github.com/NatronGitHub/${PN}/commit/bc06a46.patch
 	"
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
@@ -58,6 +57,9 @@ RDEPEND="
 	sox? ( media-sound/sox )
 "
 DEPEND="${RDEPEND}"
+PATCHES=(
+	"${FILESDIR}"/cmake.diff
+)
 
 src_unpack() {
 	if [[ -z ${PV%%*9999} ]]; then
@@ -71,14 +73,8 @@ src_unpack() {
 }
 
 src_prepare() {
-	default
-	sed \
-		-e "s:\<pkg-config\>:$(tc-getPKG_CONFIG):" \
-		-e 's:--static::' \
-		-e 's:pangocairo:& pangofc:' \
-		-e 's:poppler-glib:& poppler:' \
-		-e 's: -std=c++11::' \
-		-i Makefile.master
+	sed -e '/PROPERTIES INSTALL_RPATH/d' -i CMakeLists.txt
+	cmake_src_prepare
 	if [[ -n ${PV%%*9999} ]]; then
 		mv "${WORKDIR}"/${MY_OFX}/* "${S}"/OpenFX
 		mv "${WORKDIR}"/${MY_SUP}/* "${S}"/SupportExt
@@ -86,16 +82,13 @@ src_prepare() {
 		mv "${WORKDIR}"/${MY_SEQ}/* "${S}"/OpenFX-IO/IOSupport/SequenceParsing
 		mv "${WORKDIR}"/${MY_TIN}/* "${S}"/OpenFX-IO/IOSupport/SequenceParsing/tinydir
 		mv "${WORKDIR}"/${MY_PNG}/* "${S}"/lodepng
-		eapply "${DISTDIR}"/bc06a46.patch
 	fi
 }
 
-src_compile() {
-	local myemakeargs=(
-		CXX=$(tc-getCXX)
-		CXXFLAGS_ADD="${CXXFLAGS}"
-		LDFLAGS_ADD="${LDFLAGS}"
-		V=1
+src_configure() {
+	local mycmakeargs=(
+		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr/lib/OFX/Plugins"
+		-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=yes
 	)
-	emake "${myemakeargs[@]}"
+	cmake_src_configure
 }

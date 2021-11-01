@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit toolchain-funcs
+inherit cmake
 MY_GC="gmic-community-e6976b2"
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
@@ -11,7 +11,7 @@ if [[ -z ${PV%%*9999} ]]; then
 else
 	MY_PV="626699d"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-108880d'
+	MY_OFX='openfx-f46d822'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
@@ -33,6 +33,7 @@ RDEPEND="
 	>=media-gfx/gmic-2.8.4:=[cgmic(-),curl,fftw,openmp?]
 "
 DEPEND="${RDEPEND}"
+PATCHES=( "${FILESDIR}"/cmake.diff )
 
 src_unpack() {
 	if [[ -z ${PV%%*9999} ]]; then
@@ -46,29 +47,18 @@ src_unpack() {
 }
 
 src_prepare() {
-	default
+	sed -e '/PROPERTIES INSTALL_RPATH/d' -i CMakeLists.txt
 	if [[ -n ${PV%%*9999} ]]; then
 		mv "${WORKDIR}"/${MY_OFX}/* "${S}"/openfx
 	fi
 	mv "${WORKDIR}"/${MY_GC}/libcgmic/gmic_stdlib_gmic.h "${S}"/
-	sed \
-		-e 's:gmic\.cpp gmic_libc\.cpp::' \
-		-i GMIC_OFX/Makefile
-	echo 'LINKFLAGS += -lcgmic' >> GMIC_OFX/Makefile
-	sed \
-		-e "s:PLUGINPATH=\"/:PLUGINPATH=\"${ED}/:" \
-		-e 's,^install:,&\n\tmkdir -p "$(PLUGINPATH)",' \
-		-i openfx/Examples/Makefile.master
+	cmake_src_prepare
 }
 
-src_compile() {
-	local myemakeargs=(
-		-C GMIC_OFX
-		CXX=$(tc-getCXX)
-		CXXFLAGS_ADD="${CXXFLAGS}"
-		LDFLAGS_ADD="${LDFLAGS}"
-		OPENMP=$(usex openmp 1 '')
-		V=1
+src_configure() {
+	local mycmakeargs=(
+		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr/lib/OFX/Plugins"
+		-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=yes
 	)
-	emake "${myemakeargs[@]}"
+	cmake_src_configure
 }

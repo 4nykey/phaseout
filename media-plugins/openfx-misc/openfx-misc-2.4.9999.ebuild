@@ -3,15 +3,15 @@
 
 EAPI=7
 
-inherit toolchain-funcs
+inherit cmake
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
 	MY_PV="f4c99c3"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-108880d'
-	MY_SUP='openfx-supportext-bde8d6a'
+	MY_OFX='openfx-f46d822'
+	MY_SUP='openfx-supportext-76f9748'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
@@ -38,24 +38,25 @@ RDEPEND="
 	virtual/opengl
 "
 DEPEND="${RDEPEND}"
+PATCHES=( "${FILESDIR}"/cmake.diff )
 
 src_prepare() {
-	default
+	sed -e '/PROPERTIES INSTALL_RPATH/d' -i CMakeLists.txt
+	cmake_src_prepare
 	if [[ -n ${PV%%*9999} ]]; then
 		mv "${WORKDIR}"/${MY_OFX}/* openfx
 		mv "${WORKDIR}"/${MY_SUP}/* SupportExt
 	fi
 	mv "${WORKDIR}"/${MY_CIM}/CImg.h CImg
 	mv "${WORKDIR}"/${MY_CIM}/plugins/inpaint.h CImg/Inpaint
-	sed -e '/\<curl\>/d' -i CImg/Makefile
+	cd CImg/Inpaint
+	eapply inpaint.h.patch
 }
 
-src_compile() {
-	local myemakeargs=(
-		CXX=$(tc-getCXX)
-		CXXFLAGS_ADD="${CXXFLAGS}"
-		LDFLAGS_ADD="${LDFLAGS} -lpthread"
-		V=1
+src_configure() {
+	local mycmakeargs=(
+		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr/lib/OFX/Plugins"
+		-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=yes
 	)
-	emake "${myemakeargs[@]}"
+	cmake_src_configure
 }

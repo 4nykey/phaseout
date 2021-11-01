@@ -1,0 +1,36 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -356,6 +356,7 @@ ADD_LIBRARY(Misc SHARED ${MISC_SOURCES}
+ SET_TARGET_PROPERTIES(Misc PROPERTIES PREFIX "")
+ SET_TARGET_PROPERTIES(Misc PROPERTIES SUFFIX ".ofx")
+ 
++find_package(OpenMP)
+ # Add extra flags to the link step of the plugin
+ if(APPLE)
+     set_target_properties(Misc PROPERTIES LINK_FLAGS "-fvisibility=hidden -exported_symbols_list,${OFX_SUPPORT_HEADER_DIR}/osxSymbols")
+@@ -363,12 +363,15 @@ elseif(MINGW)
+     set_target_properties(Misc PROPERTIES LINK_FLAGS "-shared -fvisibility=hidden -Xlinker --version-script=${OFX_SUPPORT_HEADER_DIR}/linuxSymbols")
+ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+ # Linux & FreeBSD
+-    set_target_properties(Misc PROPERTIES LINK_FLAGS "-Wl,-fvisibility=hidden,--version-script=${OFX_SUPPORT_HEADER_DIR}/linuxSymbols")
++    set_target_properties(Misc PROPERTIES LINK_FLAGS "-Wl,-fvisibility=hidden,--version-script=${OFX_SUPPORT_HEADER_DIR}/linuxSymbols ${OpenMP_EXE_LINKER_FLAGS}")
++    SET_TARGET_PROPERTIES(Misc PROPERTIES COMPILE_FLAGS "${OpenMP_CXX_FLAGS}")
+ endif()
+ 
+ TARGET_COMPILE_DEFINITIONS(Misc PRIVATE OFX_EXTENSIONS_VEGAS OFX_EXTENSIONS_NUKE OFX_EXTENSIONS_NATRON OFX_EXTENSIONS_TUTTLE OFX_SUPPORTS_OPENGLRENDER NOMINMAX)
+ #TARGET_LINK_LIBRARIES(Misc Support ${OPENGL_gl_LIBRARY})
+-TARGET_LINK_LIBRARIES(Misc ${OPENGL_gl_LIBRARY})
++TARGET_LINK_LIBRARIES(Misc
++${OPENGL_gl_LIBRARY}
++${OpenMP_CXX_LIB_NAMES})
+ 
+ FILE(GLOB CIMG_SOURCES
+   "CImg/CImg.h"
+@@ -490,7 +491,6 @@ TARGET_LINK_LIBRARIES(CImg)
+ # Find OpenMP
+ # To compile on homebrew:
+ # env CXX=/usr/local/opt/llvm/bin/clang++ CC=/usr/local/opt/llvm/bin/clang LDFLAGS=-L/usr/local/opt/llvm/lib cmake ..
+-find_package(OpenMP)
+ # MSVC is OpenMP 2.0 and has issues, see https://github.com/dtschump/CImg/issues/208 and https://msdn.microsoft.com/fr-fr/library/ff520162.aspx
+ if (OPENMP_FOUND AND NOT MSVC)
+ #if (OPENMP_FOUND)

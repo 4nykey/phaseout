@@ -1,0 +1,39 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -91,7 +91,8 @@ FILE(GLOB SUPPORT_SOURCES
+ 
+ FILE(GLOB GMIC_SOURCES
+   "CImg.h"
+-  "gmic.cpp"
++  "gmic_plugin.cpp"
++  "Helpers/gmic_parser.cpp"
+   "gmic.h"
+   "gmic_stdlib.h"
+   "Helpers/RFX_FileUtils.cpp"
+@@ -104,7 +104,7 @@ FILE(GLOB GMIC_RESOURCES
+   "GMIC_OFX/GMIC.png"
+ )
+ 
+-ADD_LIBRARY(GMIC SHARED ${GMIC_SOURCES} ${SUPPORT_SOURCES})
++ADD_LIBRARY(GMIC SHARED ${GMIC_SOURCES})
+ SET_TARGET_PROPERTIES(GMIC PROPERTIES PREFIX "")
+ SET_TARGET_PROPERTIES(GMIC PROPERTIES SUFFIX ".ofx")
+ 
+@@ -121,7 +120,7 @@ endif()
+ 
+ TARGET_COMPILE_DEFINITIONS(GMIC PRIVATE OFX_EXTENSIONS_NUKE OFX_EXTENSIONS_NATRON NOMINMAX OFX_PLUGIN gmic_build gmic_is_parallel cimg_use_abort cimg_display=0 cimg_appname=\"gmic\" cimg_namespace_suffix=openfx_gmic cimg_verbosity=0 cimg_library=cimg_library_openfx_gmic)
+ #TARGET_LINK_LIBRARIES(GMIC Support ${OPENGL_gl_LIBRARY})
+-TARGET_LINK_LIBRARIES(GMIC ${OPENGL_gl_LIBRARY})
++TARGET_LINK_LIBRARIES(GMIC ${OPENGL_gl_LIBRARY} "cgmic")
+ 
+ # Find OpenMP
+ # To compile on homebrew:
+@@ -203,7 +203,7 @@ ELSE()
+     DESTINATION GMIC.ofx.bundle/Contents/Resources
+   )
+ 
+-  INSTALL(FILES Info.plist
++  INSTALL(FILES GMIC_OFX/Info.plist
+     DESTINATION GMIC.ofx.bundle/Contents
+   )
+ 
