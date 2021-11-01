@@ -8,10 +8,12 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	REQUIRED_USE="!doc"
 else
-	MY_PV="${PN^}-${PV/_rc/-RC}"
+	MY_PV="${PV/_rc/-RC}"
+	MY_PV="${MY_PV/_beta/-beta-}"
+	MY_PV="${PN^}-${MY_PV%_*}"
 	SRC_URI="
 		doc? (
-		https://github.com/${PN}/${PN}/releases/download/${PN^}-${MY_PV#*-}/${PN}-manual-${MY_PV#*-}.zip
+		https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-${MY_PV#*-}.tar.gz
 		)
 	"
 	[[ -z ${PV%%*_p*} ]] && MY_PV="84d5e63"
@@ -41,20 +43,21 @@ nls ogg oss portmidi +portmixer portsmf sbsms +soundtouch twolame vamp +vorbis
 "
 RESTRICT="test primaryuri"
 
-RDEPEND="
+DEPEND="
 	media-libs/portaudio[alsa?]
 	portmidi? ( media-libs/portmidi )
-"
-RDEPEND="
 	dev-libs/expat
 	media-libs/libsndfile
 	media-libs/libsoundtouch
 	media-libs/soxr
 	>=media-sound/lame-3.100-r3
 	x11-libs/wxGTK:3.1=[X]
+	dev-db/sqlite:3
 	alsa? ( media-libs/alsa-lib )
-	curl? ( net-misc/curl )
-	ffmpeg? ( media-video/ffmpeg:= )
+	curl? (
+		net-misc/curl
+		dev-libs/rapidjson
+	)
 	flac? ( media-libs/flac[cxx] )
 	id3tag? ( media-libs/libid3tag )
 	jack? ( virtual/jack )
@@ -74,7 +77,10 @@ RDEPEND="
 	vamp? ( media-libs/vamp-plugin-sdk )
 	vorbis? ( media-libs/libvorbis )
 "
-DEPEND="${RDEPEND}"
+RDEPEND="
+	${DEPEND}
+	ffmpeg? ( media-video/ffmpeg:= )
+"
 BDEPEND="
 	doc? ( app-arch/unzip )
 	virtual/pkgconfig
@@ -95,35 +101,38 @@ src_prepare() {
 
 src_configure() {
 	local _w="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.1"
+	local _r=2
+	case ${PV} in
+		*_beta*) _r=1 ;;
+		*_p*|9999*) _r=0 ;;
+	esac
 	# * always use system libraries if possible
 	# * options listed in the order that cmake-gui lists them
 	local mycmakeargs=(
+		-DAUDACITY_BUILD_LEVEL=${_r}
 		-DCMAKE_SKIP_BUILD_RPATH=yes
 		-DwxWidgets_CONFIG_EXECUTABLE="${_w}"
+		-Daudacity_conan_enabled=off
 		-Daudacity_lib_preference=system
 		-Daudacity_obey_system_dependencies=yes
-		-Daudacity_use_ffmpeg=$(usex ffmpeg linked off)
-		-Daudacity_use_flac=$(usex flac system off)
+		-Daudacity_use_ffmpeg=$(usex ffmpeg loaded off)
+		-Daudacity_use_libflac=$(usex flac system off)
 		-Daudacity_use_libid3tag=$(usex id3tag system off)
 		-Daudacity_use_ladspa=$(usex ladspa)
 		-Daudacity_use_lv2=$(usex lv2 system off)
 		-Daudacity_use_libmad=$(usex mad system off)
-		-Daudacity_use_midi=$(usex portmidi local off)
+		-Daudacity_use_midi=$(usex portmidi system off)
 		-Daudacity_has_networking=$(usex curl)
 		-Daudacity_has_updates_check=no
-		-Daudacity_use_ogg=$(usex ogg system off)
-		-Daudacity_use_pa_alsa=$(usex alsa)
-		-Daudacity_use_pa_jack=$(usex jack linked off)
-		-Daudacity_use_pa_oss=$(usex oss)
-		-Daudacity_use_portaudio=local
-		-Daudacity_use_portmixer=$(usex portmixer local off)
+		-Daudacity_use_libogg=$(usex ogg system off)
+		-Daudacity_use_portaudio=system
+		-Daudacity_use_portmixer=$(usex portmixer system off)
 		-Daudacity_use_portsmf=$(usex portsmf local off)
 		-Daudacity_use_sbsms=$(usex sbsms system off)
 		-Daudacity_use_twolame=$(usex twolame system off)
 		-Daudacity_use_vamp=$(usex vamp system off)
-		-Daudacity_use_vorbis=$(usex vorbis system off)
+		-Daudacity_use_libvorbis=$(usex vorbis system off)
 		-Daudacity_use_vst=$(usex vst)
-		-DDISABLE_DYNAMIC_LOADING_FFMPEG=yes
 		-DDISABLE_DYNAMIC_LOADING_LAME=yes
 	)
 	cmake_src_configure

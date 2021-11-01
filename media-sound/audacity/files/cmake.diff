@@ -1,79 +1,27 @@
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -501,7 +501,6 @@ include( "src/Experimental.cmake" )
- add_subdirectory( "cmake-proxies" )
- 
- # Conan uses find_package and does not set GLOBAL flag
--resolve_conan_dependencies()
- 
- add_subdirectory( "help" )
- if(${_OPT}has_crashreports)
 --- a/cmake-proxies/CMakeLists.txt
 +++ b/cmake-proxies/CMakeLists.txt
-@@ -80,6 +80,7 @@ add_conan_lib(
-       # Probably this will be enabled in the future
-       libjpeg-turbo:SIMD=False 
- )
-+include(cmake-modules/dependencies/wxwidgets.cmake)
+@@ -189,13 +190,6 @@ if( ${_OPT}has_networking )
+       set ( curl_ssl "openssl" )
+    endif ()
  
- add_conan_lib(
-    libmp3lame
-@@ -113,6 +114,7 @@ else()
-    set ( curl_ssl "openssl" )
- endif ()
- 
-+if( ${_OPT}has_networking )
- add_conan_lib(
-    ThreadPool
-    threadpool/20140926
-@@ -120,7 +122,6 @@ add_conan_lib(
-    ALWAYS_ALLOW_CONAN_FALLBACK
- )
- 
--if( ${_OPT}has_networking )
- 
+-   add_conan_lib(
+-      ThreadPool
+-      threadpool/20140926
+-      REQUIRED
+-      ALWAYS_ALLOW_CONAN_FALLBACK
+-   )
+-
     add_conan_lib(
        CURL
-@@ -152,6 +145,7 @@ add_conan_lib(
-    RapidJSON
-    rapidjson/1.1.0
-    REQUIRED
-+   PKG_CONFIG "RapidJSON"
- )
+       libcurl/7.75.0
+@@ -227,6 +221,7 @@ if( ${_OPT}has_sentry_reporting )
+       RapidJSON
+       rapidjson/1.1.0
+       REQUIRED
++      PKG_CONFIG "RapidJSON"
+    )
+ endif()
  
- set_conan_vars_to_parent()
---- a/cmake-proxies/cmake-modules/AudacityDependencies.cmake
-+++ b/cmake-proxies/cmake-modules/AudacityDependencies.cmake
-@@ -1,10 +1,6 @@
- # Load Conan
- include( conan )
- 
--conan_add_remote(NAME audacity
--    URL https://artifactory.audacityteam.org/artifactory/api/conan/conan-local
--    VERIFY_SSL True
--)
- 
- set( CONAN_BUILD_REQUIRES )
- set( CONAN_REQUIRES )
---- a/cmake-proxies/cmake-modules/dependencies/wxwidgets.cmake
-+++ b/cmake-proxies/cmake-modules/dependencies/wxwidgets.cmake
-@@ -1,4 +1,5 @@
- if( ${_OPT}use_wxwidgets STREQUAL "system" ) 
-+    find_package(wxWidgets REQUIRED base core html net qa)
-     if( NOT TARGET wxwidgets::wxwidgets )
-         add_library( wxwidgets::wxwidgets INTERFACE IMPORTED GLOBAL)
-     endif()
---- a/cmake-proxies/portaudio-v19/CMakeLists.txt
-+++ b/cmake-proxies/portaudio-v19/CMakeLists.txt
-@@ -88,7 +88,7 @@ cmd_option( ${_OPT}use_pa_jack
- 
- if( NOT ${_OPT}use_pa_jack STREQUAL "off" )
-    # Find it
--   find_package( Jack )
-+   pkg_check_modules( JACK jack )
-    if( NOT JACK_FOUND)
-       set_cache_value( ${_OPT}use_pa_jack "off" )
-    endif()
 --- a/libraries/lib-network-manager/CMakeLists.txt
 +++ b/libraries/lib-network-manager/CMakeLists.txt
 @@ -32,7 +32,6 @@ set( SOURCES
@@ -86,7 +34,7 @@
  )
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -800,7 +800,9 @@ list( APPEND SOURCES
+@@ -760,7 +760,9 @@ list( APPEND SOURCES
        tracks/playabletrack/notetrack/ui/NoteTrackButtonHandle.h
        tracks/playabletrack/notetrack/ui/NoteTrackControls.cpp
        tracks/playabletrack/notetrack/ui/NoteTrackControls.h
@@ -96,7 +44,7 @@
        tracks/playabletrack/notetrack/ui/NoteTrackSliderHandles.cpp
        tracks/playabletrack/notetrack/ui/NoteTrackSliderHandles.h
        tracks/playabletrack/notetrack/ui/NoteTrackVRulerControls.cpp
-@@ -1394,9 +1394,6 @@ else()
+@@ -1378,9 +1380,6 @@ else()
                 DESTINATION "${_DATADIR}/mime/packages" )
        install( FILES "${topdir}/presets/EQDefaultCurves.xml"
                 DESTINATION "${_PKGDATA}" )
