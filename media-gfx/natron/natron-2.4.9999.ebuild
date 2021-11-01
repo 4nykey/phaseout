@@ -119,6 +119,9 @@ src_prepare() {
 		-e "s:\([^-]\)pkg-config:\1$(tc-getPKG_CONFIG):" \
 		-e 's:LIBS +=.*libcairo\.a:PKGCONFIG += cairo:' \
 		-i global.pri
+	sed \
+		-e "s:/usr/OFX/:${EPREFIX}/usr/lib/OFX/:" \
+		-i Engine/Settings.cpp libs/OpenFX/HostSupport/src/ofxhPluginCache.cpp
 }
 
 src_configure() {
