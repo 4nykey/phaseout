@@ -18,9 +18,9 @@ else
 		inherit eapi7-ver
 		MY_PV="v$(ver_rs 3 '-')"
 	fi
-	MY_OFX='openfx-108880d'
-	MY_SEQ='SequenceParsing-ab247c2'
-	MY_TIN='tinydir-3aae922'
+	MY_OFX='openfx-e405e09'
+	MY_SEQ='SequenceParsing-103c528'
+	MY_TIN='tinydir-64fb1d4'
 	MY_MCK='google-mock-17945db'
 	MY_TST='google-test-50d6fc3'
 	SRC_URI="
@@ -50,7 +50,7 @@ HOMEPAGE="http://natrongithub.github.io"
 
 LICENSE="GPL-2+ doc? ( CC-BY-SA-4.0 )"
 SLOT="0"
-IUSE="c++11 debug doc gmic openmp pch test"
+IUSE="debug doc gmic openmp pch test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="
@@ -129,7 +129,6 @@ src_configure() {
 		PREFIX=/usr
 		BUILD_USER_NAME=Gentoo
 		CONFIG+=custombuild
-		CONFIG$(usex c++11 + -)=c++11
 		CONFIG$(usex openmp + -)=openmp
 		CONFIG$(usex pch - +)=nopch
 		CONFIG$(usex debug - +)=noassertions
