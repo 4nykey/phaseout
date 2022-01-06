@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -15,8 +15,8 @@ else
 	else
 		MY_OIO="3b80afe"
 	fi
-	MY_OFX='openfx-f46d822'
-	MY_SUP='openfx-supportext-76f9748'
+	MY_OFX='openfx-e405e09'
+	MY_SUP='openfx-supportext-fb38efb'
 	MY_SEQ='SequenceParsing-103c528'
 	MY_TIN='tinydir-64fb1d4'
 	MY_PNG='lodepng-8c6a9e3'
