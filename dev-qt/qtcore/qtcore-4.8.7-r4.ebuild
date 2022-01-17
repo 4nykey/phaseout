@@ -1,7 +1,7 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 inherit qt4-build-multilib
 SRC_URI+="
 https://src.fedoraproject.org/rpms/qt/raw/b8994e8/f/qt-4.8-poll.patch
@@ -13,7 +13,7 @@ if [[ ${QT4_BUILD_TYPE} == release ]]; then
 	KEYWORDS="~amd64 ~x86"
 fi
 
-IUSE="+glib iconv icu libressl qt3support ssl"
+IUSE="+glib iconv icu qt3support ssl"
 
 DEPEND="
 	>=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}]
@@ -21,8 +21,7 @@ DEPEND="
 	iconv? ( >=virtual/libiconv-0-r2[${MULTILIB_USEDEP}] )
 	icu? ( dev-libs/icu:=[${MULTILIB_USEDEP}] )
 	ssl? (
-		!libressl? ( >=dev-libs/openssl-1.0.1h-r2:0[${MULTILIB_USEDEP}] )
-		libressl? ( dev-libs/libressl:=[${MULTILIB_USEDEP}] )
+		>=dev-libs/openssl-1.0.1h-r2:0[${MULTILIB_USEDEP}]
 	)
 "
 RDEPEND="${DEPEND}"
