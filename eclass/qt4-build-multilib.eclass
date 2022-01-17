@@ -13,7 +13,7 @@
 # Requires EAPI 5.
 
 case ${EAPI} in
-	5)	: ;;
+	5|6)	: ;;
 	*)	die "qt4-build-multilib.eclass: unsupported EAPI=${EAPI:-0}" ;;
 esac
 
@@ -61,7 +61,7 @@ fi
 
 DEPEND="
 	dev-lang/perl
-	virtual/pkgconfig[${MULTILIB_USEDEP}]
+	virtual/pkgconfig
 "
 RDEPEND="
 	dev-qt/qtchooser
