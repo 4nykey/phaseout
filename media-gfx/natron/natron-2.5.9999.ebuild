@@ -1,24 +1,22 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-PYTHON_COMPAT=( python2_7 )
-_PYTHON_ALLOW_PY27=1
+PYTHON_COMPAT=( python3_{8..10} )
 MY_PN="${PN^}"
 MY_OC="OpenColorIO-Configs-557b981"
-inherit flag-o-matic qmake-qt4 python-single-r1 toolchain-funcs xdg
+inherit flag-o-matic qmake-utils python-single-r1 toolchain-funcs xdg
 if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${MY_PN}.git"
 	EGIT_BRANCH="RB-${PV%.*}"
 	inherit git-r3
 else
-	MY_PV="e496f33"
+	MY_PV="8fcb2ff"
 	if [[ -n ${PV%%*_p*} ]]; then
-		inherit eapi7-ver
 		MY_PV="v$(ver_rs 3 '-')"
 	fi
-	MY_OFX='openfx-e405e09'
+	MY_OFX='openfx-f167682'
 	MY_SEQ='SequenceParsing-103c528'
 	MY_TIN='tinydir-64fb1d4'
 	MY_MCK='google-mock-17945db'
@@ -60,8 +58,7 @@ RDEPEND="
 	dev-libs/expat
 	x11-libs/cairo
 	$(python_gen_cond_dep '
-		dev-python/pyside:0[X,opengl,${PYTHON_MULTI_USEDEP}]
-		dev-python/shiboken:0[${PYTHON_MULTI_USEDEP}]
+		dev-python/pyside2[widgets,${PYTHON_MULTI_USEDEP}]
 	')
 "
 DEPEND="
@@ -70,6 +67,10 @@ DEPEND="
 "
 RDEPEND="
 	${RDEPEND}
+	$(python_gen_cond_dep '
+		dev-python/QtPy[gui,pyside2,widgets,${PYTHON_MULTI_USEDEP}]
+		dev-python/psutil[${PYTHON_MULTI_USEDEP}]
+	')
 	media-plugins/openfx-io
 	media-plugins/openfx-misc
 	media-plugins/openfx-arena
@@ -108,8 +109,12 @@ src_prepare() {
 	fi
 	mv "${WORKDIR}"/${MY_OC} "${S}"/OpenColorIO-Configs
 
+	grep -rl '\<\(shiboken\|pyside\)\>' --include=*.pr*| xargs sed \
+		-e 's:\<\(shiboken\|pyside\)\>:\12:g' \
+		-i
 	sed \
 		-e "s:@PKGCONFIG@:$(tc-getPKG_CONFIG):" \
+		-e "s:@EPYTHON@:${EPYTHON}:" \
 		"${FILESDIR}"/config.pri > "${S}"/config.pri
 
 	sed \
@@ -129,12 +134,14 @@ src_configure() {
 		PREFIX=/usr
 		BUILD_USER_NAME=Gentoo
 		CONFIG+=custombuild
+		PYTHON_CONFIG=${EPYTHON}-config
+		CONFIG+=python3
 		CONFIG$(usex openmp + -)=openmp
 		CONFIG$(usex pch - +)=nopch
 		CONFIG$(usex debug - +)=noassertions
 		CONFIG$(usex test - +)=notests
 	)
-	eqmake4 -r "${qmakeargs[@]}"
+	eqmake5 -r "${qmakeargs[@]}"
 }
 
 src_compile() {
