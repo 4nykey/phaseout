@@ -8,49 +8,49 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	MY_PV="f4c99c3"
+	MY_PV="82e2706"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-e405e09'
-	MY_SUP='openfx-supportext-fb38efb'
+	MY_OFX='openfx-f167682'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz
-		mirror://githubcl/NatronGitHub/${MY_SUP%-*}/tar.gz/${MY_SUP##*-} -> ${MY_SUP}.tar.gz
 	"
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
 	S="${WORKDIR}/${PN}-${MY_PV}"
 fi
-# CImg/Makefile: CIMGVERSION
-MY_CIM='CImg-89b9d06'
+# Makefile: GMICCOMMUNITYVERSION
+MY_GC="gmic-community-6a9d0e3"
 SRC_URI+="
-	mirror://githubcl/dtschump/${MY_CIM%-*}/tar.gz/${MY_CIM##*-} -> ${MY_CIM}.tar.gz
+	mirror://githubcl/dtschump/${MY_GC%-*}/tar.gz/${MY_GC##*-} -> ${MY_GC}.tar.gz
 "
 
-DESCRIPTION="Miscellaneous OpenFX plugins for Natron"
+DESCRIPTION="OpenFX wrapper for the G'MIC framework"
 HOMEPAGE="https://github.com/NatronGitHub/${PN}"
 
-LICENSE="GPL-2"
+LICENSE="|| ( CeCILL-C CeCILL-2 )"
 SLOT="0"
-IUSE=""
+IUSE="openmp"
 
 RDEPEND="
-	virtual/opengl
+	>=media-gfx/gmic-2.8.4:=[cgmic(-),curl,fftw,openmp?]
 "
 DEPEND="${RDEPEND}"
 PATCHES=( "${FILESDIR}"/cmake.diff )
 
+src_unpack() {
+	if [[ -z ${PV%%*9999} ]]; then
+		git-r3_src_unpack
+	fi
+	default
+}
 src_prepare() {
 	sed -e '/PROPERTIES INSTALL_RPATH/d' -i CMakeLists.txt
-	cmake_src_prepare
 	if [[ -n ${PV%%*9999} ]]; then
-		mv "${WORKDIR}"/${MY_OFX}/* openfx
-		mv "${WORKDIR}"/${MY_SUP}/* SupportExt
+		mv "${WORKDIR}"/${MY_OFX}/* "${S}"/openfx
 	fi
-	mv "${WORKDIR}"/${MY_CIM}/CImg.h CImg
-	mv "${WORKDIR}"/${MY_CIM}/plugins/inpaint.h CImg/Inpaint
-	cd CImg/Inpaint
-	eapply inpaint.h.patch
+	mv "${WORKDIR}"/${MY_GC}/libcgmic/gmic_stdlib_gmic.h "${S}"/
+	cmake_src_prepare
 }
 
 src_configure() {
