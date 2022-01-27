@@ -17,7 +17,7 @@
 if [[ -z ${_QMAKE_QT4} ]]; then
 _QMAKE_QT4=1
 
-[[ ${EAPI:-0} == [0123456] ]] && die "qmake-qt4.eclass: unsupported EAPI=${EAPI:-0}"
+[[ ${EAPI:-0} == [0123456] ]] || die "qmake-qt4.eclass: unsupported EAPI=${EAPI:-0}"
 
 inherit estack toolchain-funcs
 
