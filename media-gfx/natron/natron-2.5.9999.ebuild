@@ -14,9 +14,9 @@ if [[ -z ${PV%%*9999} ]]; then
 else
 	MY_PV="8fcb2ff"
 	if [[ -n ${PV%%*_p*} ]]; then
-		MY_PV="v$(ver_rs 3 '-')"
+		MY_PV="v$(ver_rs 3 '-' 4 '.')"
 	fi
-	MY_OFX='openfx-f167682'
+	MY_OFX='openfx-d5db5d0'
 	MY_SEQ='SequenceParsing-103c528'
 	MY_TIN='tinydir-64fb1d4'
 	MY_MCK='google-mock-17945db'
