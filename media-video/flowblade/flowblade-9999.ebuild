@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -34,10 +34,10 @@ S="${WORKDIR}/${P}/${PN}-trunk"
 RDEPEND="
 	${PYTHON_DEPS}
 	$(python_gen_cond_dep '
-		dev-python/pygobject:3[cairo,${PYTHON_MULTI_USEDEP}]
-		dev-python/dbus-python[${PYTHON_MULTI_USEDEP}]
-		dev-python/pillow[${PYTHON_MULTI_USEDEP}]
-		dev-python/numpy[${PYTHON_MULTI_USEDEP}]
+		dev-python/pygobject:3[cairo,${PYTHON_USEDEP}]
+		dev-python/dbus-python[${PYTHON_USEDEP}]
+		dev-python/pillow[${PYTHON_USEDEP}]
+		dev-python/numpy[${PYTHON_USEDEP}]
 		media-libs/mlt:0[python,sdl1(-),${PYTHON_SINGLE_USEDEP}]
 	')
 	gnome-base/librsvg:2[introspection]

@@ -58,7 +58,7 @@ RDEPEND="
 	dev-libs/expat
 	x11-libs/cairo
 	$(python_gen_cond_dep '
-		dev-python/pyside2[widgets,${PYTHON_MULTI_USEDEP}]
+		dev-python/pyside2[widgets,${PYTHON_USEDEP}]
 	')
 "
 DEPEND="
@@ -68,8 +68,8 @@ DEPEND="
 RDEPEND="
 	${RDEPEND}
 	$(python_gen_cond_dep '
-		dev-python/QtPy[gui,pyside2,widgets,${PYTHON_MULTI_USEDEP}]
-		dev-python/psutil[${PYTHON_MULTI_USEDEP}]
+		dev-python/QtPy[gui,pyside2,widgets,${PYTHON_USEDEP}]
+		dev-python/psutil[${PYTHON_USEDEP}]
 	')
 	media-plugins/openfx-io
 	media-plugins/openfx-misc
