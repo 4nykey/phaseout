@@ -1,10 +1,11 @@
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -314,6 +314,7 @@ if(${OPENCOLORIO_FOUND})
+@@ -314,6 +314,8 @@ if(${OPENCOLORIO_FOUND})
    target_link_libraries(IO
      PUBLIC
        ${OPENCOLORIO_LIBRARIES}
 +      "dl"
++      "GLU"
    )
  else()
    message(STATUS "  Not adding OpenColorIO nodes")

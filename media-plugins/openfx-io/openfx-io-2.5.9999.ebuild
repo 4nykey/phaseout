@@ -36,8 +36,9 @@ IUSE=""
 
 RDEPEND="
 	media-libs/openexr:=
-	media-libs/openimageio:=[color-management(+),ffmpeg,opengl,-openvdb,raw]
-	<media-libs/opencolorio-2:=
+	media-libs/openimageio:=[ffmpeg,opengl,-openvdb,raw]
+	media-libs/opencolorio:=
+	media-libs/glu
 	dev-libs/seexpr:0
 "
 DEPEND="${RDEPEND}"

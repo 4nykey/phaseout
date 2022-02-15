@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7..9} )
+PYTHON_COMPAT=( python3_{8..10} )
 PYTHON_REQ_USE="threads(+)"
 VIRTUALX_REQUIRED="test"
 DISTUTILS_IN_SOURCE_BUILD=0
@@ -63,7 +63,7 @@ PATCHES=(
 )
 
 pkg_setup() {
-	WAF_BINARY="${WORKDIR}/${WAF_BINARY}/waf"
+	WAF_BINARY="${S%/*}/${WAF_BINARY}/waf"
 	use apidocs && HTML_DOCS=( docs/html/. )
 	use examples && DOCS+=( demo samples )
 	python_setup

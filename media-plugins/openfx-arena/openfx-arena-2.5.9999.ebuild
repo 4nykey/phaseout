@@ -53,7 +53,7 @@ RDEPEND="
 	x11-libs/pango
 	>=app-text/poppler-0.83:=
 	virtual/opencl
-	<media-libs/opencolorio-2:=
+	media-libs/opencolorio:=
 	sox? ( media-sound/sox )
 "
 DEPEND="${RDEPEND}"
