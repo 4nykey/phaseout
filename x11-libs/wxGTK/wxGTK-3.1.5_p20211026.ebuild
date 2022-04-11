@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -9,7 +9,7 @@ DESCRIPTION="GTK+ version of wxWidgets, a cross-platform C++ GUI toolkit"
 HOMEPAGE="https://wxwidgets.org/"
 VIRTUALX_REQUIRED="X test"
 
-MY_PV="493cc35"
+MY_PV="204db7e"
 [[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 MY_CA="catch-ee4acb6"
 SRC_URI="
@@ -22,7 +22,7 @@ SRC_URI="
 RESTRICT=primaryuri
 
 KEYWORDS="~amd64 ~x86"
-IUSE="+X debug gstreamer libnotify chm opengl pch sdl test tiff webkit"
+IUSE="+X chm curl debug gstreamer libnotify lzma opengl pch sdl test tiff webkit"
 
 SLOT="$(ver_cut 1-2)/$(ver_cut 3)"
 
@@ -51,6 +51,8 @@ RDEPEND="
 		webkit? ( net-libs/webkit-gtk:4 )
 	)
 	chm? ( dev-libs/libmspack )
+	lzma? ( app-arch/xz-utils )
+	curl? ( net-misc/curl )
 "
 DEPEND="
 	${RDEPEND}
@@ -84,9 +86,11 @@ multilib_src_configure() {
 	# X independent options
 	local myeconfargs=(
 		$(use_enable pch)
+		$(use_with sdl)
+		$(use_with lzma liblzma)
 		--with-zlib=sys
 		--with-expat=sys
-		$(use_with sdl)
+		$(use_with curl libcurl)
 		--enable-debug=$(usex debug max $(usex test))
 	)
 
