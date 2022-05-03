@@ -9,10 +9,10 @@ VIRTUALX_REQUIRED="test"
 DISTUTILS_IN_SOURCE_BUILD=1
 
 MY_PN="wxPython"
-MY_PV="af8cca5"
+MY_PV="709fc4a"
 [[ -n ${PV%%*_p*} ]] && MY_PV="wxPython-${PV}"
 # wxGTK version and corresponding ext/wxwidgets submodule commit or tag
-WXV=( 3.1.5_p20211026 204db7e )
+WXV=( 3.1.6 v3.1.6-final )
 MY_NS="nanosvg-9dd92bb"
 # build.py: 'wafCurrentVersion'
 WAF_BINARY="waf-2.0.19"
@@ -37,7 +37,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="apidocs debug examples libnotify opengl test"
 
 RDEPEND="
-	>=x11-libs/wxGTK-${WXV}:3.1=[gstreamer,webkit,libnotify=,opengl?,tiff,X]
+	~x11-libs/wxGTK-${WXV}:3.1=[gstreamer,webkit,libnotify=,opengl?,tiff,X]
 	dev-python/numpy[${PYTHON_USEDEP}]
 	dev-python/pillow[${PYTHON_USEDEP}]
 	dev-python/six[${PYTHON_USEDEP}]
@@ -61,6 +61,7 @@ DOCS=(
 PATCHES=(
 	"${FILESDIR}"/sphinx3.diff
 	"${FILESDIR}"/cflags.diff
+	"${FILESDIR}"/sip5.patch
 )
 EPYTEST_DESELECT=(
 	unittests/test_asserts.py::asserts_Tests::test_asserts2
