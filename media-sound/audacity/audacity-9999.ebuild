@@ -51,7 +51,7 @@ DEPEND="
 	media-libs/libsoundtouch
 	media-libs/soxr
 	>=media-sound/lame-3.100-r3
-	x11-libs/wxGTK:3.1=[X]
+	x11-libs/wxGTK:3.1=[X,regex(+)]
 	dev-db/sqlite:3
 	alsa? ( media-libs/alsa-lib )
 	curl? (
@@ -89,11 +89,14 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/cmake.diff
+	"${FILESDIR}"/342c4b5.patch
+	"${FILESDIR}"/efc11c4.patch
 )
 
 src_prepare() {
 	use portmidi || sed \
 		-e '/MIDI_OUT/d' -i src/Experimental.cmake
+	sed -e 's:\<ccache\>:no_&:' -i CMakeLists.txt
 	cmake_src_prepare
 	use curl || return
 	mv "${WORKDIR}"/${MY_TP} "${S}"/libraries/lib-network-manager/${MY_TP%-*}
@@ -134,6 +137,8 @@ src_configure() {
 		-Daudacity_use_libvorbis=$(usex vorbis system off)
 		-Daudacity_use_vst=$(usex vst)
 		-DDISABLE_DYNAMIC_LOADING_LAME=yes
+		-DCCACHE=no
+		-DSCCACHE=no
 	)
 	cmake_src_configure
 }
