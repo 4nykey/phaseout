@@ -24,8 +24,8 @@ SRC_URI="
 "
 RESTRICT=primaryuri
 
-KEYWORDS= #"~amd64 ~x86"
-IUSE="+X chm curl debug gstreamer libnotify lzma opengl pch sdl test tiff webkit"
+KEYWORDS="~amd64 ~x86"
+IUSE="+X chm curl debug gstreamer libnotify lzma opengl pch pcre sdl test tiff webkit"
 
 SLOT="$(ver_cut 1-2)/$(ver_cut 3)"
 
@@ -56,7 +56,7 @@ RDEPEND="
 	chm? ( dev-libs/libmspack )
 	lzma? ( app-arch/xz-utils )
 	curl? ( net-misc/curl )
-	dev-libs/libpcre2[pcre16,pcre32]
+	pcre? ( dev-libs/libpcre2[pcre16,pcre32] )
 "
 DEPEND="
 	${RDEPEND}
@@ -92,7 +92,7 @@ multilib_src_configure() {
 	local myeconfargs=(
 		$(use_enable pch)
 		$(use_with sdl)
-		--with-regex=sys
+		$(use_with pcre regex sys)
 		$(use_with lzma liblzma)
 		--with-zlib=sys
 		--with-expat=sys
