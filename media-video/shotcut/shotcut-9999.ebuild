@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit qmake-utils xdg
+inherit xdg cmake
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/mltframework/${PN}.git"
@@ -30,42 +30,25 @@ BDEPEND="
 "
 DEPEND="
 	>=media-libs/mlt-7.6:7[ffmpeg,frei0r,jack?,qt5,sdl,xml]
+	sci-libs/fftw:=
+	dev-qt/qtquickcontrols2:5
 	dev-qt/qtdeclarative:5[widgets]
-	dev-qt/qtmultimedia:5
+	dev-qt/qtwebsockets:5
 	dev-qt/qtopengl:5
 	dev-qt/qtsql:5
-	dev-qt/qtwebsockets:5
-	dev-qt/qtquickcontrols2:5
+	dev-qt/qtmultimedia:5
 "
 RDEPEND="
 	${DEPEND}
 	dev-qt/qtgraphicaleffects:5
 	dev-qt/qtquickcontrols:5
 "
-DEPEND+="
-	dev-qt/qtconcurrent:5
-	dev-qt/qtx11extras:5
+BDEPEND="
+	virtual/pkgconfig
 "
-PATCHES=(
-)
 
 src_prepare() {
-	default
-
-	sed -i -e '/QT.*private/d' \
-		src/src.pro || die
-}
-
-src_configure() {
-	local myqmakeargs=(
-		PREFIX="${EPREFIX}/usr"
-		CONFIG+=warn_off
-		SHOTCUT_VERSION="${PV}"
-	)
-	eqmake5 "${myqmakeargs[@]}"
-}
-
-src_install() {
-	emake INSTALL_ROOT="${D}" install
-	einstalldocs
+	cmake_src_prepare
+	sed -e '/INSTALL(TARGETS/s:\<lib\>:${CMAKE_INSTALL_LIBDIR}:' \
+		-i CuteLogger/CMakeLists.txt
 }
