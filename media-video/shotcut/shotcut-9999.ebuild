@@ -29,7 +29,7 @@ BDEPEND="
 	dev-qt/linguist-tools:5
 "
 DEPEND="
-	>=media-libs/mlt-7.6:7[ffmpeg,frei0r,jack?,qt5,sdl,xml]
+	>=media-libs/mlt-7.8:=[ffmpeg,frei0r,jack?,qt5,sdl,xml]
 	sci-libs/fftw:=
 	dev-qt/qtquickcontrols2:5
 	dev-qt/qtdeclarative:5[widgets]
