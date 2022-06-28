@@ -1,8 +1,8 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-RESTRICT="test"
+EAPI=8
+
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/mltframework/${PN}.git"
@@ -19,41 +19,29 @@ fi
 
 LUA_COMPAT=( lua5-{1..4} luajit )
 PYTHON_COMPAT=( python3_{8..10} )
-inherit lua python-single-r1 cmake toolchain-funcs
+inherit python-single-r1 cmake
 
 DESCRIPTION="Open source multimedia framework for television broadcasting"
 HOMEPAGE="https://www.mltframework.org/"
 
 LICENSE="GPL-3"
-SLOT="7"
-IUSE="cpu_flags_x86_mmx cpu_flags_x86_sse cpu_flags_x86_sse2 debug
-ffmpeg fftw frei0r gtk jack kernel_linux libsamplerate lua opencv opengl python
-qt5 rtaudio rubberband sdl vdpau vidstab xine xml"
-IUSE+=" doc sdl1 sox test"
-# java perl php tcl
+SLOT="0/7"
+IUSE="debug ffmpeg frei0r gtk jack libsamplerate opencv opengl python qt5 rtaudio rubberband sdl test vdpau vidstab xine xml"
+IUSE+=" doc sdl1 sox"
 
-REQUIRED_USE="lua? ( ${LUA_REQUIRED_USE} )
-	python? ( ${PYTHON_REQUIRED_USE} )"
-REQUIRED_USE+="
-	test? ( qt5 )
-"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+REQUIRED_USE+=" test? ( qt5 )"
 
-SWIG_DEPEND=">=dev-lang/swig-2.0"
-#	java? ( ${SWIG_DEPEND} >=virtual/jdk-1.5 )
-#	perl? ( ${SWIG_DEPEND} )
-#	php? ( ${SWIG_DEPEND} )
-#	tcl? ( ${SWIG_DEPEND} )
-#	ruby? ( ${SWIG_DEPEND} )
-BDEPEND="
-	virtual/pkgconfig
-	lua? ( ${SWIG_DEPEND} virtual/pkgconfig )
-	python? ( ${SWIG_DEPEND} )
-"
-#rtaudio will use OSS on non linux OSes
+# Needs unpackaged 'kwalify'
+RESTRICT="test"
+
+# rtaudio will use OSS on non linux OSes
+# Qt already needs FFTW/PLUS so let's just always have it on to ensure
+# MLT is useful: bug #603168.
 DEPEND="
 	>=media-libs/libebur128-1.2.2:=
+	sci-libs/fftw:3.0=
 	ffmpeg? ( media-video/ffmpeg:0=[vdpau?,-flite] )
-	fftw? ( sci-libs/fftw:3.0= )
 	frei0r? ( media-plugins/frei0r-plugins )
 	gtk? (
 		media-libs/libexif
@@ -65,9 +53,11 @@ DEPEND="
 		virtual/jack
 	)
 	libsamplerate? ( >=media-libs/libsamplerate-0.1.2 )
-	lua? ( ${LUA_DEPS} )
-	opencv? ( >=media-libs/opencv-3.2.0:= )
-	opengl? ( media-video/movit )
+	opencv? ( >=media-libs/opencv-4.5.1:=[contrib] )
+	opengl? (
+		media-libs/libglvnd
+		media-video/movit
+	)
 	python? ( ${PYTHON_DEPS} )
 	qt5? (
 		dev-qt/qtcore:5
@@ -96,17 +86,23 @@ DEPEND="
 	)
 	sox? ( media-sound/sox )
 "
-#	java? ( >=virtual/jre-1.5 )
+#	java? ( >=virtual/jre-1.8:* )
 #	perl? ( dev-lang/perl )
 #	php? ( dev-lang/php )
 #	ruby? ( ${RUBY_DEPS} )
 #	tcl? ( dev-lang/tcl:0= )
 RDEPEND="${DEPEND}"
+BDEPEND="
+	virtual/pkgconfig
+	python? ( >=dev-lang/swig-2.0 )
+"
+
+DOCS=( AUTHORS NEWS README.md )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-6.10.0-swig-underlinking.patch
 	"${FILESDIR}"/${PN}-6.22.1-no_lua_bdepend.patch
-	"${FILESDIR}"/mlt7-no_symlinks.diff
+	"${FILESDIR}"/${PN}-7.0.1-cmake-symlink.patch
 )
 
 pkg_setup() {
@@ -114,80 +110,59 @@ pkg_setup() {
 }
 
 src_prepare() {
+	# Respect CFLAGS LDFLAGS when building shared libraries. Bug #308873
+	if use python; then
+		sed -i "/mlt.so/s/ -lmlt++ /& ${CFLAGS} ${LDFLAGS} /" src/swig/python/build || die
+		python_fix_shebang src/swig/python
+	fi
+
 	cmake_src_prepare
-
-	# respect CFLAGS LDFLAGS when building shared libraries. Bug #308873
-	for x in python lua; do
-		sed -i "/mlt.so/s/ -lmlt++ /& ${CFLAGS} ${LDFLAGS} /" src/swig/$x/build || die
-	done
-
-	use python && python_fix_shebang src/swig/python
 }
 
 src_configure() {
 	local mycmakeargs=(
 		-DCMAKE_SKIP_BUILD_RPATH=yes
+		-DBUILD_WITH_QT6=no
 		-DGPL=yes
 		-DGPL3=yes
 		-DBUILD_TESTING=$(usex test)
-		-DBUILD_DOCS=$(usex doc)
+		-DMOD_KDENLIVE=ON
+		-DMOD_SDL1=$(usex sdl1)
+		-DMOD_SDL2=$(usex sdl)
 		-DMOD_AVFORMAT=$(usex ffmpeg)
+		-DMOD_PLUS=yes
 		-DMOD_FREI0R=$(usex frei0r)
 		-DMOD_GDK=$(usex gtk)
 		-DMOD_JACKRACK=$(usex jack)
-		-DMOD_KDENLIVE=yes
+		-DMOD_GLAXNIMATE=no
+		-DMOD_RESAMPLE=$(usex libsamplerate)
 		-DMOD_OPENCV=$(usex opencv)
 		-DMOD_MOVIT=$(usex opengl)
-		-DMOD_PLUS=$(usex fftw)
 		-DMOD_QT=$(usex qt5)
-		-DMOD_RESAMPLE=$(usex libsamplerate)
 		-DMOD_RTAUDIO=$(usex rtaudio)
 		-DMOD_RUBBERBAND=$(usex rubberband)
-		-DMOD_SDL1=$(usex sdl1)
-		-DMOD_SDL2=$(usex sdl)
-		-DMOD_SOX=$(usex sox)
 		-DMOD_VIDSTAB=$(usex vidstab)
 		-DMOD_XINE=$(usex xine)
 		-DMOD_XML=$(usex xml)
-
-		-DSWIG_PYTHON=$(usex python)
-		-DSWIG_LUA=$(usex lua)
+		-DMOD_SOX=$(usex sox)
 	)
-	use python && mycmakeargs+=(
-		-DPython3_EXECUTABLE="${PYTHON}"
-	)
-	cmake_src_configure
 
-	# TODO: add swig language bindings
+	# TODO: rework upstream CMake to allow controlling MMX/SSE/SSE2
+	# TODO: add swig language bindings?
 	# see also https://www.mltframework.org/twiki/bin/view/MLT/ExtremeMakeover
-}
 
-src_compile() {
-	cmake_src_compile
-
-	if use lua; then
-		local _b="${BUILD_DIR}"
-		BUILD_DIR="${S}"
-		# Only copy sources now to avoid unnecessary rebuilds
-		lua_copy_sources
-
-		lua_compile() {
-			pushd "${BUILD_DIR}"/src/swig/lua > /dev/null || die
-
-			sed -i -e "s| mlt_wrap.cxx| $(lua_get_CFLAGS) mlt_wrap.cxx|" build || die
-			./build
-
-			popd > /dev/null || die
-		}
-		lua_foreach_impl lua_compile
-		BUILD_DIR="${_b}"
+	if use python; then
+		mycmakeargs+=( -DSWIG_PYTHON=yes )
+		-DPython3_EXECUTABLE="${PYTHON}"
 	fi
+
+	cmake_src_configure
 }
 
 src_install() {
 	cmake_src_install
 
-	insinto /usr/share/mlt-7
+	insinto /usr/share/${PN}
 	doins -r demo
 
 	#
@@ -197,23 +172,7 @@ src_install() {
 	docinto swig
 
 	if use python; then
-		dodoc src/swig/python/play.py
+		dodoc "${S}"/src/swig/python/play.py
 		python_optimize
 	fi
-
-	if use lua; then
-		BUILD_DIR="${S}"
-		lua_install() {
-			pushd "${BUILD_DIR}"/src/swig/lua > /dev/null || die
-
-			exeinto "$(lua_get_cmod_dir)"
-			newexe mlt.so mlt7.so
-
-			popd > /dev/null || die
-		}
-		lua_foreach_impl lua_install
-
-		dodoc "${S}"/src/swig/lua/play.lua
-	fi
-	# not done: java perl php ruby tcl
 }
