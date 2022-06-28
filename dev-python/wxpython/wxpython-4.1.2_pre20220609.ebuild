@@ -9,27 +9,24 @@ VIRTUALX_REQUIRED="test"
 DISTUTILS_IN_SOURCE_BUILD=1
 
 MY_PN="wxPython"
-MY_PV="709fc4a"
-[[ -n ${PV%%*_p*} ]] && MY_PV="wxPython-${PV}"
-# wxGTK version and corresponding ext/wxwidgets submodule commit or tag
-WXV=( 3.1.6 v3.1.6-final )
-MY_NS="nanosvg-9dd92bb"
-# build.py: 'wafCurrentVersion'
-WAF_BINARY="waf-2.0.19"
-inherit distutils-r1 eutils vcs-snapshot virtualx
+if [[ -n ${PV%%*_p*} ]]; then
+	MY_P="${MY_PN}-${PV}"
+	SRC_URI="mirror://pypi/${P:0:1}/${MY_PN}/${MY_P}.tar.gz"
+else
+	MY_PV="$(ver_cut 1-3)a1.dev5434+7d45ee6a"
+	MY_P="${MY_PN}-${MY_PV}"
+	SRC_URI="
+		https://wxpython.org/Phoenix/snapshot-builds/${MY_P}.tar.gz
+		apidocs? (
+			https://wxpython.org/Phoenix/snapshot-builds/${MY_PN}-docs-${MY_PV}.tar.gz
+		)
+	"
+fi
+S="${WORKDIR}/${MY_P}"
+inherit distutils-r1 eutils virtualx
 
 DESCRIPTION="A blending of the wxWindows C++ class library with Python"
-HOMEPAGE="https://wiki.wxpython.org/ProjectPhoenix"
-SRC_URI="
-	mirror://githubcl/wxWidgets/Phoenix/tar.gz/${MY_PV}
-	-> ${P}.tar.gz
-	mirror://githubcl/wxWidgets/wxWidgets/tar.gz/${WXV[1]}
-	-> wxGTK-${WXV}.tar.gz
-	mirror://githubcl/wxWidgets/${MY_NS%-*}/tar.gz/${MY_NS##*-}
-	-> ${MY_NS}.tar.gz
-	https://waf.io/${WAF_BINARY}.tar.bz2
-"
-RESTRICT="primaryuri"
+HOMEPAGE="https://www.wxpython.org"
 
 LICENSE="wxWinLL-3.1 LGPL-2"
 SLOT="4.0"
@@ -37,7 +34,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="apidocs debug examples libnotify opengl test"
 
 RDEPEND="
-	~x11-libs/wxGTK-${WXV}:3.1=[gstreamer,webkit,libnotify=,opengl?,tiff,X]
+	~x11-libs/wxGTK-3.1.7:3.1=[gstreamer,webkit,libnotify=,opengl?,tiff,X]
 	dev-python/numpy[${PYTHON_USEDEP}]
 	dev-python/pillow[${PYTHON_USEDEP}]
 	dev-python/six[${PYTHON_USEDEP}]
@@ -47,8 +44,7 @@ DEPEND="
 "
 BDEPEND="
 	app-doc/doxygen
-	<dev-python/sip-6:5[${PYTHON_USEDEP}]
-	apidocs? ( dev-python/sphinx[${PYTHON_USEDEP}] )
+	>=dev-python/sip-6.6:5[${PYTHON_USEDEP}]
 	test? (
 		dev-python/pytest-xdist[${PYTHON_USEDEP}]
 		dev-python/pytest-timeout[${PYTHON_USEDEP}]
@@ -59,9 +55,9 @@ DOCS=(
 	docs/MigrationGuide.rst
 )
 PATCHES=(
-	"${FILESDIR}"/sphinx3.diff
 	"${FILESDIR}"/cflags.diff
-	"${FILESDIR}"/sip5.patch
+	# sip-6.6
+	"${FILESDIR}"/90171ba.patch
 )
 EPYTEST_DESELECT=(
 	unittests/test_asserts.py::asserts_Tests::test_asserts2
@@ -69,47 +65,34 @@ EPYTEST_DESELECT=(
 	unittests/test_display.py::display_Tests::test_display
 	unittests/test_frame.py::frame_Tests::test_frameRestore
 	unittests/test_gbsizer.py::gbsizer_Tests::test_gbsizer_sizer2
-	unittests/test_intl.py::intl_Tests::test_intlGetString
-	unittests/test_lib_agw_zoombar.py::lib_agw_zoombar_Tests::test_lib_agw_zoombarCtor
+	unittests/test_lib_agw_ultimatelistctrl.py::lib_agw_ultimatelistctrl_Tests::test_lib_agw_ultimatelistctrlCtorIcon
+	unittests/test_lib_calendar.py::lib_calendar_Tests
+	unittests/test_lib_busy.py::lib_busy_Tests
+	unittests/test_lib_buttons.py::lib_buttons_Tests
 	unittests/test_lib_pubsub_provider.py::lib_pubsub_Except::test1
 	unittests/test_lib_pubsub_topicmgr.py::lib_pubsub_TopicMgr2_GetOrCreate_DefnProv::test20_UseProvider
-	unittests/test_sound.py::sound_Tests::test_sound2
-	unittests/test_sound.py::sound_Tests::test_sound3
-	unittests/test_sound.py::sound_Tests::test_sound4
+	unittests/test_sound.py::sound_Tests
 	unittests/test_utils.py::utils_Tests::test_utilsSomeOtherStuff
 	unittests/test_windowid.py::IdManagerTest::test_newIdRef03
-	wx/py/tests/test_introspect.py::GetAttributeNamesTestCase::test_getAttributeNames
 )
 distutils_enable_tests pytest
 
 pkg_setup() {
 	WAF_BINARY="${S%/*}/${WAF_BINARY}/waf"
-	use apidocs && HTML_DOCS=( docs/html/. )
+	use apidocs && HTML_DOCS=( ../${MY_PN}-docs-${MY_PV}/docs/html/. )
 	use examples && DOCS+=( demo samples )
 	python_setup
 }
 
 python_prepare_all() {
-	rm -rf ext/wxWidgets ext/nanosvg
-	ln -s "${WORKDIR}"/wxGTK-${WXV} ext/wxWidgets
-	ln -s "${WORKDIR}"/${MY_NS} ext/nanosvg
-	sed -e "/revhash  = /s:=.*:= '${MY_PV}':" -i sphinxtools/postprocess.py
+	sed -e '/attrdict/d' -i buildtools/config.py
 
 	distutils-r1_python_prepare_all
 }
 
-python_configure() {
-	DOXYGEN="/usr/bin/doxygen" \
-		${PYTHON} ./build.py dox etg $(usex apidocs '' '--nodoc') sip || die
-}
-
-python_compile_all() {
-	use apidocs || return
-	DOXYGEN="/usr/bin/doxygen" \
-		${PYTHON} ./build.py sphinx || die
-}
-
 python_compile() {
+	local -x DOXYGEN="/usr/bin/doxygen" \
+		WX_CONFIG="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.1"
 	local _args=(
 		--python="${PYTHON}"
 		--$(usex debug debug release)
@@ -119,16 +102,14 @@ python_compile() {
 		--jobs=$(makeopts_jobs)
 		--verbose
 	)
+	${PYTHON} ./build.py dox etg sip --nodoc || die
 	CC="$(tc-getCC) ${CFLAGS}" \
 	CXX="$(tc-getCXX) ${CXXFLAGS}" \
-	DOXYGEN="/usr/bin/doxygen" \
-	WAF="${WAF_BINARY}" \
-	WX_CONFIG="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.1" \
-		${PYTHON} ./build.py "${_args[@]}" build_py || die
+		${PYTHON} ./build.py build_py "${_args[@]}" || die
 }
 
 python_test() {
-	virtx epytest
+	virtx epytest unittests
 }
 
 python_install() {
