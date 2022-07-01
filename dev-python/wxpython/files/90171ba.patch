@@ -139,3 +139,14 @@ Fixes #2169.
  
  def cmd_touch(options, args):
      cmdTimer = CommandTimer('touch')
+--- a/buildtools/config.py
++++ b/buildtools/config.py
+@@ -86,7 +86,7 @@ class Configuration(object):
+     PKGDIR = 'wx'
+     # The name of the top-level package
+ 
+-    SIP_ABI = '12.8'
++    SIP_ABI = '12.10'
+     SIP_TRACE = False
+ 
+     # ---------------------------------------------------------------

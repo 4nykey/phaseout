@@ -13,7 +13,7 @@ if [[ -n ${PV%%*_p*} ]]; then
 	MY_P="${MY_PN}-${PV}"
 	SRC_URI="mirror://pypi/${P:0:1}/${MY_PN}/${MY_P}.tar.gz"
 else
-	MY_PV="$(ver_cut 1-3)a1.dev5434+7d45ee6a"
+	MY_PV="$(ver_cut 1-3)a1.dev5439+9d4ed223"
 	MY_P="${MY_PN}-${MY_PV}"
 	SRC_URI="
 		https://wxpython.org/Phoenix/snapshot-builds/${MY_P}.tar.gz
@@ -21,6 +21,7 @@ else
 			https://wxpython.org/Phoenix/snapshot-builds/${MY_PN}-docs-${MY_PV}.tar.gz
 		)
 	"
+	RESTRICT="primaryuri"
 fi
 S="${WORKDIR}/${MY_P}"
 inherit distutils-r1 eutils virtualx
@@ -34,7 +35,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="apidocs debug examples libnotify opengl test"
 
 RDEPEND="
-	~x11-libs/wxGTK-3.1.7:3.1=[gstreamer,webkit,libnotify=,opengl?,tiff,X]
+	x11-libs/wxGTK:3.2=[gstreamer,webkit,libnotify=,opengl?,tiff,X]
 	dev-python/numpy[${PYTHON_USEDEP}]
 	dev-python/pillow[${PYTHON_USEDEP}]
 	dev-python/six[${PYTHON_USEDEP}]
@@ -92,7 +93,7 @@ python_prepare_all() {
 
 python_compile() {
 	local -x DOXYGEN="/usr/bin/doxygen" \
-		WX_CONFIG="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.1"
+		WX_CONFIG="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.2"
 	local _args=(
 		--python="${PYTHON}"
 		--$(usex debug debug release)
