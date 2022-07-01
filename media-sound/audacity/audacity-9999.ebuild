@@ -51,7 +51,7 @@ DEPEND="
 	media-libs/libsoundtouch
 	media-libs/soxr
 	>=media-sound/lame-3.100-r3
-	x11-libs/wxGTK:3.1=[X,regex(+)]
+	x11-libs/wxGTK:3.2=[X,regex(+)]
 	dev-db/sqlite:3
 	alsa? ( media-libs/alsa-lib )
 	curl? (
@@ -103,7 +103,7 @@ src_prepare() {
 }
 
 src_configure() {
-	local _w="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.1"
+	local _w="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.2"
 	local _r=2
 	case ${PV} in
 		*_beta*) _r=1 ;;
