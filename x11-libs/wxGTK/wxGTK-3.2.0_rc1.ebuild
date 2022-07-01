@@ -11,7 +11,7 @@ VIRTUALX_REQUIRED="X test"
 
 MY_PN="wxWidgets"
 MY_PV="204db7e"
-[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
+[[ -n ${PV%%*_p*} ]] && MY_PV="v$(ver_rs 3 -)"
 MY_CA="Catch-5f5e4ce"
 MY_NS="nanosvg-ccdb199"
 SRC_URI="
@@ -76,7 +76,6 @@ DOCS=(
 	docs/{base,gtk}
 )
 PATCHES=(
-	"${FILESDIR}"/96cb1b5.patch
 )
 
 src_prepare() {
