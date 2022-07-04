@@ -13,7 +13,7 @@ if [[ -n ${PV%%*_p*} ]]; then
 	MY_P="${MY_PN}-${PV}"
 	SRC_URI="mirror://pypi/${P:0:1}/${MY_PN}/${MY_P}.tar.gz"
 else
-	MY_PV="$(ver_cut 1-3)a1.dev5439+9d4ed223"
+	MY_PV="$(ver_cut 1-3)a1.dev5445+edf1cf07"
 	MY_P="${MY_PN}-${MY_PV}"
 	SRC_URI="
 		https://wxpython.org/Phoenix/snapshot-builds/${MY_P}.tar.gz
@@ -57,8 +57,6 @@ DOCS=(
 )
 PATCHES=(
 	"${FILESDIR}"/cflags.diff
-	# sip-6.6
-	"${FILESDIR}"/90171ba.patch
 )
 EPYTEST_DESELECT=(
 	unittests/test_asserts.py::asserts_Tests::test_asserts2
@@ -87,6 +85,7 @@ pkg_setup() {
 
 python_prepare_all() {
 	sed -e '/attrdict/d' -i buildtools/config.py
+	has_version '>=dev-python/sip-6.6.2' || eapply "${FILESDIR}"/sip661.diff
 
 	distutils-r1_python_prepare_all
 }

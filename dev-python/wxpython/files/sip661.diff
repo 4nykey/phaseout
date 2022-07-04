@@ -1,0 +1,11 @@
+--- a/wscript
++++ b/wscript
+@@ -568,7 +568,7 @@ def build(bld):
+                     'sip/siplib/int_convertors.c',
+                     'sip/siplib/objmap.c',
+                     'sip/siplib/qtlib.c',
+-                    'sip/siplib/sip_array.c',
++                    'sip/siplib/array.c',
+                     'sip/siplib/siplib.c',
+                     'sip/siplib/threads.c',
+                     'sip/siplib/voidptr.c',
