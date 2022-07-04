@@ -14,7 +14,7 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/PhotoFilmStrip/${MY_PN}.git"
 else
-	MY_PV="a9c2c9c"
+	MY_PV="4275414"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 	SRC_URI="
 		mirror://githubcl/PhotoFilmStrip/${MY_PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
@@ -45,6 +45,7 @@ RDEPEND="
 BDEPEND="
 	nls? ( sys-devel/gettext )
 "
+distutils_enable_tests pytest
 distutils_enable_sphinx docs/help --no-autodoc
 
 src_prepare() {
