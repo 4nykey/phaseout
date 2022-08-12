@@ -11,7 +11,12 @@ DISTUTILS_IN_SOURCE_BUILD=1
 MY_PN="wxPython"
 if [[ -n ${PV%%*_p*} ]]; then
 	MY_P="${MY_PN}-${PV}"
-	SRC_URI="mirror://pypi/${P:0:1}/${MY_PN}/${MY_P}.tar.gz"
+	SRC_URI="
+		mirror://pypi/${P:0:1}/${MY_PN}/${MY_P}.tar.gz
+		apidocs? (
+			https://extras.wxpython.org/${MY_PN}4/extras/${PV}/${MY_PN}-docs-${PV}.tar.gz
+		)
+	"
 else
 	MY_PV="$(ver_cut 1-3)a1.dev5445+edf1cf07"
 	MY_P="${MY_PN}-${MY_PV}"
@@ -45,7 +50,7 @@ DEPEND="
 "
 BDEPEND="
 	app-doc/doxygen
-	>=dev-python/sip-6.6:5[${PYTHON_USEDEP}]
+	>=dev-python/sip-6.6.2:5[${PYTHON_USEDEP}]
 	test? (
 		dev-python/pytest-xdist[${PYTHON_USEDEP}]
 		dev-python/pytest-timeout[${PYTHON_USEDEP}]
@@ -64,6 +69,7 @@ EPYTEST_DESELECT=(
 	unittests/test_display.py::display_Tests::test_display
 	unittests/test_frame.py::frame_Tests::test_frameRestore
 	unittests/test_gbsizer.py::gbsizer_Tests::test_gbsizer_sizer2
+	unittests/test_lib_agw_thumbnailctrl.py::lib_agw_thumbnailctrl_Tests::test_lib_agw_thumbnailctrlCtor
 	unittests/test_lib_agw_ultimatelistctrl.py::lib_agw_ultimatelistctrl_Tests::test_lib_agw_ultimatelistctrlCtorIcon
 	unittests/test_lib_calendar.py::lib_calendar_Tests
 	unittests/test_lib_busy.py::lib_busy_Tests
@@ -78,14 +84,13 @@ distutils_enable_tests pytest
 
 pkg_setup() {
 	WAF_BINARY="${S%/*}/${WAF_BINARY}/waf"
-	use apidocs && HTML_DOCS=( ../${MY_PN}-docs-${MY_PV}/docs/html/. )
+	use apidocs && HTML_DOCS=( ../${MY_P/-/-docs-}/docs/html/. )
 	use examples && DOCS+=( demo samples )
 	python_setup
 }
 
 python_prepare_all() {
 	sed -e '/attrdict/d' -i buildtools/config.py
-	has_version '>=dev-python/sip-6.6.2' || eapply "${FILESDIR}"/sip661.diff
 
 	distutils-r1_python_prepare_all
 }
