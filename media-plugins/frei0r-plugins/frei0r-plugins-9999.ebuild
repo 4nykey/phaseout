@@ -1,10 +1,11 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-CMAKE_IN_SOURCE_BUILD=1
-inherit cmake multilib
+DOCS_BUILDER="doxygen"
+DOCS_DIR="doc"
+inherit cmake-multilib docs
 MY_PN="${PN%-*}"
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
@@ -28,41 +29,35 @@ SLOT="0"
 IUSE="doc +facedetect +scale0tilt"
 
 RDEPEND="
-	x11-libs/cairo
-	facedetect? ( >=media-libs/opencv-2.3.0:= )
-	scale0tilt? ( >=media-libs/gavl-1.2.0 )
+	x11-libs/cairo[${MULTILIB_USEDEP}]
+	facedetect? ( >=media-libs/opencv-2.3.0:=[contribdnn,features2d,${MULTILIB_USEDEP}] )
+	scale0tilt? ( >=media-libs/gavl-1.2.0[${MULTILIB_USEDEP}] )
 "
 DEPEND="
-	${RDEPEND}
+${RDEPEND}
 "
-BDEPEND="
-	virtual/pkgconfig
-	doc? ( app-doc/doxygen )
-"
-DOCS=( AUTHORS ChangeLog README.md TODO )
+DOCS=( AUTHORS ChangeLog README.md )
 
 src_prepare() {
+	cmake_src_prepare
+
+	local f=CMakeLists.txt
+
 	# https://bugs.gentoo.org/418243
 	sed -i \
 		-e '/set.*CMAKE_C_FLAGS/s:"): ${CMAKE_C_FLAGS}&:' \
-		src/filter/*/CMakeLists.txt || die
-	cmake_src_prepare
+		src/filter/*/${f} || die
 }
 
 src_configure() {
 	local mycmakeargs=(
 		-DWITHOUT_OPENCV=$(usex !facedetect)
 		-DWITHOUT_GAVL=$(usex !scale0tilt)
-		$(cmake_use_find_package doc Doxygen)
 	)
-	cmake_src_configure
+	cmake-multilib_src_configure
 }
 
 src_compile() {
-	cmake_src_compile all $(usev doc)
-}
-
-src_install() {
-	cmake_src_install
-	use doc && dodoc -r doc/html
+	cmake-multilib_src_compile
+	use doc && docs_compile
 }
