@@ -5,19 +5,22 @@ EAPI=7
 
 PYTHON_COMPAT=( python3_{8..10} )
 MY_PN="${PN^}"
-MY_OC="OpenColorIO-Configs-557b981"
-inherit flag-o-matic qmake-utils python-single-r1 toolchain-funcs xdg
+MY_OC="OpenColorIO-Configs-3fd16e0"
+DOCS_BUILDER="sphinx"
+DOCS_DIR="Documentation/source"
+DOCS_AUTODOC=0
+inherit flag-o-matic cmake python-single-r1 docs toolchain-funcs virtualx xdg
 if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${MY_PN}.git"
 	EGIT_BRANCH="RB-${PV%.*}"
 	inherit git-r3
 else
-	MY_PV="8fcb2ff"
+	MY_PV="395c222"
 	if [[ -n ${PV%%*_p*} ]]; then
 		MY_PV="v$(ver_rs 3 '-' 4 '.')"
 	fi
 	MY_OFX='openfx-d5db5d0'
-	MY_SEQ='SequenceParsing-103c528'
+	MY_SEQ='SequenceParsing-3c93fcc'
 	MY_TIN='tinydir-64fb1d4'
 	MY_MCK='google-mock-17945db'
 	MY_TST='google-test-50d6fc3'
@@ -44,7 +47,7 @@ fi
 RESTRICT="primaryuri"
 
 DESCRIPTION="Open-source video compositing software"
-HOMEPAGE="http://natrongithub.github.io"
+HOMEPAGE="https://natrongithub.github.io"
 
 LICENSE="GPL-2+ doc? ( CC-BY-SA-4.0 )"
 SLOT="0"
@@ -60,6 +63,9 @@ RDEPEND="
 	$(python_gen_cond_dep '
 		dev-python/pyside2[widgets,${PYTHON_USEDEP}]
 	')
+	sci-libs/ceres-solver
+	x11-libs/libXext
+	dev-libs/wayland
 "
 DEPEND="
 	${RDEPEND}
@@ -96,8 +102,6 @@ src_unpack() {
 src_prepare() {
 	use pch && append-flags -Winvalid-pch
 
-	default
-
 	if [[ -n ${PV%%*9999} ]]; then
 		mv "${WORKDIR}"/${MY_OFX}/* "${S}"/libs/OpenFX
 		mv "${WORKDIR}"/${MY_SEQ}/* "${S}"/libs/SequenceParsing
@@ -109,14 +113,6 @@ src_prepare() {
 	fi
 	mv "${WORKDIR}"/${MY_OC} "${S}"/OpenColorIO-Configs
 
-	grep -rl '\<\(shiboken\|pyside\)\>' --include=*.pr*| xargs sed \
-		-e 's:\<\(shiboken\|pyside\)\>:\12:g' \
-		-i
-	sed \
-		-e "s:@PKGCONFIG@:$(tc-getPKG_CONFIG):" \
-		-e "s:@EPYTHON@:${EPYTHON}:" \
-		"${FILESDIR}"/config.pri > "${S}"/config.pri
-
 	sed \
 		-e '/X11.*fonts/d' \
 		-e '/-Wl,-rpath/d' \
@@ -127,39 +123,33 @@ src_prepare() {
 	sed \
 		-e "s:/usr/OFX/:${EPREFIX}/usr/lib/OFX/:" \
 		-i Engine/Settings.cpp libs/OpenFX/HostSupport/src/ofxhPluginCache.cpp
+
+	cmake_src_prepare
 }
 
 src_configure() {
-	local qmakeargs=(
-		PREFIX=/usr
-		BUILD_USER_NAME=Gentoo
-		CONFIG+=custombuild
-		PYTHON_CONFIG=${EPYTHON}-config
-		CONFIG+=python3
-		CONFIG$(usex openmp + -)=openmp
-		CONFIG$(usex pch - +)=nopch
-		CONFIG$(usex debug - +)=noassertions
-		CONFIG$(usex test - +)=notests
+	local mycmakeargs=(
+		-DNATRON_SYSTEM_LIBS=yes
+		-DNATRON_BUILD_TESTS=$(usex test)
 	)
-	eqmake5 -r "${qmakeargs[@]}"
+	cmake_src_configure
 }
 
 src_compile() {
-	default
-	use doc && \
-		sphinx-build -b html Documentation/source html
+	cmake_src_compile
+	docs_compile
 }
 
 src_install() {
 	local DOCS=(
 		{BUGS,CHANGELOG,CONTRIBUTING,README}.md CONTRIBUTORS.txt
-		$(usex doc html '')
+		$(usex doc _build/html '')
 	)
-	emake INSTALL_ROOT="${ED}" install
-	einstalldocs
+	cmake_src_install
+	insinto /usr/share
+	doins -r OpenColorIO-Configs
 }
 
 src_test() {
-	cd "${S}"/Tests
-	./Tests || die
+	virtx cmake_src_test
 }

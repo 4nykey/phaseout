@@ -8,16 +8,16 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	MY_PV="0f5578b"
+	MY_PV="2e56d77"
 	if [[ -n ${PV%%*_p*} ]]; then
 		MY_PV="Natron-${PV}"
 		MY_OIO="${MY_PV}"
 	else
-		MY_OIO="99d4471"
+		MY_OIO="9fb5ee9"
 	fi
 	MY_OFX='openfx-d5db5d0'
 	MY_SUP='openfx-supportext-79d8c22'
-	MY_SEQ='SequenceParsing-103c528'
+	MY_SEQ='SequenceParsing-3c93fcc'
 	MY_TIN='tinydir-64fb1d4'
 	MY_PNG='lodepng-5601b82'
 	SRC_URI="
@@ -52,7 +52,6 @@ RDEPEND="
 	gnome-base/librsvg
 	x11-libs/pango
 	>=app-text/poppler-0.83:=
-	virtual/opencl
 	media-libs/opencolorio:=
 	sox? ( media-sound/sox )
 "
@@ -73,7 +72,10 @@ src_unpack() {
 }
 
 src_prepare() {
-	sed -e '/PROPERTIES INSTALL_RPATH/d' -i CMakeLists.txt
+	sed \
+		-e '/PROPERTIES INSTALL_RPATH/d' \
+		-e '/set\s*(CMAKE_CXX_STANDARD/d' \
+		-i CMakeLists.txt
 	cmake_src_prepare
 	if [[ -n ${PV%%*9999} ]]; then
 		mv "${WORKDIR}"/${MY_OFX}/* "${S}"/OpenFX

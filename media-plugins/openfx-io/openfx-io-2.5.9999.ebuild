@@ -8,12 +8,12 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	MY_PV="99d4471"
+	MY_PV="9fb5ee9"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
 	MY_P="${PN}-${MY_PV}"
 	MY_OFX='openfx-d5db5d0'
 	MY_SUP='openfx-supportext-79d8c22'
-	MY_SEQ='SequenceParsing-103c528'
+	MY_SEQ='SequenceParsing-3c93fcc'
 	MY_TIN='tinydir-64fb1d4'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${MY_P}.tar.gz
@@ -51,13 +51,15 @@ src_prepare() {
 		-e '/PROPERTIES INSTALL_RPATH/d' \
 		-e '/set(CMAKE_CXX_STANDARD/d' \
 		-i CMakeLists.txt
-	cmake_src_prepare
 	if [[ -n ${PV%%*9999} ]]; then
 		mv "${WORKDIR}"/${MY_OFX}/* "${S}"/openfx
 		mv "${WORKDIR}"/${MY_SUP}/* "${S}"/SupportExt
 		mv "${WORKDIR}"/${MY_SEQ}/* "${S}"/IOSupport/SequenceParsing
 		mv "${WORKDIR}"/${MY_TIN}/* "${S}"/IOSupport/SequenceParsing/tinydir
 	fi
+	sed -s 's:#include <dlfcn.h>:&\n#include <cstddef>:' \
+		-i SupportExt/glad/gladegl.cpp
+	cmake_src_prepare
 }
 
 src_configure() {

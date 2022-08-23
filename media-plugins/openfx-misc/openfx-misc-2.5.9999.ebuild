@@ -8,7 +8,7 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	MY_PV="adfda9c"
+	MY_PV="aac3519"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
 	MY_OFX='openfx-d5db5d0'
 	MY_SUP='openfx-supportext-79d8c22'
@@ -22,7 +22,7 @@ else
 	S="${WORKDIR}/${PN}-${MY_PV}"
 fi
 # CImg/Makefile: CIMGVERSION
-MY_CIM='CImg-89b9d06'
+MY_CIM='CImg-b33dcc8'
 SRC_URI+="
 	mirror://githubcl/dtschump/${MY_CIM%-*}/tar.gz/${MY_CIM##*-} -> ${MY_CIM}.tar.gz
 "
