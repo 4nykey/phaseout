@@ -29,28 +29,18 @@
  set ( LIBRARIES PRIVATE
      CURL::libcurl
 -    ThreadPool::ThreadPool
-     lib-string-utils
-     wxwidgets::base
- )
+     lib-string-utils-interface
+     lib-exceptions-interface
+     lib-utility-interface
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -760,7 +760,9 @@ list( APPEND SOURCES
-       tracks/playabletrack/notetrack/ui/NoteTrackButtonHandle.h
        tracks/playabletrack/notetrack/ui/NoteTrackControls.cpp
        tracks/playabletrack/notetrack/ui/NoteTrackControls.h
+       tracks/playabletrack/notetrack/ui/NoteTrackMenuItems.cpp
 +      $<$<BOOL:${USE_MIDI}>:
        tracks/playabletrack/notetrack/ui/NoteTrackShifter.cpp
 +      >
        tracks/playabletrack/notetrack/ui/NoteTrackSliderHandles.cpp
        tracks/playabletrack/notetrack/ui/NoteTrackSliderHandles.h
        tracks/playabletrack/notetrack/ui/NoteTrackVRulerControls.cpp
-@@ -1378,9 +1380,6 @@ else()
-                DESTINATION "${_DATADIR}/mime/packages" )
-       install( FILES "${topdir}/presets/EQDefaultCurves.xml"
-                DESTINATION "${_PKGDATA}" )
--      install( PROGRAMS "${PROJECT_SOURCE_DIR}/linux/audacity.sh"
--               DESTINATION "."
--               RENAME "audacity" )
-    endif()
- endif()
- 

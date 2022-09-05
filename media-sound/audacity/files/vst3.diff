@@ -1,0 +1,69 @@
+--- a/cmake-proxies/CMakeLists.txt
++++ b/cmake-proxies/CMakeLists.txt
+@@ -26,7 +26,7 @@ if(${_OPT}has_vst3)
+     add_conan_lib(
+         vst3sdk vst3sdk/3.7.3
+         REQUIRED
+-        HAS_ONLY_DEBUG_RELEASE
++        PKG_CONFIG vst3sdk
+     )
+ endif()
+ 
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1190,6 +1190,7 @@ list( APPEND LDFLAGS
+    PRIVATE
+       $<$<CXX_COMPILER_ID:MSVC>:/MANIFEST:NO>
+       $<$<CXX_COMPILER_ID:GNU>:-Wl,--disable-new-dtags>
++      $<$<BOOL:${${_OPT}has_vst3}>:${PKG_vst3sdk_LDFLAGS_OTHER}>
+ )
+ 
+ #
+@@ -1205,10 +1206,8 @@ list( APPEND LIBRARIES
+       PortAudio::PortAudio
+       sqlite
+       $<$<BOOL:${${_OPT}has_crashreports}>:crashreports>
+-      $<$<BOOL:${${_OPT}has_vst3}>:vst3sdk::base>
+-      $<$<BOOL:${${_OPT}has_vst3}>:vst3sdk::pluginterfaces>
+-      $<$<BOOL:${${_OPT}has_vst3}>:vst3sdk::sdk_hosting>
+-      $<$<BOOL:${${_OPT}has_vst3}>:vst3sdk::sdk_common>
++      $<$<BOOL:${${_OPT}has_vst3}>:vst3sdk::vst3sdk>
++      $<$<BOOL:${${_OPT}has_vst3}>:X11>
+       $<$<BOOL:${USE_LIBID3TAG}>:libid3tag::libid3tag>
+       $<$<BOOL:${USE_LIBFLAC}>:FLAC::FLAC>
+       $<$<BOOL:${USE_LIBFLAC}>:FLAC::FLAC++>
+--- a/src/effects/VST3/AudacityVst3HostApplication.cpp
++++ b/src/effects/VST3/AudacityVst3HostApplication.cpp
+@@ -59,8 +59,12 @@ Steinberg::tresult PLUGIN_API AudacityVs
+ 	}
+    else if (classID == Vst::IAttributeList::iid && interfaceID == Vst::IAttributeList::iid)
+ 	{
+-		*obj = safenew Vst::HostAttributeList;
+-		return kResultTrue;
++		if (auto al = Vst::HostAttributeList::make ())
++		{
++			*obj = al.take ();
++			return kResultTrue;
++		}
++		return kOutOfMemory;
+ 	}
+ 	*obj = nullptr;
+ 	return kResultFalse;
+--- a/src/effects/VST3/internal/x11/SocketWindow.cpp
++++ b/src/effects/VST3/internal/x11/SocketWindow.cpp
+@@ -13,7 +13,7 @@
+ #include "SocketWindow.h"
+ 
+ #include <gdk/gdk.h>
+-#include <gtk/gtk.h>
++#include <gtk/gtkx.h>
+ #include <gdk/gdkx.h>
+ 
+ #include "RunLoop.h"
+@@ -45,5 +45,5 @@ void SocketWindow::OnMap(GtkWidget* widg
+ SocketWindow::SocketWindow(wxWindow* parent, wxWindowID winid, Steinberg::IPlugView* plugView)
+    : wxNativeWindow(parent, winid, gtk_socket_new()), mPlugView(plugView)
+ {
+-   gtk_signal_connect(GTK_OBJECT(GetHandle()), "map", G_CALLBACK(&SocketWindow::OnMap), this);
++   g_signal_connect(G_OBJECT(GetHandle()), "map", G_CALLBACK(&SocketWindow::OnMap), this);
+ }

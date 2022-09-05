@@ -8,14 +8,18 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	REQUIRED_USE="!doc"
 else
-	MY_PV="${PV/_rc/-RC}"
-	MY_PV="${MY_PV/_beta/-beta-}"
+	MY_PV="$(ver_rs 3-4 '-')"
+	MY_PV="${MY_PV/-rc-/-RC}"
 	MY_PV="${PN^}-${MY_PV%_*}"
-	SRC_URI="
+	if [[ -z ${PV%%*_alpha*} ]]; then
+		REQUIRED_USE="!doc"
+	else
+		SRC_URI="
 		doc? (
 		https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-${MY_PV#*-}.tar.gz
 		)
-	"
+		"
+	fi
 	[[ -z ${PV%%*_p*} ]] && MY_PV="84d5e63"
 	SRC_URI+="
 		mirror://githubcl/${PN}/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
@@ -34,12 +38,12 @@ inherit cmake flag-o-matic xdg
 DESCRIPTION="Free crossplatform audio editor"
 HOMEPAGE="https://web.audacityteam.org/"
 
-LICENSE="GPL-2"
+LICENSE="GPL-3"
 SLOT="0"
 IUSE="
 alsa curl doc ffmpeg +flac id3tag jack +ladspa +lv2 mad
-nls ogg oss portmidi +portmixer portsmf sbsms +soundtouch twolame vamp +vorbis
-+vst
+nls ogg oss pch portmidi +portmixer portsmf sbsms +soundtouch twolame vamp +vorbis
+vst wavpack
 "
 RESTRICT="test primaryuri"
 
@@ -76,6 +80,11 @@ DEPEND="
 	twolame? ( media-sound/twolame )
 	vamp? ( media-libs/vamp-plugin-sdk )
 	vorbis? ( media-libs/libvorbis )
+	vst? (
+		media-libs/vst3sdk
+		x11-libs/libX11
+	)
+	wavpack? ( media-sound/wavpack )
 "
 RDEPEND="
 	${DEPEND}
@@ -89,8 +98,7 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/cmake.diff
-	"${FILESDIR}"/342c4b5.patch
-	"${FILESDIR}"/efc11c4.patch
+	"${FILESDIR}"/vst3.diff
 )
 
 src_prepare() {
@@ -135,12 +143,20 @@ src_configure() {
 		-Daudacity_use_twolame=$(usex twolame system off)
 		-Daudacity_use_vamp=$(usex vamp system off)
 		-Daudacity_use_libvorbis=$(usex vorbis system off)
-		-Daudacity_use_vst=$(usex vst)
+		-Daudacity_use_wavpack=$(usex wavpack system off)
+		-Daudacity_has_vst3=$(usex vst)
 		-DDISABLE_DYNAMIC_LOADING_LAME=yes
-		-DCCACHE=no
-		-DSCCACHE=no
+		-Duse_pch=$(usex pch)
+	)
+	[[ -n ${PV%%*9999} ]] && mycmakeargs+=(
+		-DCMAKE_DISABLE_FIND_PACKAGE_Git=yes
 	)
 	cmake_src_configure
+}
+
+src_compile() {
+	LD_LIBRARY_PATH="${BUILD_DIR}/utils" \
+	cmake_src_compile
 }
 
 src_install() {
