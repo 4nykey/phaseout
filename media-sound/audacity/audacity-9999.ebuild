@@ -11,19 +11,18 @@ else
 	MY_PV="$(ver_rs 3-4 '-')"
 	MY_PV="${MY_PV/-rc-/-RC}"
 	MY_PV="${PN^}-${MY_PV%_*}"
-	if [[ -z ${PV%%*_alpha*} ]]; then
-		REQUIRED_USE="!doc"
-	else
-		SRC_URI="
-		doc? (
-		https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-${MY_PV#*-}.tar.gz
-		)
-		"
-	fi
 	[[ -z ${PV%%*_p*} ]] && MY_PV="84d5e63"
-	SRC_URI+="
+	SRC_URI="
 		mirror://githubcl/${PN}/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 	"
+	case ${PV} in
+		*_alpha*|*_beta*|*_pre*)
+			REQUIRED_USE="!doc" ;;
+		*)
+			SRC_URI+=" doc? (
+			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-${MY_PV#*-}.tar.gz
+			)" ;;
+	esac
 	KEYWORDS="~amd64 ~x86"
 	S="${WORKDIR}/${PN}-${MY_PV}"
 fi
@@ -41,7 +40,7 @@ HOMEPAGE="https://web.audacityteam.org/"
 LICENSE="GPL-3"
 SLOT="0"
 IUSE="
-alsa curl doc ffmpeg +flac id3tag jack +ladspa +lv2 mad
+alsa curl doc ffmpeg +flac id3tag jack +ladspa +lv2 mp3
 nls ogg oss pch portmidi +portmixer portsmf sbsms +soundtouch twolame vamp +vorbis
 vst wavpack
 "
@@ -73,7 +72,7 @@ DEPEND="
 		media-libs/sratom
 		media-libs/suil
 	)
-	mad? ( >=media-libs/libmad-0.15.1b )
+	mp3? ( media-sound/mpg123 )
 	ogg? ( media-libs/libogg )
 	sbsms? ( >=media-libs/libsbsms-2.2 )
 	soundtouch? ( >=media-libs/libsoundtouch-1.7.1 )
@@ -131,7 +130,7 @@ src_configure() {
 		-Daudacity_use_libid3tag=$(usex id3tag system off)
 		-Daudacity_use_ladspa=$(usex ladspa)
 		-Daudacity_use_lv2=$(usex lv2 system off)
-		-Daudacity_use_libmad=$(usex mad system off)
+		-Daudacity_use_libmpg123=$(usex mp3 system off)
 		-Daudacity_use_midi=$(usex portmidi system off)
 		-Daudacity_has_networking=$(usex curl)
 		-Daudacity_has_updates_check=no
