@@ -1,23 +1,25 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 PLOCALES="be de ro ru uk"
+MY_PN="xneur-devel"
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="https://github.com/AndrewCrewKuznetsov/xneur-devel.git"
+	EGIT_REPO_URI="https://github.com/AndrewCrewKuznetsov/${MY_PN}.git"
+	S="${WORKDIR}/${P}/${PN}"
 else
-	inherit vcs-snapshot
-	MY_PV="ee27c77"
+	MY_PV="ae52f05"
 	SRC_URI="
-		mirror://githubcl/AndrewCrewKuznetsov/xneur-devel/tar.gz/${MY_PV}
-		-> ${P}.tar.gz
+		mirror://githubcl/AndrewCrewKuznetsov/${MY_PN}/tar.gz/${MY_PV}
+		-> ${MY_PN}-${MY_PV}.tar.gz
 	"
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
+	S="${WORKDIR}/${MY_PN}-${MY_PV}/${PN}"
 fi
-inherit plocale autotools
+inherit plocale cmake
 
 DESCRIPTION="An utility for keyboard layout switching"
 HOMEPAGE="https://xneur.ru"
@@ -58,29 +60,22 @@ REQUIRED_USE="
 	?? ( gstreamer openal alsa )
 	?? ( aspell enchant )
 "
-S="${WORKDIR}/${P}/${PN}"
 
 src_prepare() {
-	default
 	sed \
-		-e '/Libs:/s:@libdir@:${libdir}:' \
-		-e '/Libs:/s: @LDFLAGS@::' \
-		-e '/Cflags:/s:@includedir@:${includedir}:' \
-		-i "${S}"/xn*.pc.in
-	sed -e '/\<INSTALL\>/d' -i "${S}"/Makefile.am
-	eautoreconf
+		-e '/\(libdir\|DESTINATION\)/ s:\<lib\>:${CMAKE_INSTALL_LIBDIR}:' \
+		-i lib/{,lib/,config/}CMakeLists.txt
+	cmake_src_prepare
 }
 
 src_configure() {
-	local myeconfargs=(
-		--with-sound=$(usex alsa aplay $(usex gstreamer gstreamer $(usex openal openal)))
-		--with-spell=$(usex enchant enchant $(usex aspell aspell))
-		$(use_with debug)
-		$(use_enable nls)
-		$(use_with xosd)
-		$(use_with libnotify)
-		$(use_with keylogger)
+	local mycmakeargs=(
+		-DSOUNDS=$(usex alsa aplay $(usex gstreamer gstreamer $(usex openal openal)))
+		-DKEYLOGGER=$(usex keylogger)
+		-DSPELL=$(usex enchant enchant $(usex aspell aspell))
+		-DNOTIFICATIONS=$(usex libnotify)
+		-DLOCALE_INSTALL_DIR="share/locale"
+		-DMAN_INSTALL_DIR="share/man"
 	)
-
-	econf ${myeconfargs[@]}
+	cmake_src_configure
 }

@@ -1,42 +1,40 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 PLOCALES="be de es he ro ru uk"
-inherit plocale autotools xdg gnome2-utils
+inherit plocale gnome2 cmake
+MY_PN="xneur-devel"
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="https://github.com/AndrewCrewKuznetsov/xneur-devel.git"
+	EGIT_REPO_URI="https://github.com/AndrewCrewKuznetsov/${MY_PN}.git"
 	SRC_URI=""
 	S="${WORKDIR}/${P}/${PN}"
 else
-	inherit vcs-snapshot
-	MY_PV="ee27c77"
-	MY_P="xneur-${PV}"
+	MY_PV="ae52f05"
 	SRC_URI="
-		mirror://githubcl/AndrewCrewKuznetsov/xneur-devel/tar.gz/${MY_PV}
-		-> ${MY_P}.tar.gz
+		mirror://githubcl/AndrewCrewKuznetsov/${MY_PN}/tar.gz/${MY_PV}
+		-> ${MY_PN}-${MY_PV}.tar.gz
 	"
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
-	S="${WORKDIR}/${MY_P}/${PN}"
+	S="${WORKDIR}/${MY_PN}-${MY_PV}/${PN}"
 fi
 
 DESCRIPTION="GTK+ based GUI for xneur"
-HOMEPAGE="http://www.xneur.ru/"
-EGIT_REPO_URI="https://github.com/AndrewCrewKuznetsov/xneur-devel.git"
+HOMEPAGE="https://www.xneur.ru"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="ayatana nls"
+IUSE="nls"
 
 DEPEND="
 	gnome-base/libglade:2.0
 	>=sys-devel/gettext-0.16.1
 	>=x11-libs/gtk+-2.20:2
 	~x11-misc/xneur-${PV}:${SLOT}[nls=]
-	ayatana? ( dev-libs/libappindicator:2 )
+	gnome-base/gconf
 "
 RDEPEND="
 	${DEPEND}
@@ -47,33 +45,11 @@ BDEPEND="
 	dev-util/intltool
 	nls? ( sys-devel/gettext )
 "
-
-src_prepare() {
-	sed -e '/\(README\|TODO\)/d' -i Makefile.am
-	sed -e 's:-\<Werror\>::' -i configure.ac
-	eautoreconf
-	xdg_src_prepare
-}
+PATCHES=( "${FILESDIR}"/gxneur.diff )
 
 src_configure() {
-	local myconf=(
-		$(use_with ayatana appindicator)
-		$(use_enable nls)
+	local mycmakeargs=(
+		-DAPPINDICATOR=no
 	)
-	econf "${myconf[@]}"
-}
-
-pkg_preinst() {
-	gnome2_schemas_savelist
-	xdg_pkg_preinst
-}
-
-pkg_postinst() {
-	gnome2_schemas_update
-	xdg_pkg_postinst
-}
-
-pkg_postrm() {
-	gnome2_schemas_update
-	xdg_pkg_postrm
+	cmake_src_configure
 }

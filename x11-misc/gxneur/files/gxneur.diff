@@ -1,0 +1,44 @@
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -47,6 +47,7 @@ if(GCONF)
+ 	find_package(PkgConfig)
+ 	pkg_check_modules(GCONF REQUIRED gconf-2.0>=2.0)
+     target_compile_definitions (gxneur PRIVATE HAVE_GCONF=1)
++    target_compile_definitions (gxneur PRIVATE PACKAGE_GSETTINGS_DIR=\"com.gxneur.settings\")
+     set (mySTRING " \"/apps/\" PACKAGE")
+ #     message (mySTRING ${mySTRING})
+     target_compile_definitions (gxneur PRIVATE PACKAGE_GCONF_DIR=${mySTRING}) # why just " \"/apps/\" PACKAGE" do not works?
+--- a/src/configuration.c
++++ b/src/configuration.c
+@@ -32,6 +32,7 @@
+ #include <string.h>
+ #include <stddef.h>
+ #include <unistd.h>
++#include <gconf/gconf-client.h>
+ 
+ #include "configuration.h"
+ 
+--- a/src/misc.c
++++ b/src/misc.c
+@@ -205,8 +205,8 @@ static void get_xprop_name(GtkBuilder* builder)
+ 
+ void xneur_get_logfile()
+ {
+-	static const char[] OPEN = "xdg-open ";
+-	static const char[] TO_STDOUT = " 2> /dev/stdout";
++	static const char OPEN[] = "xdg-open ";
++	static const char TO_STDOUT[] = " 2> /dev/stdout";
+ 
+ 	char *log_home_path	= xconfig->get_home_dict_path(NULL, "xneurlog.html");
+ 	size_t len = strlen(log_home_path);
+--- a/src/trayicon.c
++++ b/src/trayicon.c
+@@ -62,7 +62,7 @@ static int force_update = FALSE;
+ 
+ static void exec_user_action(char *cmd)
+ {
+-	static const char[] TO_STDOUT = " 2> /dev/stdout";
++	static const char TO_STDOUT[] = " 2> /dev/stdout";
+ 	printf("%s\n", cmd);
+ 	size_t len = strlen(cmd);
+ 	// sizeof(TO_STDOUT) already includes trailing zero, so +1 not needed
