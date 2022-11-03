@@ -27,7 +27,7 @@ HOMEPAGE="https://www.mltframework.org/"
 LICENSE="GPL-3"
 SLOT="0/7"
 IUSE="debug ffmpeg frei0r gtk jack libsamplerate opencv opengl python qt5 rtaudio rubberband sdl test vdpau vidstab xine xml"
-IUSE+=" doc sdl1 sox"
+IUSE+=" doc sdl1 sox qt6"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 REQUIRED_USE+=" test? ( qt5 )"
@@ -67,6 +67,10 @@ DEPEND="
 		dev-qt/qtxml:5
 		media-libs/libexif
 		x11-libs/libX11
+	)
+	qt6? (
+		dev-qt/qtsvg:6
+		dev-qt/qt5compat:6
 	)
 	rtaudio? (
 		>=media-libs/rtaudio-4.1.2
@@ -122,7 +126,6 @@ src_prepare() {
 src_configure() {
 	local mycmakeargs=(
 		-DCMAKE_SKIP_BUILD_RPATH=yes
-		-DBUILD_WITH_QT6=no
 		-DGPL=yes
 		-DGPL3=yes
 		-DBUILD_TESTING=$(usex test)
@@ -139,6 +142,7 @@ src_configure() {
 		-DMOD_OPENCV=$(usex opencv)
 		-DMOD_MOVIT=$(usex opengl)
 		-DMOD_QT=$(usex qt5)
+		-DMOD_QT6=$(usex qt6)
 		-DMOD_RTAUDIO=$(usex rtaudio)
 		-DMOD_RUBBERBAND=$(usex rubberband)
 		-DMOD_VIDSTAB=$(usex vidstab)
