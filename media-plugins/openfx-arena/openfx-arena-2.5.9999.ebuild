@@ -15,11 +15,11 @@ else
 	else
 		MY_OIO="9fb5ee9"
 	fi
-	MY_OFX='openfx-d5db5d0'
-	MY_SUP='openfx-supportext-79d8c22'
+	MY_OFX='openfx-a5d9ca8'
+	MY_SUP='openfx-supportext-8aff0b0'
 	MY_SEQ='SequenceParsing-3c93fcc'
 	MY_TIN='tinydir-64fb1d4'
-	MY_PNG='lodepng-5601b82'
+	MY_PNG='lodepng-997936f'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz

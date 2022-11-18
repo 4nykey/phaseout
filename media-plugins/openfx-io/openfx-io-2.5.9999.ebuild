@@ -11,8 +11,8 @@ else
 	MY_PV="9fb5ee9"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
 	MY_P="${PN}-${MY_PV}"
-	MY_OFX='openfx-d5db5d0'
-	MY_SUP='openfx-supportext-79d8c22'
+	MY_OFX='openfx-a5d9ca8'
+	MY_SUP='openfx-supportext-8aff0b0'
 	MY_SEQ='SequenceParsing-3c93fcc'
 	MY_TIN='tinydir-64fb1d4'
 	SRC_URI="

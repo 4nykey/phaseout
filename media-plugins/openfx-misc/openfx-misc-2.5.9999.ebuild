@@ -10,8 +10,8 @@ if [[ -z ${PV%%*9999} ]]; then
 else
 	MY_PV="aac3519"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
-	MY_OFX='openfx-d5db5d0'
-	MY_SUP='openfx-supportext-79d8c22'
+	MY_OFX='openfx-a5d9ca8'
+	MY_SUP='openfx-supportext-8aff0b0'
 	SRC_URI="
 		mirror://githubcl/NatronGitHub/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/NatronGitHub/${MY_OFX%-*}/tar.gz/${MY_OFX##*-} -> ${MY_OFX}.tar.gz

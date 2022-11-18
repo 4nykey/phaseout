@@ -19,7 +19,7 @@ else
 	if [[ -n ${PV%%*_p*} ]]; then
 		MY_PV="v$(ver_rs 3 '-' 4 '.')"
 	fi
-	MY_OFX='openfx-d5db5d0'
+	MY_OFX='openfx-a5d9ca8'
 	MY_SEQ='SequenceParsing-3c93fcc'
 	MY_TIN='tinydir-64fb1d4'
 	MY_MCK='google-mock-17945db'
@@ -122,6 +122,7 @@ src_prepare() {
 		-i global.pri
 	sed \
 		-e "s:/usr/OFX/:${EPREFIX}/usr/lib/OFX/:" \
+		-e '/ret\.push_back.*\.\.\/Resources\/OpenColorIO-Configs/d' \
 		-i Engine/Settings.cpp libs/OpenFX/HostSupport/src/ofxhPluginCache.cpp
 
 	cmake_src_prepare
