@@ -9,8 +9,12 @@ if [[ -z ${PV%%*9999} ]]; then
 else
 	MY_PV="816cbdb"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
+	MY_GLA="glaxnimate-91219dc"
 	SRC_URI="
 		mirror://githubcl/mltframework/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
+		glaxnimate? (
+			https://gitlab.com/mattbas/${MY_GLA%-*}/-/archive/${MY_GLA##**-}/${MY_GLA}.tar.bz2
+		)
 	"
 	KEYWORDS="~amd64 ~x86"
 	RESTRICT+=" primaryuri"
@@ -27,10 +31,13 @@ HOMEPAGE="https://www.mltframework.org/"
 LICENSE="GPL-3"
 SLOT="0/7"
 IUSE="debug ffmpeg frei0r gtk jack libsamplerate opencv opengl python qt5 rtaudio rubberband sdl test vdpau vidstab xine xml"
-IUSE+=" doc sdl1 sox qt6"
+IUSE+=" doc glaxnimate sdl1 sox qt6"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
-REQUIRED_USE+=" test? ( qt5 )"
+REQUIRED_USE+="
+	test? ( qt5 )
+	glaxnimate? ( qt5 )
+"
 
 # Needs unpackaged 'kwalify'
 RESTRICT="test"
@@ -114,6 +121,9 @@ pkg_setup() {
 }
 
 src_prepare() {
+	[[ -n ${PV%%*9999} ]] && mv \
+		"${WORKDIR}"/${MY_GLA}/* src/modules/glaxnimate/glaxnimate/
+
 	# Respect CFLAGS LDFLAGS when building shared libraries. Bug #308873
 	if use python; then
 		sed -i "/mlt.so/s/ -lmlt++ /& ${CFLAGS} ${LDFLAGS} /" src/swig/python/build || die
@@ -137,7 +147,7 @@ src_configure() {
 		-DMOD_FREI0R=$(usex frei0r)
 		-DMOD_GDK=$(usex gtk)
 		-DMOD_JACKRACK=$(usex jack)
-		-DMOD_GLAXNIMATE=no
+		-DMOD_GLAXNIMATE=$(usex glaxnimate)
 		-DMOD_RESAMPLE=$(usex libsamplerate)
 		-DMOD_OPENCV=$(usex opencv)
 		-DMOD_MOVIT=$(usex opengl)
