@@ -35,13 +35,14 @@ REQUIRED_USE="
 SLOT="$(ver_cut 1-2)/$(ver_cut 3)"
 
 RDEPEND="
+	app-eselect/eselect-wxwidgets
 	dev-libs/expat[${MULTILIB_USEDEP}]
 	sdl? ( media-libs/libsdl2[${MULTILIB_USEDEP}] )
 	X? (
 		>=dev-libs/glib-2.22:2[${MULTILIB_USEDEP}]
+		media-libs/libjpeg-turbo:=[${MULTILIB_USEDEP}]
 		media-libs/libpng:0=[${MULTILIB_USEDEP}]
 		sys-libs/zlib[${MULTILIB_USEDEP}]
-		virtual/jpeg:0=[${MULTILIB_USEDEP}]
 		x11-libs/cairo[${MULTILIB_USEDEP}]
 		x11-libs/gtk+:3[${MULTILIB_USEDEP}]
 		x11-libs/gdk-pixbuf[${MULTILIB_USEDEP}]
@@ -55,7 +56,7 @@ RDEPEND="
 		)
 		libnotify? ( x11-libs/libnotify[${MULTILIB_USEDEP}] )
 		opengl? ( virtual/opengl[${MULTILIB_USEDEP}] )
-		tiff?   ( media-libs/tiff:0[${MULTILIB_USEDEP}] )
+		tiff? ( media-libs/tiff:=[${MULTILIB_USEDEP}] )
 		webkit? ( net-libs/webkit-gtk:4 )
 	)
 	chm? ( dev-libs/libmspack )
@@ -65,11 +66,14 @@ RDEPEND="
 "
 DEPEND="
 	${RDEPEND}
-	virtual/pkgconfig
 	opengl? ( virtual/glu[${MULTILIB_USEDEP}] )
 	X?  ( x11-base/xorg-proto )
 "
-PDEPEND=">=app-eselect/eselect-wxwidgets-20131230"
+BDEPEND="
+	test? ( dev-util/cppunit )
+	app-eselect/eselect-wxwidgets
+	virtual/pkgconfig
+"
 LICENSE="wxWinLL-3 GPL-2"
 DOCS=(
 	docs/{changes,readme}.txt
