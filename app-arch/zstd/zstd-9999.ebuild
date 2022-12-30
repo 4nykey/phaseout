@@ -3,13 +3,12 @@
 
 EAPI=7
 
-CMAKE_USE_DIR="${S}/build/cmake"
-inherit flag-o-matic cmake multilib-minimal toolchain-funcs
+inherit cmake-multilib toolchain-funcs
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/facebook/${PN}.git"
 else
-	MY_PV="a488ba1"
+	MY_PV="8e43f53"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 	SRC_URI="
 		mirror://githubcl/facebook/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
@@ -18,6 +17,7 @@ else
 	KEYWORDS="~amd64 ~x86"
 	S="${WORKDIR}/${PN}-${MY_PV#v}"
 fi
+CMAKE_USE_DIR="${S}/build/cmake"
 
 DESCRIPTION="zstd fast compression library"
 HOMEPAGE="https://facebook.github.io/zstd/"
@@ -33,23 +33,15 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 
-multilib_src_configure() {
+src_configure() {
 	local mycmakeargs=(
-		-DZSTD_BUILD_CONTRIB=$(usex contrib)
+		-DZSTD_BUILD_CONTRIB=$(multilib_native_usex contrib)
 		-DZSTD_BUILD_STATIC=$(usex static-libs)
 		-DZSTD_PROGRAMS_LINK_SHARED=$(usex !static-libs)
 		-DZSTD_LZMA_SUPPORT=$(usex lzma)
-		-DZSTD_LZ4_SUPPORT=$(usex lz4)
+		-DZSTD_LZ4_SUPPORT=$(multilib_native_usex lz4)
 		-DZSTD_MULTITHREAD_SUPPORT=$(usex threads)
 		-DZSTD_ZLIB_SUPPORT=$(usex zlib)
 	)
-	cmake_src_configure
-}
-
-multilib_src_compile() {
-	cmake_src_compile
-}
-
-multilib_src_install() {
-	cmake_src_install
+	cmake-multilib_src_configure
 }
