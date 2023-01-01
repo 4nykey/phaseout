@@ -7,6 +7,5 @@
 	<use>
 		<flag name="frei0r">Additional video filters (<pkg>media-plugins/frei0r-plugins</pkg>)</flag>
 		<flag name="gmic">Additional image filters (<pkg>media-gfx/gmic</pkg>)</flag>
-		<flag name="swh">Additional audio filters (<pkg>media-plugins/swh-plugins</pkg>)</flag>
 	</use>
 </pkgmetadata>

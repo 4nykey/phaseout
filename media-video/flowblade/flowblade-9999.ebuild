@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -13,14 +13,13 @@ if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/jliljebl/${PN}.git"
 	SRC_URI=
 else
-	MY_PV="6a18025"
+	MY_PV="d3caf21"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 	SRC_URI="
 		mirror://githubcl/jliljebl/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 	"
 	RESTRICT="primaryuri"
 	KEYWORDS="~amd64 ~x86"
-	S="${WORKDIR}/${PN}-${MY_PV#v}"
 fi
 
 DESCRIPTION="A non-linear PyGTK/MLT video editor"
@@ -28,8 +27,8 @@ HOMEPAGE="https://jliljebl.github.io/flowblade"
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="frei0r gmic swh"
-S="${WORKDIR}/${P}/${PN}-trunk"
+IUSE="frei0r gmic ladspa"
+S="${WORKDIR}/${PN}-${MY_PV#v}/${PN}-trunk"
 
 RDEPEND="
 	${PYTHON_DEPS}
@@ -43,7 +42,7 @@ RDEPEND="
 	gnome-base/librsvg:2[introspection]
 	x11-libs/gtk+:3[introspection]
 	frei0r? ( media-plugins/frei0r-plugins )
-	swh? ( media-plugins/swh-plugins )
+	ladspa? ( media-plugins/swh-plugins )
 	gmic? ( media-gfx/gmic )
 "
 DEPEND="
