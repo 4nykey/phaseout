@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -166,8 +166,10 @@ src_configure() {
 	# see also https://www.mltframework.org/twiki/bin/view/MLT/ExtremeMakeover
 
 	if use python; then
-		mycmakeargs+=( -DSWIG_PYTHON=yes )
-		-DPython3_EXECUTABLE="${PYTHON}"
+		mycmakeargs+=(
+			-DSWIG_PYTHON=yes
+			-DPython3_EXECUTABLE="${EPREFIX}/usr/bin/${EPYTHON}"
+		)
 	fi
 
 	cmake_src_configure
