@@ -1,0 +1,30 @@
+--- a/lzhamdecomp/lzham_huffman_codes.cpp
++++ b/lzhamdecomp/lzham_huffman_codes.cpp
+@@ -2,6 +2,7 @@
+ // LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+ #include "lzham_core.h"
+ #include "lzham_huffman_codes.h"
++#include <cstdint>
+ 
+ namespace lzham
+ {
+--- a/lzhamdecomp/lzham_symbol_codec.h
++++ b/lzhamdecomp/lzham_symbol_codec.h
+@@ -2,6 +2,7 @@
+ // LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+ #pragma once
+ #include "lzham_prefix_coding.h"
++#include <cstdint>
+ 
+ namespace lzham
+ {
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -12,7 +12,6 @@ install(FILES include/lzham_dynamic_lib.
+               include/lzham_exports.inc
+               include/lzham.h
+               include/lzham_static_lib.h
+-              include/zlib.h
+               DESTINATION include)
+ 
+ message(STATUS "<<< Gentoo configuration >>>
