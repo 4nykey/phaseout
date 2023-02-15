@@ -1,7 +1,7 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit autotools multilib-minimal virtualx
 
@@ -11,7 +11,7 @@ VIRTUALX_REQUIRED="X test"
 
 MY_PN="wxWidgets"
 MY_PV="204db7e"
-[[ -n ${PV%%*_p*} ]] && MY_PV="v$(ver_rs 3 -)"
+[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 MY_CA="Catch-5f5e4ce"
 MY_NS="nanosvg-ccdb199"
 SRC_URI="
@@ -27,42 +27,55 @@ S="${WORKDIR}/${MY_PN}-${MY_PV#v}"
 RESTRICT=primaryuri
 
 KEYWORDS="~amd64 ~x86"
-IUSE="+X chm curl debug egl gstreamer libnotify lzma opengl pch pcre sdl svg threads test tiff webkit"
+IUSE="+X curl doc debug gnome-keyring gstreamer libnotify +lzma opengl pch sdl +spell test tiff wayland webkit"
+IUSE+=" chm egl pcre svg threads"
 REQUIRED_USE="
 	egl? ( opengl )
+	test? ( tiff )
+	tiff? ( X )
+	spell? ( X )
+	gnome-keyring? ( X )
 "
 
-SLOT="$(ver_cut 1-2)/$(ver_cut 3)"
+SLOT="$(ver_cut 1-2)"
 
 RDEPEND="
 	app-eselect/eselect-wxwidgets
 	dev-libs/expat[${MULTILIB_USEDEP}]
+	pcre? ( dev-libs/libpcre2[pcre16,pcre32,unicode] )
 	sdl? ( media-libs/libsdl2[${MULTILIB_USEDEP}] )
+	curl? ( net-misc/curl )
+	lzma? ( app-arch/xz-utils )
 	X? (
 		>=dev-libs/glib-2.22:2[${MULTILIB_USEDEP}]
 		media-libs/libjpeg-turbo:=[${MULTILIB_USEDEP}]
 		media-libs/libpng:0=[${MULTILIB_USEDEP}]
 		sys-libs/zlib[${MULTILIB_USEDEP}]
 		x11-libs/cairo[${MULTILIB_USEDEP}]
-		x11-libs/gtk+:3[${MULTILIB_USEDEP}]
-		x11-libs/gdk-pixbuf[${MULTILIB_USEDEP}]
+		x11-libs/gtk+:3[wayland?,${MULTILIB_USEDEP}]
+		x11-libs/gdk-pixbuf:2[${MULTILIB_USEDEP}]
 		x11-libs/libSM[${MULTILIB_USEDEP}]
 		x11-libs/libX11[${MULTILIB_USEDEP}]
+		x11-libs/libXtst
 		x11-libs/libXxf86vm[${MULTILIB_USEDEP}]
+		media-libs/fontconfig
 		x11-libs/pango[${MULTILIB_USEDEP}]
+		gnome-keyring? ( app-crypt/libsecret )
 		gstreamer? (
 			media-libs/gstreamer:1.0[${MULTILIB_USEDEP}]
 			media-libs/gst-plugins-base:1.0[${MULTILIB_USEDEP}]
+			media-libs/gst-plugins-bad:1.0[${MULTILIB_USEDEP}]
 		)
 		libnotify? ( x11-libs/libnotify[${MULTILIB_USEDEP}] )
-		opengl? ( virtual/opengl[${MULTILIB_USEDEP}] )
+		opengl? (
+			virtual/opengl[${MULTILIB_USEDEP}]
+			wayland? ( dev-libs/wayland )
+		)
+		spell? ( app-text/gspell:= )
 		tiff? ( media-libs/tiff:=[${MULTILIB_USEDEP}] )
 		webkit? ( net-libs/webkit-gtk:4 )
 	)
 	chm? ( dev-libs/libmspack )
-	lzma? ( app-arch/xz-utils )
-	curl? ( net-misc/curl )
-	pcre? ( dev-libs/libpcre2[pcre16,pcre32] )
 "
 DEPEND="
 	${RDEPEND}
@@ -101,13 +114,13 @@ src_prepare() {
 multilib_src_configure() {
 	# X independent options
 	local myeconfargs=(
+		--with-zlib=sys
+		--with-expat=sys
 		$(use_enable pch)
 		$(use_enable threads)
 		$(use_with sdl)
 		$(use_with pcre regex sys)
 		$(use_with lzma liblzma)
-		--with-zlib=sys
-		--with-expat=sys
 		$(use_with curl libcurl)
 		--enable-debug=$(usex debug max $(usex test))
 	)
@@ -116,22 +129,24 @@ multilib_src_configure() {
 	#   --enable-graphics_ctx - needed for webkit, editra
 	#   --without-gnomevfs - bug #203389
 	use X && myeconfargs+=(
-			--enable-graphics_ctx
-			--with-gtkprint
-			--enable-gui
-			--with-gtk=3
-			--with-libpng=sys
-			--with-libjpeg=sys
-			--without-gnomevfs
-			$(use_enable gstreamer mediactrl)
-			$(use_enable svg)
-			$(multilib_native_use_enable webkit webview)
-			$(use_with libnotify)
-			$(use_with opengl)
-			$(use_enable egl glcanvasegl)
-			$(use_with tiff libtiff sys)
-			$(use_with chm libmspack)
-			$(multilib_native_use_enable test tests)
+		--enable-graphics_ctx
+		--with-gtkprint
+		--enable-gui
+		--with-gtk=3
+		--with-libpng=sys
+		--with-libjpeg=sys
+		--without-gnomevfs
+		$(use_enable gstreamer mediactrl)
+		$(multilib_native_use_enable webkit webview)
+		$(use_with libnotify)
+		$(use_with opengl)
+		$(use_with tiff libtiff sys)
+		$(use_enable gnome-keyring secretstore)
+		$(use_enable spell spellcheck)
+		$(multilib_native_use_enable test tests)
+		$(use_enable svg)
+		$(use_enable egl glcanvasegl)
+		$(use_with chm libmspack)
 	)
 
 	# wxBase options
@@ -155,7 +170,7 @@ multilib_src_test() {
 multilib_src_install_all() {
 	einstalldocs
 	# Unversioned links
-	rm "${ED}"/usr/bin/wx{-config,rc}
+	rm -f "${ED}"/usr/bin/wx{-config,rc}
 
 	# version bakefile presets
 	pushd "${ED}"/usr/share/bakefile/presets/ > /dev/null
