@@ -12,14 +12,14 @@ DOCS_AUTODOC=0
 inherit flag-o-matic cmake python-single-r1 docs toolchain-funcs virtualx xdg
 if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${MY_PN}.git"
-	EGIT_BRANCH="RB-${PV%.*}"
+	EGIT_BRANCH="RB-$(ver_cut 1-2)"
 	inherit git-r3
 else
 	MY_PV="395c222"
 	if [[ -n ${PV%%*_p*} ]]; then
-		MY_PV="v$(ver_rs 3 '-' 4 '.')"
+		MY_PV="v$(ver_rs 3 '-')"
 	fi
-	MY_OFX='openfx-a5d9ca8'
+	MY_OFX='openfx-d5db5d0'
 	MY_SEQ='SequenceParsing-3c93fcc'
 	MY_TIN='tinydir-64fb1d4'
 	MY_MCK='google-mock-17945db'
