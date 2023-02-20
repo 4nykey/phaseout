@@ -22,7 +22,7 @@ else
 fi
 
 LUA_COMPAT=( lua5-{1..4} luajit )
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{9..11} )
 inherit python-single-r1 cmake
 
 DESCRIPTION="Open source multimedia framework for television broadcasting"

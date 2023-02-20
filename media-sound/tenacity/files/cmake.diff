@@ -1,0 +1,39 @@
+--- a/lib-src/libnyquist/CMakeLists.txt
++++ b/lib-src/libnyquist/CMakeLists.txt
+@@ -1,6 +1,7 @@
+ project(Nyquist)
+ 
+ add_library(libnyquist
++      STATIC
+       # libnyquist
+ 
+       nyx.c
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1355,15 +1355,8 @@ else()
+                FILES_MATCHING PATTERN "*.so*" )
+       install( FILES "${_INTDIR}/${APP_NAME}.desktop"
+                DESTINATION "${_DATADIR}/applications" )
+-      install( FILES "${topdir}/LICENSE.txt" "${topdir}/README.md"
+-               DESTINATION "${_DATADIR}/doc/${APP_NAME}" )
+-      install( FILES "${_SRCDIR}/audacity.xml"
+-               DESTINATION "${_DATADIR}/mime/packages" )
+       install( FILES "${topdir}/presets/EQDefaultCurves.xml"
+                DESTINATION "${_PKGDATA}" )
+-      install( PROGRAMS "${PROJECT_SOURCE_DIR}/linux/audacity.sh"
+-               DESTINATION "."
+-               RENAME "audacity" )
+    endif()
+ endif()
+ 
+--- a/src/tracks/labeltrack/ui/LabelGlyphHandle.cpp
++++ b/src/tracks/labeltrack/ui/LabelGlyphHandle.cpp
+@@ -21,7 +21,7 @@ Paul Licameli split from TrackPanel.cpp
+ #include "ViewInfo.h"
+ #include "../../../SelectionState.h"
+ #include "../../../ProjectAudioIO.h"
+-#include "../../../images/Cursors.h"
++#include "../../images/Cursors.h"
+ #include "../../../tracks/ui/TimeShiftHandle.h"
+ 
+ #include <wx/cursor.h>

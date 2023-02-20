@@ -1,0 +1,12 @@
+--- a/src/sse.h
++++ b/src/sse.h
+@@ -2,7 +2,9 @@
+ #ifndef SSE_H
+ #define SSE_H
+ 
++#ifndef CMAKE
+ #include "config.h"
++#endif
+ 
+ #if defined(ENABLE_SSE) && !defined(APPLE_PPC)
+ 

@@ -1,9 +1,9 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{9..11} )
 PYTHON_REQ_USE="threads(+)"
 VIRTUALX_REQUIRED="test"
 DISTUTILS_IN_SOURCE_BUILD=1
@@ -83,7 +83,6 @@ EPYTEST_DESELECT=(
 distutils_enable_tests pytest
 
 pkg_setup() {
-	WAF_BINARY="${S%/*}/${WAF_BINARY}/waf"
 	use apidocs && HTML_DOCS=( ../${MY_P/-/-docs-}/docs/html/. )
 	use examples && DOCS+=( demo samples )
 	python_setup

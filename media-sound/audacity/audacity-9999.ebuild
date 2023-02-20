@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -23,7 +23,7 @@ else
 			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-${MY_PV#*-}.tar.gz
 			)" ;;
 	esac
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="~amd64"
 	S="${WORKDIR}/${PN}-${MY_PV}"
 fi
 MY_TP="ThreadPool-9a42ec1"
@@ -49,6 +49,7 @@ RESTRICT="test primaryuri"
 DEPEND="
 	media-libs/portaudio[alsa?]
 	portmidi? ( media-libs/portmidi )
+	portsmf? ( media-libs/portsmf:= )
 	dev-libs/expat
 	media-libs/libsndfile
 	media-libs/libsoundtouch
@@ -74,7 +75,7 @@ DEPEND="
 	)
 	mp3? ( media-sound/mpg123 )
 	ogg? ( media-libs/libogg )
-	sbsms? ( >=media-libs/libsbsms-2.2 )
+	sbsms? ( media-libs/libsbsms:= )
 	soundtouch? ( >=media-libs/libsoundtouch-1.7.1 )
 	twolame? ( media-sound/twolame )
 	vamp? ( media-libs/vamp-plugin-sdk )
@@ -105,8 +106,8 @@ src_prepare() {
 		-e '/MIDI_OUT/d' -i src/Experimental.cmake
 	sed -e 's:\<ccache\>:no_&:' -i CMakeLists.txt
 	cmake_src_prepare
-	use curl || return
-	mv "${WORKDIR}"/${MY_TP} "${S}"/libraries/lib-network-manager/${MY_TP%-*}
+	use curl && mv "${WORKDIR}"/${MY_TP} \
+		"${S}"/libraries/lib-network-manager/${MY_TP%-*}
 }
 
 src_configure() {
@@ -137,7 +138,7 @@ src_configure() {
 		-Daudacity_use_libogg=$(usex ogg system off)
 		-Daudacity_use_portaudio=system
 		-Daudacity_use_portmixer=$(usex portmixer system off)
-		-Daudacity_use_portsmf=$(usex portsmf local off)
+		-Daudacity_use_portsmf=$(usex portsmf system off)
 		-Daudacity_use_sbsms=$(usex sbsms system off)
 		-Daudacity_use_twolame=$(usex twolame system off)
 		-Daudacity_use_vamp=$(usex vamp system off)

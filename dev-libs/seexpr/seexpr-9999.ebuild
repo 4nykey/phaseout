@@ -1,10 +1,9 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-LLVM_MAX_SLOT=10
-PYTHON_COMPAT=( python3_{7..9} )
+PYTHON_COMPAT=( python3_{9..11} )
 MY_PN="SeExpr"
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
@@ -26,11 +25,11 @@ HOMEPAGE="https://www.disneyanimation.com/technology/seexpr.html"
 
 LICENSE="Apache-2.0"
 SLOT="2"
-IUSE="apidocs llvm qt5 -python test utils demos cpu_flags_x86_sse4_1"
+IUSE="apidocs -llvm qt5 -python test utils demos cpu_flags_x86_sse4_1"
 REQUIRED_USE="python? ( qt5 )"
 
 DEPEND="
-	llvm? ( <sys-devel/llvm-$((LLVM_MAX_SLOT+1)):= )
+	llvm? ( sys-devel/llvm:= )
 	python? (
 		${PYTHON_DEPS}
 		$(python_gen_cond_dep '
@@ -50,8 +49,8 @@ BDEPEND="
 			dev-python/sip[${PYTHON_USEDEP}]
 		')
 	)
-	sys-devel/flex
-	virtual/yacc
+	app-alternatives/lex
+	app-alternatives/yacc
 "
 
 pkg_setup() {
@@ -82,7 +81,7 @@ src_configure() {
 		-DBUILD_TESTS=$(usex test)
 	)
 	use python && mycmakeargs+=(
-		-DPYQT_SIP_DIR="${EROOT}/usr/share/sip/PyQt5"
+		-DPYQT_SIP_DIR="${EPREFIX}/usr/share/sip/PyQt5"
 	)
 	cmake_src_configure
 }

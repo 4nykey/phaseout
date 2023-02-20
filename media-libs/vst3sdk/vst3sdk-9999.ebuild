@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -23,7 +23,24 @@ HOMEPAGE="https://steinbergmedia.github.io/vst3_doc"
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="debug static"
+IUSE="X debug jack static"
+DEPEND="
+	X? (
+		dev-db/sqlite
+		dev-libs/expat
+		media-libs/fontconfig
+		x11-libs/pango[X]
+		x11-libs/libxkbcommon[X]
+		x11-libs/libxcb[xkb]
+		x11-libs/xcb-util
+		x11-libs/xcb-util-cursor
+		dev-cpp/gtkmm:3.0
+	)
+	jack? ( virtual/jack )
+"
+RDEPEND="
+	${DEPEND}
+"
 
 src_prepare() {
 	sed -e '/add_subdirectory(public.sdk\/samples/d' -i CMakeLists.txt
@@ -42,7 +59,10 @@ src_prepare() {
 	cmake_src_prepare
 
 	use static && return
-	sed -e '/add_library(/ s:\<STATIC\>::' -i {base,pluginterfaces}/CMakeLists.txt
+	sed -e '/add_library(/ s:\<STATIC\>::' \
+		-i {base,pluginterfaces}/CMakeLists.txt \
+		vstgui4/vstgui/{lib,standalone,uidescription}/CMakeLists.txt \
+		cmake/modules/SMTG_VstGuiSupport.cmake
 	sed -e '/^\s*\<STATIC\>\s*$/d' -i public.sdk/CMakeLists.txt
 }
 
@@ -51,7 +71,7 @@ src_configure() {
 	local mycmakeargs=(
 		-DCMAKE_BUILD_RPATH_USE_ORIGIN=yes
 		-DSMTG_ADD_VST3_PLUGINS_SAMPLES=no
-		-DSMTG_ADD_VSTGUI=no
+		-DSMTG_ADD_VSTGUI=$(usex X)
 		-DSMTG_RUN_VST_VALIDATOR=no
 		-DSMTG_CREATE_MODULE_INFO=no
 	)
