@@ -7,9 +7,9 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/mltframework/${PN}.git"
 else
-	MY_PV="816cbdb"
+	MY_PV="20db1b6"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
-	MY_GLA="glaxnimate-91219dc"
+	MY_GLA="glaxnimate-e9f08e3"
 	SRC_URI="
 		mirror://githubcl/mltframework/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		glaxnimate? (
@@ -17,7 +17,6 @@ else
 		)
 	"
 	KEYWORDS="~amd64 ~x86"
-	RESTRICT+=" primaryuri"
 	S="${WORKDIR}/${PN}-${MY_PV#v}"
 fi
 
@@ -41,6 +40,7 @@ REQUIRED_USE+="
 
 # Needs unpackaged 'kwalify'
 RESTRICT="test"
+RESTRICT+=" primaryuri"
 
 # rtaudio will use OSS on non linux OSes
 # Qt already needs FFTW/PLUS so let's just always have it on to ensure
