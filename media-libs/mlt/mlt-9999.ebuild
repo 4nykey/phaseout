@@ -35,7 +35,7 @@ IUSE+=" doc glaxnimate sdl1 sox qt6"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 REQUIRED_USE+="
 	test? ( qt5 )
-	glaxnimate? ( qt5 )
+	glaxnimate? ( || ( qt5 qt6 ) )
 "
 
 # Needs unpackaged 'kwalify'
@@ -147,7 +147,8 @@ src_configure() {
 		-DMOD_FREI0R=$(usex frei0r)
 		-DMOD_GDK=$(usex gtk)
 		-DMOD_JACKRACK=$(usex jack)
-		-DMOD_GLAXNIMATE=$(usex glaxnimate)
+		-DMOD_GLAXNIMATE=$(usex glaxnimate $(usex qt5))
+		-DMOD_GLAXNIMATE_QT6=$(usex glaxnimate $(usex qt6))
 		-DMOD_RESAMPLE=$(usex libsamplerate)
 		-DMOD_OPENCV=$(usex opencv)
 		-DMOD_MOVIT=$(usex opengl)
