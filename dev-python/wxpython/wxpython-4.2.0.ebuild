@@ -1,12 +1,12 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
+DISTUTILS_IN_SOURCE_BUILD="1"
 PYTHON_COMPAT=( python3_{9..11} )
 PYTHON_REQ_USE="threads(+)"
 VIRTUALX_REQUIRED="test"
-DISTUTILS_IN_SOURCE_BUILD=1
 
 MY_PN="wxPython"
 if [[ -n ${PV%%*_p*} ]]; then
@@ -29,7 +29,7 @@ else
 	RESTRICT="primaryuri"
 fi
 S="${WORKDIR}/${MY_P}"
-inherit distutils-r1 eutils virtualx
+inherit distutils-r1 multiprocessing virtualx
 
 DESCRIPTION="A blending of the wxWindows C++ class library with Python"
 HOMEPAGE="https://www.wxpython.org"
@@ -37,13 +37,10 @@ HOMEPAGE="https://www.wxpython.org"
 LICENSE="wxWinLL-3.1 LGPL-2"
 SLOT="4.0"
 KEYWORDS="~amd64 ~x86"
-IUSE="apidocs debug examples libnotify opengl test"
+IUSE="apidocs debug examples libnotify opengl test webkit"
 
 RDEPEND="
-	x11-libs/wxGTK:3.2=[gstreamer,webkit,libnotify=,opengl?,tiff,X]
-	dev-python/numpy[${PYTHON_USEDEP}]
-	dev-python/pillow[${PYTHON_USEDEP}]
-	dev-python/six[${PYTHON_USEDEP}]
+	x11-libs/wxGTK:3.2=[gstreamer,webkit?,libnotify=,opengl?,tiff,X]
 "
 DEPEND="
 	${RDEPEND}
@@ -52,6 +49,10 @@ BDEPEND="
 	app-doc/doxygen
 	>=dev-python/sip-6.6.2:5[${PYTHON_USEDEP}]
 	test? (
+		${VIRTUALX_DEPEND}
+		dev-python/appdirs[${PYTHON_USEDEP}]
+		dev-python/numpy[${PYTHON_USEDEP}]
+		dev-python/pillow[${PYTHON_USEDEP}]
 		dev-python/pytest-xdist[${PYTHON_USEDEP}]
 		dev-python/pytest-timeout[${PYTHON_USEDEP}]
 	)
@@ -86,11 +87,13 @@ pkg_setup() {
 	use apidocs && HTML_DOCS=( ../${MY_P/-/-docs-}/docs/html/. )
 	use examples && DOCS+=( demo samples )
 	python_setup
+	use webkit && return
+	EPYTEST_DESELECT+=( unittests/test_webview.py )
+	PATCHES+=( "${FILESDIR}"/${PN}-4.2.0-no-webkit.patch )
 }
 
 python_prepare_all() {
 	sed -e '/attrdict/d' -i buildtools/config.py
-
 	distutils-r1_python_prepare_all
 }
 
