@@ -97,7 +97,6 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/cmake.diff
 	"${FILESDIR}"/vst3.diff
 )
 
@@ -155,7 +154,7 @@ src_configure() {
 }
 
 src_compile() {
-	LD_LIBRARY_PATH="${BUILD_DIR}/utils" \
+	LD_LIBRARY_PATH="${BUILD_DIR}/Gentoo/$(get_libdir)/${PN}" \
 	cmake_src_compile
 }
 

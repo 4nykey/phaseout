@@ -1,34 +1,44 @@
---- a/cmake-proxies/CMakeLists.txt
-+++ b/cmake-proxies/CMakeLists.txt
-@@ -26,7 +26,7 @@ if(${_OPT}has_vst3)
-     add_conan_lib(
-         vst3sdk vst3sdk/3.7.3
-         REQUIRED
--        HAS_ONLY_DEBUG_RELEASE
-+        PKG_CONFIG vst3sdk
-         ALLOW_FIND_PACKAGE
-     )
- endif()
+--- a/cmake-proxies/cmake-modules/Findvst3sdk.cmake
++++ b/cmake-proxies/cmake-modules/Findvst3sdk.cmake
+@@ -2,6 +2,9 @@
+ A module to look for vst3sdk
+ ]]
+ 
++include( FindPackageHandleStandardArgs )
++find_package( PkgConfig QUIET )
++pkg_check_modules( vst3sdk vst3sdk )
+ if( NOT vst3sdk_FOUND )
+    if( DEFINED ENV{VST3_SDK_DIR} )
+       set( vst3sdk_DIR $ENV{VST3_SDK_DIR} )
+--- a/libraries/lib-vst3/CMakeLists.txt
++++ b/libraries/lib-vst3/CMakeLists.txt
+@@ -32,15 +32,15 @@ set( SOURCES
+    >
+ )
+ set( LIBRARIES
+-   vst3sdk::base
+-   vst3sdk::pluginterfaces
+-   vst3sdk::sdk_hosting
+-   vst3sdk::sdk_common
++   ${vst3sdk_LIBRARIES}
++   X11
+    lib-effects-interface
+ )
+ audacity_library( lib-vst3 "${SOURCES}" "${LIBRARIES}"
+    "" ""
+ )
++target_include_directories(lib-vst3 PUBLIC "${vst3sdk_INCLUDEDIR}")
++target_link_directories(lib-vst3 PUBLIC "${vst3sdk_LIBRARY_DIRS}")
+ 
+ if(${wxIS_MAC})
+    set_source_files_properties(
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -1190,6 +1190,7 @@ list( APPEND LDFLAGS
+@@ -1142,6 +1142,7 @@ list( APPEND LDFLAGS
     PRIVATE
        $<$<CXX_COMPILER_ID:MSVC>:/MANIFEST:NO>
        $<$<CXX_COMPILER_ID:GNU>:-Wl,--disable-new-dtags>
-+      $<$<BOOL:${${_OPT}has_vst3}>:${PKG_vst3sdk_LDFLAGS_OTHER}>
++      $<$<BOOL:${${_OPT}has_vst3}>:${vst3sdk_LDFLAGS_OTHER}>
  )
  
- #
-@@ -1205,10 +1206,8 @@ list( APPEND LIBRARIES
-       PortAudio::PortAudio
-       sqlite
-       $<$<BOOL:${${_OPT}has_crashreports}>:crashreports>
--      $<$<BOOL:${${_OPT}has_vst3}>:vst3sdk::base>
--      $<$<BOOL:${${_OPT}has_vst3}>:vst3sdk::pluginterfaces>
--      $<$<BOOL:${${_OPT}has_vst3}>:vst3sdk::sdk_hosting>
--      $<$<BOOL:${${_OPT}has_vst3}>:vst3sdk::sdk_common>
-+      $<$<BOOL:${${_OPT}has_vst3}>:vst3sdk::vst3sdk>
-+      $<$<BOOL:${${_OPT}has_vst3}>:X11>
-       $<$<BOOL:${USE_LIBID3TAG}>:libid3tag::libid3tag>
-       $<$<BOOL:${USE_LIBFLAC}>:FLAC::FLAC>
-       $<$<BOOL:${USE_LIBFLAC}>:FLAC::FLAC++>
+ find_package( Threads QUIET )
