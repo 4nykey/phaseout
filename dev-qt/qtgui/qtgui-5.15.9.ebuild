@@ -4,7 +4,7 @@
 EAPI=8
 
 if [[ ${PV} != *9999* ]]; then
-	QT5_KDEPATCHSET_REV=6
+	QT5_KDEPATCHSET_REV=1
 	KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
@@ -82,6 +82,7 @@ DEPEND="${RDEPEND}
 	evdev? ( sys-kernel/linux-headers )
 	linuxfb? ( sys-kernel/linux-headers )
 	udev? ( sys-kernel/linux-headers )
+	X? ( x11-base/xorg-proto )
 "
 PDEPEND="
 	ibus? ( app-i18n/ibus )

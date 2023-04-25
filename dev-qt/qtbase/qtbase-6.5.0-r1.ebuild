@@ -113,6 +113,7 @@ DEPEND="
 		x11-libs/libX11
 		>=x11-libs/libxcb-1.12:=
 		>=x11-libs/libxkbcommon-0.5.0[X]
+		x11-libs/xcb-util-cursor
 		x11-libs/xcb-util-image
 		x11-libs/xcb-util-keysyms
 		x11-libs/xcb-util-renderutil
@@ -121,6 +122,8 @@ DEPEND="
 	zstd? ( app-arch/zstd:= )
 "
 RDEPEND="${DEPEND}"
+
+PATCHES=( "${FILESDIR}/${PN}-6.5.0-setActiveWindow-deprecated-version.patch" )
 
 src_configure() {
 	local mycmakeargs=(
@@ -153,6 +156,7 @@ src_configure() {
 	use gui && mycmakeargs+=(
 		$(qt_feature accessibility accessibility_atspi_bridge)
 		$(qt_feature egl)
+		$(qt_feature egl xcb_egl_plugin)
 		$(qt_feature eglfs eglfs_egldevice)
 		$(qt_feature eglfs eglfs_gbm)
 		$(qt_feature evdev)
