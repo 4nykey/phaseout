@@ -20,7 +20,7 @@ else
 			REQUIRED_USE="!doc" ;;
 		*)
 			SRC_URI+=" doc? (
-			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-${MY_PV#*-}.tar.gz
+			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-v${MY_PV#*-}.tar.gz
 			)" ;;
 	esac
 	KEYWORDS="~amd64"
@@ -105,8 +105,11 @@ src_prepare() {
 		-e '/MIDI_OUT/d' -i src/Experimental.cmake
 	sed -e 's:\<ccache\>:no_&:' -i CMakeLists.txt
 	cmake_src_prepare
-	use curl && mv "${WORKDIR}"/${MY_TP} \
-		"${S}"/libraries/lib-network-manager/${MY_TP%-*}
+	use curl || return
+	mv "${WORKDIR}"/${MY_TP} "${S}"/libraries/lib-network-manager/${MY_TP%-*}
+	sed -e '/audacity_find_package(ThreadPool/d' \
+		-i cmake-proxies/cmake-modules/DependenciesList.cmake
+	sed -e '/threadpool::threadpool/d' -i libraries/lib-network-manager/CMakeLists.txt
 }
 
 src_configure() {

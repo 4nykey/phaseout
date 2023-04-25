@@ -42,3 +42,13 @@
  )
  
  find_package( Threads QUIET )
+--- a/libraries/lib-vst3/CMakeLists.txt
++++ b/libraries/lib-vst3/CMakeLists.txt
+@@ -41,6 +41,7 @@ audacity_library( lib-vst3 "${SOURCES}"
+ )
+ target_include_directories(lib-vst3 PUBLIC "${vst3sdk_INCLUDEDIR}")
+ target_link_directories(lib-vst3 PUBLIC "${vst3sdk_LIBRARY_DIRS}")
++target_link_options(lib-vst3 PRIVATE ${vst3sdk_LDFLAGS_OTHER} )
+ 
+ if(${wxIS_MAC})
+    set_source_files_properties(
