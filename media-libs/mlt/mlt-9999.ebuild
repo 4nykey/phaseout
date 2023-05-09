@@ -8,14 +8,20 @@ if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/mltframework/${PN}.git"
 else
 	MY_PV="20db1b6"
-	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
-	MY_GLA="glaxnimate-e9f08e3"
-	SRC_URI="
-		mirror://githubcl/mltframework/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
-		glaxnimate? (
-			https://gitlab.com/mattbas/${MY_GLA%-*}/-/archive/${MY_GLA##**-}/${MY_GLA}.tar.bz2
-		)
-	"
+	MY_GLA="glaxnimate-3090870"
+	if [[ -n ${PV%%*_p*} ]]; then
+		MY_PV="v${PV}"
+		SRC_URI="
+			https://github.com/mltframework/${PN}/releases/download/${MY_PV}/${P}.tar.gz
+		"
+	else
+		SRC_URI="
+			mirror://githubcl/mltframework/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
+			glaxnimate? (
+				https://gitlab.com/mattbas/${MY_GLA%-*}/-/archive/${MY_GLA##**-}/${MY_GLA}.tar.bz2
+			)
+		"
+	fi
 	KEYWORDS="~amd64 ~x86"
 	S="${WORKDIR}/${PN}-${MY_PV#v}"
 fi
@@ -121,7 +127,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	[[ -n ${PV%%*9999} ]] && mv \
+	[[ -d ../${MY_GLA} ]] && mv \
 		"${WORKDIR}"/${MY_GLA}/* src/modules/glaxnimate/glaxnimate/
 
 	# Respect CFLAGS LDFLAGS when building shared libraries. Bug #308873
