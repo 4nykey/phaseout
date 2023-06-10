@@ -20,7 +20,7 @@ else
 			REQUIRED_USE="!doc" ;;
 		*)
 			SRC_URI+=" doc? (
-			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-v${MY_PV#*-}.tar.gz
+			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-${MY_PV#*-}.tar.gz
 			)" ;;
 	esac
 	KEYWORDS="~amd64"
