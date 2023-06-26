@@ -1,9 +1,9 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..11} )
 PYTHON_REQ_USE="xml(+)"
 DISTUTILS_SINGLE_IMPL=1
 PLOCALES="cs de es fi fr it"
@@ -12,6 +12,7 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/jliljebl/${PN}.git"
 	SRC_URI=
+	MY_PV="${PV}"
 else
 	MY_PV="d3caf21"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
@@ -50,8 +51,8 @@ DEPEND="
 "
 DOCS=( AUTHORS README docs/{FAQ,KNOWN_ISSUES,RELEASE_NOTES,ROADMAP}.md )
 
-src_prepare() {
-	xdg_src_prepare
+python_prepare_all() {
+	distutils-r1_python_prepare_all
 	sed -e 's:share/appdata:share/metainfo:' -i setup.py
 	sed -e "s:/usr/share/flowblade/:$(python_get_sitedir)/:" -i flowblade
 }
