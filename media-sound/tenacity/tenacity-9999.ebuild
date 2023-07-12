@@ -1,8 +1,14 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
+# locale/LINGUAS
+PLOCALES="
+af ar be bg bn bs ca ca_ES@valencia co cs cy da de el es eu_ES fa fi fr ga gl
+he hi hr hu hy id it ja ka km ko lt mk mr my nb nl oc pl pt_BR pt_PT ro ru sk
+sl sr_RS sr_RS@latin sv ta tg tr uk vi zh_CN zh_TW
+"
 if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://codeberg.org/tenacityteam/${PN}.git"
 	EGIT_SUBMODULES=()
@@ -17,7 +23,7 @@ else
 	KEYWORDS="~amd64"
 	S="${WORKDIR}/${PN}"
 fi
-inherit cmake flag-o-matic xdg
+inherit plocale cmake flag-o-matic xdg
 
 DESCRIPTION="An easy-to-use multi-track audio editor and recorder"
 HOMEPAGE="https://tenacityaudio.org"
@@ -72,10 +78,21 @@ PATCHES=(
 )
 
 src_prepare() {
-	use portmidi || sed \
-		-e '/MIDI_OUT/d' -i src/Experimental.cmake
 	has_version media-sound/audacity && sed \
 		-e '/x-audacity-project\.xpm/d' -i images/CMakeLists.txt
+
+	rm_locale() {
+		sed -e "/${1}/d" -i locale/LINGUAS
+	}
+	if use nls; then
+		plocale_for_each_disabled_locale rm_locale
+	else
+		sed -e '/add_subdirectory( "locale" )/d' -i CMakeLists.txt || die
+		sed \
+			-e '/add_dependencies( \${TARGET} locale )/d' \
+			-i src/CMakeLists.txt || die
+	fi
+
 	cmake_src_prepare
 	mkdir -p "${BUILD_DIR}"/src/private
 }

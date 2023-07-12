@@ -10,15 +10,15 @@
        nyx.c
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -1355,15 +1355,8 @@ else()
+@@ -1390,15 +1390,10 @@ else()
                 FILES_MATCHING PATTERN "*.so*" )
        install( FILES "${_INTDIR}/${APP_NAME}.desktop"
                 DESTINATION "${_DATADIR}/applications" )
--      install( FILES "${topdir}/LICENSE.txt" "${topdir}/README.md"
+-      install( FILES "${CMAKE_SOURCE_DIR}/LICENSE.txt" "${CMAKE_SOURCE_DIR}/README.md"
 -               DESTINATION "${_DATADIR}/doc/${APP_NAME}" )
--      install( FILES "${_SRCDIR}/audacity.xml"
--               DESTINATION "${_DATADIR}/mime/packages" )
-       install( FILES "${topdir}/presets/EQDefaultCurves.xml"
+       install( FILES "${_SRCDIR}/tenacity.xml"
+                DESTINATION "${_DATADIR}/mime/packages" )
+       install( FILES "${CMAKE_SOURCE_DIR}/presets/EQDefaultCurves.xml"
                 DESTINATION "${_PKGDATA}" )
 -      install( PROGRAMS "${PROJECT_SOURCE_DIR}/linux/tenacity.sh"
 -               DESTINATION "."
