@@ -1,8 +1,15 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
+PYTHON_COMPAT=( python3_{10..11} )
+# locale/LINGUAS
+PLOCALES="
+af ar be bg bn bs ca ca_ES@valencia co cs cy da de el es eu eu_ES fa fi fr ga
+gl he hi hr hu hy id it ja ka km ko lt mk mr my nb nl oc pl pt_BR pt_PT ro ru
+sk sl sr_RS sr_RS@latin sv ta tg tr uk vi zh_CN zh_TW
+"
 if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/${PN}/${PN}.git"
 	inherit git-r3
@@ -32,7 +39,7 @@ SRC_URI+="
 		mirror://githubcl/progschj/${MY_TP%-*}/tar.gz/${MY_TP##*-} -> ${MY_TP}.tar.gz
 	)
 "
-inherit cmake flag-o-matic xdg
+inherit plocale python-any-r1 cmake flag-o-matic xdg
 
 DESCRIPTION="Free crossplatform audio editor"
 HOMEPAGE="https://web.audacityteam.org/"
@@ -41,15 +48,15 @@ LICENSE="GPL-3"
 SLOT="0"
 IUSE="
 alsa curl doc ffmpeg +flac id3tag jack +ladspa +lv2 mp3
-nls ogg oss pch portmidi +portmixer portsmf sbsms +soundtouch twolame vamp +vorbis
+nls ogg oss pch +portmixer sbsms +soundtouch twolame vamp +vorbis
 vst wavpack
 "
 RESTRICT="test primaryuri"
 
 DEPEND="
 	media-libs/portaudio[alsa?]
-	portmidi? ( media-libs/portmidi )
-	portsmf? ( media-libs/portsmf:= )
+	media-libs/portmidi
+	media-libs/portsmf:=
 	dev-libs/expat
 	media-libs/libsndfile
 	media-libs/libsoundtouch
@@ -101,10 +108,22 @@ PATCHES=(
 )
 
 src_prepare() {
-	use portmidi || sed \
-		-e '/MIDI_OUT/d' -i src/Experimental.cmake
 	sed -e 's:\<ccache\>:no_&:' -i CMakeLists.txt
+
+	rm_locale() {
+		sed -e "/${1}/d" -i locale/LINGUAS
+	}
+	if use nls; then
+		plocale_for_each_disabled_locale rm_locale
+	else
+		sed -e '/add_subdirectory( "locale" )/d' -i CMakeLists.txt || die
+		sed \
+			-e '/add_dependencies( \${TARGET} locale )/d' \
+			-i src/CMakeLists.txt || die
+	fi
+
 	cmake_src_prepare
+
 	use curl || return
 	mv "${WORKDIR}"/${MY_TP} "${S}"/libraries/lib-network-manager/${MY_TP%-*}
 	sed -e '/audacity_find_package(ThreadPool/d' \
@@ -134,13 +153,13 @@ src_configure() {
 		-Daudacity_use_ladspa=$(usex ladspa)
 		-Daudacity_use_lv2=$(usex lv2 system off)
 		-Daudacity_use_libmpg123=$(usex mp3 system off)
-		-Daudacity_use_midi=$(usex portmidi system off)
+		-Daudacity_use_midi=system
 		-Daudacity_has_networking=$(usex curl)
 		-Daudacity_has_updates_check=no
 		-Daudacity_use_libogg=$(usex ogg system off)
 		-Daudacity_use_portaudio=system
 		-Daudacity_use_portmixer=$(usex portmixer system off)
-		-Daudacity_use_portsmf=$(usex portsmf system off)
+		-Daudacity_use_portsmf=system
 		-Daudacity_use_sbsms=$(usex sbsms system off)
 		-Daudacity_use_twolame=$(usex twolame system off)
 		-Daudacity_use_vamp=$(usex vamp system off)
@@ -152,6 +171,9 @@ src_configure() {
 	)
 	[[ -n ${PV%%*9999} ]] && mycmakeargs+=(
 		-DCMAKE_DISABLE_FIND_PACKAGE_Git=yes
+	)
+	has_version '~sys-devel/gettext-0.22' && mycmakeargs+=(
+		-DCMAKE_DISABLE_FIND_PACKAGE_Gettext=yes
 	)
 	cmake_src_configure
 }
