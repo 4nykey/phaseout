@@ -15,7 +15,7 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 else
 	MY_PV="685e7c7"
-	[[ -n ${PV%%*_p*} ]] && MY_PV="v$(ver_rs 2 '-')"
+	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 	SRC_URI+="
 		https://codeberg.org/tenacityteam/${PN}/archive/${MY_PV}.tar.gz
 		-> ${P}.tar.gz
