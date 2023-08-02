@@ -52,9 +52,9 @@ RESTRICT+=" primaryuri"
 # Qt already needs FFTW/PLUS so let's just always have it on to ensure
 # MLT is useful: bug #603168.
 DEPEND="
-	>=media-libs/libebur128-1.2.2:=
+	>=media-libs/libebur128-1.2.6:=
 	sci-libs/fftw:3.0=
-	ffmpeg? ( media-video/ffmpeg:0=[vdpau?,-flite] )
+	ffmpeg? ( media-video/ffmpeg:0=[vdpau?] )
 	frei0r? ( media-plugins/frei0r-plugins )
 	gtk? (
 		media-libs/libexif
@@ -175,7 +175,7 @@ src_configure() {
 	if use python; then
 		mycmakeargs+=(
 			-DSWIG_PYTHON=yes
-			-DPython3_EXECUTABLE="${EPREFIX}/usr/bin/${EPYTHON}"
+			-DPython3_EXECUTABLE="${PYTHON}"
 		)
 	fi
 
