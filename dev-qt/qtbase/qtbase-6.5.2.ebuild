@@ -124,7 +124,7 @@ DEPEND="
 RDEPEND="${DEPEND}"
 PDEPEND="wayland? ( =dev-qt/qtwayland-${PV}* )"
 
-PATCHES=( "${FILESDIR}/${PN}-6.5.1-CVE-2023-34410.patch" )
+PATCHES=( "${FILESDIR}/${PN}-6.5.2-CVE-2023-38197.patch" )
 
 src_configure() {
 	local mycmakeargs=(
