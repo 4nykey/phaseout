@@ -26,7 +26,7 @@ SLOT="0"
 IUSE="jack vulkan"
 
 DEPEND="
-	>=media-libs/mlt-7.13:=[ffmpeg,frei0r,jack?,qt6,sdl,xml]
+	>=media-libs/mlt-7.18:=[ffmpeg,frei0r,jack?,qt6,sdl,xml]
 	sci-libs/fftw:=
 	dev-qt/qtbase:6[dbus,gui,opengl,sql,vulkan?,widgets,xml]
 	dev-qt/qtmultimedia:6
