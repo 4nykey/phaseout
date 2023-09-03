@@ -142,7 +142,6 @@ src_configure() {
 	# * options listed in the order that cmake-gui lists them
 	local mycmakeargs=(
 		-DAUDACITY_BUILD_LEVEL=${_r}
-		-DCMAKE_SKIP_BUILD_RPATH=yes
 		-DwxWidgets_CONFIG_EXECUTABLE="${_w}"
 		-Daudacity_conan_enabled=off
 		-Daudacity_lib_preference=system
