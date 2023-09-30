@@ -70,7 +70,7 @@ DEPEND="
 		dev-libs/rapidjson
 	)
 	flac? ( media-libs/flac[cxx] )
-	id3tag? ( media-libs/libid3tag )
+	id3tag? ( media-libs/libid3tag:= )
 	jack? ( virtual/jack )
 	lv2? (
 		dev-libs/serd

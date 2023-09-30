@@ -48,7 +48,7 @@ RDEPEND="
 		media-libs/portmidi
 		media-libs/portsmf:=
 	)
-	id3tag? ( media-libs/libid3tag )
+	id3tag? ( media-libs/libid3tag:= )
 	mad? ( media-libs/libmad:= )
 	twolame? ( media-sound/twolame )
 	ogg? ( media-libs/libogg )
