@@ -20,7 +20,7 @@ if [[ -n ${PV%%*_p*} ]]; then
 		)
 	"
 else
-	MY_PV="$(ver_cut 1-3)a1.dev5445+edf1cf07"
+	MY_PV="$(ver_cut 1-3)a1.dev5626+a1184286"
 	MY_P="${PYPI_PN}-${MY_PV}"
 	SRC_URI="
 		https://wxpython.org/Phoenix/snapshot-builds/${MY_P}.tar.gz
@@ -37,7 +37,7 @@ HOMEPAGE="https://www.wxpython.org"
 
 LICENSE="wxWinLL-3.1 LGPL-2"
 SLOT="4.0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS= #"~amd64 ~x86"
 IUSE="apidocs debug examples libnotify opengl test webkit"
 
 RDEPEND="
@@ -49,6 +49,7 @@ DEPEND="
 BDEPEND="
 	app-doc/doxygen
 	>=dev-python/sip-6.6.2:5[${PYTHON_USEDEP}]
+	dev-python/cython[${PYTHON_USEDEP}]
 	test? (
 		${VIRTUALX_DEPEND}
 		dev-python/appdirs[${PYTHON_USEDEP}]
@@ -79,8 +80,9 @@ pkg_setup() {
 	use apidocs && HTML_DOCS=( ../${MY_P/-/-docs-}/docs/html/. )
 	use examples && DOCS+=( demo samples )
 	python_setup
-	use webkit && return
-	PATCHES+=( "${FILESDIR}"/${PN}-4.2.0-no-webkit.patch )
+	use webkit || PATCHES+=(
+		"${FILESDIR}"/${PN}-4.2.0-no-webkit.patch
+	)
 }
 
 python_prepare_all() {
