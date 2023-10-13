@@ -26,7 +26,6 @@ else
 	S="${WORKDIR}/${PN}-${MY_PV#v}"
 fi
 
-LUA_COMPAT=( lua5-{1..4} luajit )
 PYTHON_COMPAT=( python3_{9..11} )
 inherit python-single-r1 cmake
 
@@ -82,8 +81,9 @@ DEPEND="
 		x11-libs/libX11
 	)
 	qt6? (
-		dev-qt/qtsvg:6
-		dev-qt/qt5compat:6
+		>=dev-qt/qtbase-6.5.3:6[dbus,gui,network,widgets,xml]
+		>=dev-qt/qtsvg-6.5.3:6
+		>=dev-qt/qt5compat-6.5.3:6
 	)
 	rtaudio? (
 		>=media-libs/rtaudio-4.1.2
@@ -120,6 +120,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-6.10.0-swig-underlinking.patch
 	"${FILESDIR}"/${PN}-6.22.1-no_lua_bdepend.patch
 	"${FILESDIR}"/${PN}-7.0.1-cmake-symlink.patch
+	# upstream (>=7.21.0)
+	"${FILESDIR}"/${P}-{rotoscoping,qtblend}-crash.patch
 )
 
 pkg_setup() {
