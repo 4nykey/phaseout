@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit autotools multilib-minimal virtualx
+inherit cmake-multilib virtualx
 
 DESCRIPTION="GTK+ version of wxWidgets, a cross-platform C++ GUI toolkit"
 HOMEPAGE="https://wxwidgets.org/"
@@ -11,7 +11,7 @@ VIRTUALX_REQUIRED="X test"
 
 MY_PN="wxWidgets"
 MY_PV="204db7e"
-[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
+[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV/_rc/-rc}"
 MY_CA="Catch-5f5e4ce"
 MY_NS="nanosvg-ccdb199"
 SRC_URI="
@@ -37,7 +37,7 @@ REQUIRED_USE="
 	gnome-keyring? ( X )
 "
 
-SLOT="$(ver_cut 1-2)"
+SLOT="$(ver_cut 1-2)/$(ver_cut 3)"
 
 RDEPEND="
 	app-eselect/eselect-wxwidgets
@@ -93,100 +93,78 @@ DOCS=(
 	docs/{base,gtk}
 )
 PATCHES=(
+	"${FILESDIR}"/libdir.diff
 )
 
 src_prepare() {
 	mv "${WORKDIR}"/${MY_NS}/* 3rdparty/nanosvg
 	use test && mv "${WORKDIR}"/${MY_CA}/* 3rdparty/catch
-	mv -f configure.{in,ac}
-	sed -e 's:AC_CONFIG_SUBDIRS(\[.*:no=subdirs:' -i configure.ac
-	default
-	AT_M4DIR="${S}/build/aclocal" eautoreconf
-
-	# Versionating
-	local _s="${SLOT%/*}"
-	sed -i \
-		-e "s:aclocal):aclocal/wxwin${_s//.}.m4):" \
-		-e "/\.\<mo\>/s:wx\(std\|msw\):wx\1${_s//.}:" \
-		Makefile.in || die
+	cmake_src_prepare
 }
 
-multilib_src_configure() {
+src_configure() {
 	# X independent options
-	local myeconfargs=(
-		--with-zlib=sys
-		--with-expat=sys
-		$(use_enable pch)
-		$(use_enable threads)
-		$(use_with sdl)
-		$(use_with pcre regex sys)
-		$(use_with lzma liblzma)
-		$(use_with curl libcurl)
-		--enable-debug=$(usex debug max $(usex test))
+	local mycmakeargs=(
+		-DwxUSE_GUI=$(usex X)
+		-DwxUSE_ZLIB=sys
+		-DwxUSE_EXPAT=sys
+		-DwxUSE_THREADS=$(usex threads)
+		-DwxUSE_LIBSDL=$(usex sdl)
+		-DwxUSE_REGEX=$(usex pcre sys no)
+		-DwxUSE_LIBLZMA=$(usex lzma)
+		-DwxUSE_WEBREQUEST_CURL=$(usex curl)
+		-DwxBUILD_DEBUG_LEVEL=$(usex debug 2 1)
 	)
 
 	# wxGTK options
 	#   --enable-graphics_ctx - needed for webkit, editra
 	#   --without-gnomevfs - bug #203389
-	use X && myeconfargs+=(
-		--enable-graphics_ctx
-		--with-gtkprint
-		--enable-gui
-		--with-gtk=3
-		--with-libpng=sys
-		--with-libjpeg=sys
-		--without-gnomevfs
-		$(use_enable gstreamer mediactrl)
-		$(multilib_native_use_enable webkit webview)
-		$(use_with libnotify)
-		$(use_with opengl)
-		$(use_with tiff libtiff sys)
-		$(use_enable gnome-keyring secretstore)
-		$(use_enable spell spellcheck)
-		$(multilib_native_use_enable test tests)
-		$(use_enable svg)
-		$(use_enable egl glcanvasegl)
-		$(use_with chm libmspack)
+	use X && mycmakeargs+=(
+		-DwxBUILD_TOOLKIT=gtk3
+		-DwxUSE_GRAPHICS_CONTEXT=yes
+		-DwxUSE_GTKPRINT=sys
+		-DwxUSE_LIBPNG=sys
+		-DwxUSE_LIBJPEG=sys
+		-DwxUSE_LIBGNOMEVFS=no
+		-DwxUSE_MEDIACTRL=$(usex gstreamer)
+		-DwxUSE_WEBVIEW=$(multilib_native_usex webkit)
+		-DwxUSE_LIBNOTIFY=$(usex libnotify)
+		-DwxUSE_OPENGL=$(usex opengl)
+		-DwxUSE_LIBTIFF=$(usex tiff sys no)
+		-DwxUSE_SECRETSTORE=$(usex gnome-keyring)
+		-DwxUSE_SPELLCHECK=$(usex spell)
+		-DwxUSE_NANOSVG=$(usex svg sys no)
+		-DwxUSE_GLCANVAS_EGL=$(usex egl)
+		-DwxUSE_LIBMSPACK=$(usex chm)
+		-DwxUSE_DETECT_SM=yes
 	)
 
-	# wxBase options
-	use X || myeconfargs+=( --disable-gui )
+	multilib_is_native_abi && use test && mycmakeargs+=(
+		-DwxBUILD_TESTS=$(usex X ALL CONSOLE_ONLY)
+	)
 
-	ECONF_SOURCE="${S}" econf ${myeconfargs[@]}
+	cmake-multilib_src_configure
 }
 
-multilib_src_compile() {
-	default
-	use test && emake -C tests
-}
-
-multilib_src_test() {
+src_test() {
 	local -x LD_LIBRARY_PATH="${BUILD_DIR}/lib:${BUILD_DIR}/tests"
 	cd tests
 	./test --reporter compact || die "non-GUI tests failed"
 	use X && virtx ./test_gui --reporter compact || die "GUI tests failed"
 }
 
-multilib_src_install_all() {
-	einstalldocs
+src_install() {
+	cmake-multilib_src_install
 	# Unversioned links
 	rm -f "${ED}"/usr/bin/wx{-config,rc}
-
-	# version bakefile presets
-	pushd "${ED}"/usr/share/bakefile/presets/ > /dev/null
-	local f _s="${SLOT%/*}"
-	for f in wx*; do
-		mv "${f}" "wx${_s//.}${f#wx}"
-	done
-	popd > /dev/null
 }
 
 pkg_postinst() {
-	has_version app-eselect/eselect-wxwidgets \
+	has_version -b app-eselect/eselect-wxwidgets \
 		&& eselect wxwidgets update
 }
 
 pkg_postrm() {
-	has_version app-eselect/eselect-wxwidgets \
+	has_version -b app-eselect/eselect-wxwidgets \
 		&& eselect wxwidgets update
 }
