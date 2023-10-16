@@ -11,14 +11,17 @@ sl sr_RS sr_RS@latin sv ta tg tr uk vi zh_CN zh_TW
 "
 if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://codeberg.org/tenacityteam/${PN}.git"
-	EGIT_SUBMODULES=()
+	EGIT_SUBMODULES=( lib-src/libnyquist )
 	inherit git-r3
 else
 	MY_PV="685e7c7"
+	MY_NY="libnyquist-3678ee6"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
-	SRC_URI+="
+	SRC_URI="
 		https://codeberg.org/tenacityteam/${PN}/archive/${MY_PV}.tar.gz
 		-> ${P}.tar.gz
+		https://codeberg.org/tenacityteam/${MY_NY%-*}/archive/${MY_NY##*-}.tar.gz
+		-> ${MY_NY}.tar.gz
 	"
 	KEYWORDS="~amd64"
 	S="${WORKDIR}/${PN}"
@@ -93,6 +96,7 @@ src_prepare() {
 			-i src/CMakeLists.txt || die
 	fi
 
+	[[ -d ../libnyquist ]] && mv ../libnyquist/* lib-src/libnyquist
 	cmake_src_prepare
 	mkdir -p "${BUILD_DIR}"/src/private
 }
