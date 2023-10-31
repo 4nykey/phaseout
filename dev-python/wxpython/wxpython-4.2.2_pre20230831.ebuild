@@ -37,7 +37,7 @@ HOMEPAGE="https://www.wxpython.org"
 
 LICENSE="wxWinLL-3.1 LGPL-2"
 SLOT="4.0"
-KEYWORDS= #"~amd64 ~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="apidocs debug examples libnotify opengl test webkit"
 
 RDEPEND="
