@@ -18,28 +18,20 @@ else
 	MY_PV="$(ver_rs 3-4 '-')"
 	MY_PV="${MY_PV/-rc-/-RC}"
 	MY_PV="${PN^}-${MY_PV%_*}"
-	if [[ -z ${PV%%*_p*} ]]; then
-		MY_PV="84d5e63"
-		SRC_URI="
-			mirror://githubcl/${PN}/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
-		"
-		S="${WORKDIR}/${PN}-${MY_PV}"
-	else
-		MY_P="${PN}-sources-${MY_PV#*-}"
-		SRC_URI="
-			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${MY_P}.tar.gz
-		"
-		S="${WORKDIR}/${MY_P}"
-	fi
+	[[ -z ${PV%%*_p*} ]] && MY_PV="84d5e63"
+	SRC_URI="
+		mirror://githubcl/${PN}/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
+	"
 	case ${PV} in
 		*_alpha*|*_beta*|*_pre*)
 			REQUIRED_USE="!doc" ;;
 		*)
 			SRC_URI+=" doc? (
-			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-${MY_PV#*-}.zip
+			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-${MY_PV#*-}.tar.gz
 			)" ;;
 	esac
 	KEYWORDS="~amd64"
+	S="${WORKDIR}/${PN}-${MY_PV}"
 fi
 MY_TP="ThreadPool-9a42ec1"
 SRC_URI+="
@@ -56,7 +48,7 @@ LICENSE="GPL-3"
 SLOT="0"
 IUSE="
 alsa curl doc ffmpeg +flac id3tag jack +ladspa +lv2 mp3
-nls ogg opus oss pch +portmixer sbsms +soundtouch twolame vamp +vorbis
+nls ogg oss pch +portmixer sbsms +soundtouch twolame vamp +vorbis
 vst wavpack
 "
 RESTRICT="test primaryuri"
@@ -90,10 +82,6 @@ DEPEND="
 	)
 	mp3? ( media-sound/mpg123 )
 	ogg? ( media-libs/libogg )
-	opus? (
-		media-libs/opus
-		media-libs/opusfile
-	)
 	sbsms? ( media-libs/libsbsms:= )
 	soundtouch? ( >=media-libs/libsoundtouch-1.7.1 )
 	twolame? ( media-sound/twolame )
@@ -162,11 +150,6 @@ src_configure() {
 		-Daudacity_conan_enabled=off
 		-Daudacity_lib_preference=system
 		-Daudacity_obey_system_dependencies=yes
-		-Daudacity_use_pch=$(usex pch)
-		-Daudacity_has_networking=$(usex curl)
-		-Daudacity_has_updates_check=off
-		-Daudacity_has_crashreports=off
-		-Daudacity_has_sentry_reporting=off
 		-Daudacity_use_ffmpeg=$(usex ffmpeg loaded off)
 		-Daudacity_use_libflac=$(usex flac system off)
 		-Daudacity_use_libid3tag=$(usex id3tag system off)
@@ -174,8 +157,8 @@ src_configure() {
 		-Daudacity_use_lv2=$(usex lv2 system off)
 		-Daudacity_use_libmpg123=$(usex mp3 system off)
 		-Daudacity_use_midi=system
-		-Daudacity_use_libopus=$(usex opus system off)
-		-Daudacity_use_opusfile=$(usex opus system off)
+		-Daudacity_has_networking=$(usex curl)
+		-Daudacity_has_updates_check=no
 		-Daudacity_use_libogg=$(usex ogg system off)
 		-Daudacity_use_portaudio=system
 		-Daudacity_use_portmixer=$(usex portmixer system off)
@@ -186,9 +169,14 @@ src_configure() {
 		-Daudacity_use_libvorbis=$(usex vorbis system off)
 		-Daudacity_use_wavpack=$(usex wavpack system off)
 		-Daudacity_has_vst3=$(usex vst)
+		-DDISABLE_DYNAMIC_LOADING_LAME=yes
+		-Duse_pch=$(usex pch)
 	)
 	[[ -n ${PV%%*9999} ]] && mycmakeargs+=(
 		-DCMAKE_DISABLE_FIND_PACKAGE_Git=yes
+	)
+	has_version '~sys-devel/gettext-0.22' && mycmakeargs+=(
+		-DCMAKE_DISABLE_FIND_PACKAGE_Gettext=yes
 	)
 	cmake_src_configure
 }
