@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 MY_PN=OpenImageIO
 FONT_PN=${MY_PN}
@@ -38,8 +38,8 @@ X86_CPU_FEATURES=(
 )
 CPU_FEATURES=( ${X86_CPU_FEATURES[@]/#/cpu_flags_x86_} )
 
-IUSE="dicom doc ffmpeg gif jpeg2k opencv openvdb ptex python qt5 qt6 raw test +tools +truetype ${CPU_FEATURES[@]%:*}"
-REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} ) qt5? ( tools ) qt6? ( tools )"
+IUSE="dicom doc ffmpeg gif gui jpeg2k opencv openvdb ptex python qt6 raw test +tools +truetype ${CPU_FEATURES[*]%:*}"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} ) gui? ( tools )"
 
 # Not quite working yet
 RESTRICT="!test? ( test )" # test"
@@ -86,16 +86,17 @@ DEPEND="
 			dev-python/pybind11[${PYTHON_USEDEP}]
 		')
 	)
-	qt5? (
+	gui? (
 		media-libs/libglvnd
-		dev-qt/qtcore:5
-		dev-qt/qtgui:5
-		dev-qt/qtopengl:5
-		dev-qt/qtwidgets:5
-	)
-	qt6? (
-		media-libs/libglvnd
-		dev-qt/qtbase:6[gui,widgets,opengl]
+		!qt6? (
+			dev-qt/qtcore:5
+			dev-qt/qtgui:5
+			dev-qt/qtopengl:5
+			dev-qt/qtwidgets:5
+		)
+		qt6? (
+			dev-qt/qtbase:6[gui,widgets,opengl]
+		)
 	)
 	raw? ( media-libs/libraw:= )
 	truetype? ( media-libs/freetype:2= )
@@ -107,15 +108,12 @@ RDEPEND="
 
 DOCS=( CHANGES.md CREDITS.md README.md )
 
-pkg_pretend() {
-	use qt5 && use qt6 && einfo "The \"qt5\" USE flag has no effect when the \"qt6\" USE flag is also enabled."
-}
-
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
 }
 
 src_prepare() {
+	use dicom || rm -r "${S}/src/dicom.imageio/" || die
 	cmake_src_prepare
 	cmake_comment_add_subdirectory src/fonts
 
@@ -135,7 +133,7 @@ src_configure() {
 	done
 
 	# If no CPU SIMDs were used, completely disable them
-	[[ -z ${mysimd} ]] && mysimd=("0")
+	[[ -z ${mysimd[*]} ]] && mysimd=("0")
 
 	# This is currently needed on arm64 to get the NEON SIMD wrapper to compile the code successfully
 	# Even if there are no SIMD features selected, it seems like the code will turn on NEON support if it is available.
@@ -167,13 +165,11 @@ src_configure() {
 		-DUSE_SIMD=$(local IFS=','; echo "${mysimd[*]}")
 	)
 
-	if use qt5 || use qt6; then
-		mycmakeargs+=(
-			-DENABLE_IV=ON
-			-DUSE_OPENGL=ON
-			-DUSE_QT=ON
-			-DCMAKE_DISABLE_FIND_PACKAGE_Qt6=$(usex !qt6)
-		)
+	if use gui; then
+		mycmakeargs+=( -DENABLE_IV=ON -DUSE_OPENGL=ON -DUSE_QT=ON )
+		if ! use qt6; then
+			mycmakeargs+=( -DCMAKE_DISABLE_FIND_PACKAGE_Qt6=ON )
+		fi
 	else
 		mycmakeargs+=( -DENABLE_IV=OFF -DUSE_QT=OFF )
 	fi
