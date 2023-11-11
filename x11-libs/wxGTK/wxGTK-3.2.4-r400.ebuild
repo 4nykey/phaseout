@@ -26,7 +26,7 @@ SRC_URI="
 S="${WORKDIR}/${MY_PN}-${MY_PV#v}"
 RESTRICT=primaryuri
 
-KEYWORDS="~amd64"
+KEYWORDS= #"~amd64"
 IUSE="+X curl doc debug gnome-keyring gstreamer libnotify +lzma opengl pch sdl +spell test tiff wayland webkit"
 IUSE+=" chm egl pcre svg threads"
 REQUIRED_USE="
