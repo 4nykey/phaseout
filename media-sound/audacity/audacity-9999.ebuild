@@ -19,7 +19,7 @@ else
 	MY_PV="${MY_PV/-rc-/-RC}"
 	MY_PV="${PN^}-${MY_PV%_*}"
 	if [[ -z ${PV%%*_p*} ]]; then
-		MY_PV="84d5e63"
+		MY_PV="30cc55b"
 		SRC_URI="
 			mirror://githubcl/${PN}/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		"
