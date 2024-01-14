@@ -1,9 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..11} )
 MY_PN="${PN^}"
 MY_OC="OpenColorIO-Configs-3fd16e0"
 DOCS_BUILDER="sphinx"
@@ -12,14 +12,14 @@ DOCS_AUTODOC=0
 inherit flag-o-matic cmake python-single-r1 docs toolchain-funcs virtualx xdg
 if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${MY_PN}.git"
-	EGIT_BRANCH="RB-${PV%.*}"
+	EGIT_BRANCH="RB-$(ver_cut 1-2)"
 	inherit git-r3
 else
-	MY_PV="395c222"
-	if [[ -n ${PV%%*_p*} ]]; then
-		MY_PV="v$(ver_rs 3 '-' 4 '.')"
+	MY_PV="2708a86"
+	if [[ -z ${PV%%*_p20*} ]]; then
+		MY_PV="v$(ver_rs 3 '-')"
 	fi
-	MY_OFX='openfx-a5d9ca8'
+	MY_OFX='openfx-d5db5d0'
 	MY_SEQ='SequenceParsing-3c93fcc'
 	MY_TIN='tinydir-64fb1d4'
 	MY_MCK='google-mock-17945db'
@@ -63,7 +63,7 @@ RDEPEND="
 	$(python_gen_cond_dep '
 		dev-python/pyside2[widgets,${PYTHON_USEDEP}]
 	')
-	sci-libs/ceres-solver
+	sci-libs/ceres-solver:=
 	x11-libs/libXext
 	dev-libs/wayland
 "
