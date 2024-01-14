@@ -1,18 +1,18 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit cmake
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	MY_PV="9fb5ee9"
+	MY_PV="f63c273"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="Natron-${PV}"
 	MY_P="${PN}-${MY_PV}"
 	MY_OFX='openfx-a5d9ca8'
-	MY_SUP='openfx-supportext-8aff0b0'
+	MY_SUP='openfx-supportext-533db0b'
 	MY_SEQ='SequenceParsing-3c93fcc'
 	MY_TIN='tinydir-64fb1d4'
 	SRC_URI="
@@ -23,8 +23,9 @@ else
 		mirror://githubcl/NatronGitHub/${MY_TIN%-*}/tar.gz/${MY_TIN##*-} -> ${MY_TIN}.tar.gz
 	"
 	RESTRICT="primaryuri"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="~amd64"
 	S="${WORKDIR}/${MY_P}"
+	PATCHES=( "${FILESDIR}"/gladegl.diff )
 fi
 
 DESCRIPTION="A set of Readers/Writers plugins written using the OpenFX standard"
@@ -32,17 +33,19 @@ HOMEPAGE="https://github.com/NatronGitHub/${PN}"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE=""
+IUSE="+color-management ffmpeg openexr +openimageio png seexpr"
 
 RDEPEND="
-	media-libs/openexr:=
-	media-libs/openimageio:=[ffmpeg,opengl,-openvdb,raw]
-	media-libs/opencolorio:=
+	color-management? ( <media-libs/opencolorio-2.3:= )
+	openexr? ( media-libs/openexr:= )
+	openimageio? ( media-libs/openimageio:=[raw] )
+	ffmpeg? ( media-video/ffmpeg:= )
+	png? ( media-libs/libpng:= )
+	seexpr? ( dev-libs/seexpr:0 )
 	media-libs/glu
-	dev-libs/seexpr:0
 "
 DEPEND="${RDEPEND}"
-PATCHES=(
+PATCHES+=(
 	"${FILESDIR}"/cmake.diff
 )
 
@@ -66,6 +69,12 @@ src_configure() {
 	local mycmakeargs=(
 		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr/lib/OFX/Plugins"
 		-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=yes
+		$(cmake_use_find_package color-management OpenColorIO)
+		$(cmake_use_find_package openexr OpenEXR)
+		$(cmake_use_find_package ffmpeg FFmpeg)
+		$(cmake_use_find_package openimageio OpenImageIO)
+		$(cmake_use_find_package png PNG)
+		$(cmake_use_find_package seexpr SeExpr2)
 	)
 	cmake_src_configure
 }

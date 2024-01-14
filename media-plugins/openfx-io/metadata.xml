@@ -4,4 +4,9 @@
 	<maintainer type="person">
 		<email>4nykey@gmail.com</email>
 	</maintainer>
+	<use>
+        <flag name="color-management">Enable color management via media-libs/opencolorio</flag>
+        <flag name="openimageio">Enable OpenImageIO support</flag>
+        <flag name="seexpr">Enable SeExpr support</flag>
+	</use>
 </pkgmetadata>

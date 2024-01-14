@@ -1,22 +1,22 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit cmake
 if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/NatronGitHub/${PN}.git"
 else
-	MY_PV="2e56d77"
+	MY_PV="d7c5f1b"
 	if [[ -n ${PV%%*_p*} ]]; then
 		MY_PV="Natron-${PV}"
 		MY_OIO="${MY_PV}"
 	else
-		MY_OIO="9fb5ee9"
+		MY_OIO="f63c273"
 	fi
 	MY_OFX='openfx-a5d9ca8'
-	MY_SUP='openfx-supportext-8aff0b0'
+	MY_SUP='openfx-supportext-533db0b'
 	MY_SEQ='SequenceParsing-3c93fcc'
 	MY_TIN='tinydir-64fb1d4'
 	MY_PNG='lodepng-997936f'
@@ -30,7 +30,7 @@ else
 		mirror://githubcl/lvandeve/${MY_PNG%-*}/tar.gz/${MY_PNG##*-} -> ${MY_PNG}.tar.gz
 	"
 	RESTRICT="primaryuri"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="~amd64"
 	S="${WORKDIR}/${PN}-${MY_PV}"
 fi
 
