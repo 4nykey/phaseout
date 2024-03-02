@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -29,7 +29,7 @@ else
 		SRC_URI="
 			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${MY_P}.tar.gz
 		"
-		S="${WORKDIR}/${MY_P}"
+		S="${WORKDIR}/${MY_P}-20240301+ed81a44"
 	fi
 	case ${PV} in
 		*_alpha*|*_beta*|*_pre*)
@@ -117,6 +117,7 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/vst3.diff
+	"${FILESDIR}"/portsmf.diff
 )
 
 src_prepare() {
