@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -26,16 +26,16 @@ else
 	S="${WORKDIR}/${PN}-${MY_PV#v}"
 fi
 
-PYTHON_COMPAT=( python3_{9..11} )
-inherit python-single-r1 cmake
+PYTHON_COMPAT=( python3_{9..12} )
+inherit python-single-r1 cmake flag-o-matic
 
 DESCRIPTION="Open source multimedia framework for television broadcasting"
 HOMEPAGE="https://www.mltframework.org/"
 
 LICENSE="GPL-3"
 SLOT="0/7"
-IUSE="debug ffmpeg frei0r gtk jack libsamplerate opencv opengl python qt5 rtaudio rubberband sdl test vdpau vidstab xine xml"
-IUSE+=" doc glaxnimate sdl1 sox qt6"
+IUSE="debug ffmpeg frei0r gtk jack libsamplerate opencv opengl python qt5 qt6 rtaudio rubberband sdl test vdpau vidstab xine xml"
+IUSE+=" doc glaxnimate sdl1 sox"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 REQUIRED_USE+="
@@ -74,6 +74,7 @@ DEPEND="
 	qt5? (
 		dev-qt/qtcore:5
 		dev-qt/qtgui:5
+		dev-qt/qtnetwork:5
 		dev-qt/qtsvg:5
 		dev-qt/qtwidgets:5
 		dev-qt/qtxml:5
@@ -81,9 +82,11 @@ DEPEND="
 		x11-libs/libX11
 	)
 	qt6? (
-		>=dev-qt/qtbase-6.5.3:6[dbus,gui,network,widgets,xml]
-		>=dev-qt/qtsvg-6.5.3:6
-		>=dev-qt/qt5compat-6.5.3:6
+		dev-qt/qt5compat:6
+		dev-qt/qtbase:6[gui,network,opengl,widgets,xml]
+		dev-qt/qtsvg:6
+		media-libs/libexif
+		x11-libs/libX11
 	)
 	rtaudio? (
 		>=media-libs/rtaudio-4.1.2
@@ -140,6 +143,9 @@ src_prepare() {
 }
 
 src_configure() {
+	# Workaround for bug #919981
+	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
+
 	local mycmakeargs=(
 		-DCMAKE_SKIP_BUILD_RPATH=yes
 		-DGPL=yes
@@ -153,13 +159,13 @@ src_configure() {
 		-DMOD_FREI0R=$(usex frei0r)
 		-DMOD_GDK=$(usex gtk)
 		-DMOD_JACKRACK=$(usex jack)
-		-DMOD_GLAXNIMATE=$(usex glaxnimate $(usex qt5))
-		-DMOD_GLAXNIMATE_QT6=$(usex glaxnimate $(usex qt6))
 		-DMOD_RESAMPLE=$(usex libsamplerate)
 		-DMOD_OPENCV=$(usex opencv)
 		-DMOD_MOVIT=$(usex opengl)
 		-DMOD_QT=$(usex qt5)
+		-DMOD_GLAXNIMATE=$(usex glaxnimate $(usex qt5))
 		-DMOD_QT6=$(usex qt6)
+		-DMOD_GLAXNIMATE_QT6=$(usex glaxnimate $(usex qt6))
 		-DMOD_RTAUDIO=$(usex rtaudio)
 		-DMOD_RUBBERBAND=$(usex rubberband)
 		-DMOD_VIDSTAB=$(usex vidstab)
