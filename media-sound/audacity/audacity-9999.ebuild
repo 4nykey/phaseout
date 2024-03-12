@@ -29,7 +29,7 @@ else
 		SRC_URI="
 			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${MY_P}.tar.gz
 		"
-		S="${WORKDIR}/${MY_P}-20240301+ed81a44"
+		S="${WORKDIR}/${MY_P%-*}-20240307+53b116b"
 	fi
 	case ${PV} in
 		*_alpha*|*_beta*|*_pre*)
