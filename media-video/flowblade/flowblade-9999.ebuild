@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -38,6 +38,7 @@ RDEPEND="
 		dev-python/dbus-python[${PYTHON_USEDEP}]
 		dev-python/pillow[${PYTHON_USEDEP}]
 		dev-python/numpy[${PYTHON_USEDEP}]
+		dev-python/python-libusb1[${PYTHON_USEDEP}]
 		media-libs/mlt:0[python,sdl1(-),${PYTHON_SINGLE_USEDEP}]
 	')
 	gnome-base/librsvg:2[introspection]
