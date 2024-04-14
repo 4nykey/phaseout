@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 # locale/LINGUAS
 PLOCALES="
 af ar be bg bn bs ca ca_ES@valencia co cs cy da de el es eu eu_ES fa fi fr ga
@@ -29,7 +29,7 @@ else
 		SRC_URI="
 			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${MY_P}.tar.gz
 		"
-		S="${WORKDIR}/${MY_P%-*}-20240307+53b116b"
+		S="${WORKDIR}/${MY_P%-*}-20240329+d777d2e"
 	fi
 	case ${PV} in
 		*_alpha*|*_beta*|*_pre*)
