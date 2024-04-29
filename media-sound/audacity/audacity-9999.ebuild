@@ -29,14 +29,15 @@ else
 		SRC_URI="
 			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${MY_P}.tar.gz
 		"
-		S="${WORKDIR}/${MY_P%-*}-20240329+d777d2e"
+		S="${WORKDIR}/${MY_P}"
 	fi
 	case ${PV} in
 		*_alpha*|*_beta*|*_pre*)
+			S="${WORKDIR}/${MY_P%-*}-20240329+d777d2e"
 			REQUIRED_USE="!doc" ;;
 		*)
 			SRC_URI+=" doc? (
-			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-${MY_PV#*-}.zip
+			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-${MY_PV#*-}.tar.gz
 			)" ;;
 	esac
 	KEYWORDS="~amd64"
