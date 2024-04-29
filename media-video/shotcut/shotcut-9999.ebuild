@@ -26,7 +26,7 @@ SLOT="0"
 IUSE="jack vulkan"
 
 DEPEND="
-	>=media-libs/mlt-7.22:=[ffmpeg,frei0r,jack?,qt6,sdl,xml]
+	>=media-libs/mlt-7.24:=[ffmpeg,frei0r,jack?,qt6,sdl,xml]
 	sci-libs/fftw:=
 	dev-qt/qtbase:6=[dbus,gui,opengl,sql,vulkan?,widgets,xml]
 	dev-qt/qtmultimedia:6=
@@ -40,3 +40,11 @@ BDEPEND="
 	dev-qt/qttools[linguist]
 	virtual/pkgconfig
 "
+
+src_configure() {
+	local mycmakeargs=( )
+	[[ -n ${PV%%*9999} ]] && mycmakeargs+=(
+		-DSHOTCUT_VERSION="${PV%%*_p*}"
+	)
+	cmake_src_configure
+}
