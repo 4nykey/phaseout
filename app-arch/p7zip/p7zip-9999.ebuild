@@ -23,7 +23,7 @@ HOMEPAGE="https://p7zip.sourceforge.net/"
 
 LICENSE="LGPL-2.1 rar? ( unRAR )"
 SLOT="0"
-IUSE="asm rar static"
+IUSE="asm rar"
 
 RDEPEND="
 	app-arch/brotli
@@ -36,7 +36,7 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
-	asm? ( dev-lang/asmc )
+	asm? ( dev-lang/jwasm )
 "
 PATCHES=( "${FILESDIR}"/system-libs.diff )
 
@@ -50,8 +50,8 @@ DOCS=(
 )
 
 src_prepare() {
-	sed -e 's: -\(O2\|s\) ::' -i CPP/7zip/7zip_gcc.mak
 	default
+	sed -e 's: -\(O2\|\<s\>\)::' -i CPP/7zip/7zip_gcc.mak
 }
 
 src_compile() {
@@ -62,7 +62,7 @@ src_compile() {
 		CXXFLAGS_BASE2="${CXXFLAGS}"
 		IS_X64=1
 		USE_ASM=$(usex asm 1 '')
-		COMPL_STATIC=$(usex static 1 '')
+		USE_JWASM=$(usex asm 1 '')
 		O="${S}"
 		DISABLE_RAR=$(usex rar '' 1)
 	)
