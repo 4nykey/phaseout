@@ -8,7 +8,7 @@ if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/mltframework/${PN}.git"
 else
 	MY_PV="20db1b6"
-	MY_GLA="glaxnimate-3090870"
+	MY_GLA="glaxnimate-65f7406"
 	if [[ -n ${PV%%*_p*} ]]; then
 		MY_PV="v${PV}"
 		SRC_URI="
