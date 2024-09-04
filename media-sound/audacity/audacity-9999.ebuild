@@ -48,7 +48,7 @@ SRC_URI+="
 		mirror://githubcl/progschj/${MY_TP%-*}/tar.gz/${MY_TP##*-} -> ${MY_TP}.tar.gz
 	)
 "
-inherit plocale python-any-r1 cmake flag-o-matic xdg
+inherit plocale python-any-r1 cmake xdg
 
 DESCRIPTION="Free crossplatform audio editor"
 HOMEPAGE="https://web.audacityteam.org/"
