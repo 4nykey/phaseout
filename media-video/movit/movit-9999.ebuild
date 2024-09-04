@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -48,7 +48,7 @@ RESTRICT+=" test"
 RDEPEND="
 	media-libs/mesa[X(+)]
 	>=dev-cpp/eigen-3.2.0:3
-	media-libs/libepoxy[egl,X]
+	media-libs/libepoxy[X]
 	>=sci-libs/fftw-3:=
 	demo? (
 		media-libs/libsdl2[haptic]
@@ -72,7 +72,7 @@ src_prepare() {
 		local _j=blg_wheels_woman_1.jpg
 		cp "${DISTDIR}"/${_j} .
 		sed \
-			-e "s:\"${_j}\":\"${EROOT}/usr/share/movit/${_j}\":" \
+			-e "s:\"${_j}\":\"${EPREFIX}/usr/share/movit/${_j}\":" \
 			-i demo.cpp
 	fi
 }
@@ -81,7 +81,6 @@ src_install() {
 	default
 	if use demo; then
 		newbin .libs/demo ${PN}-demo
-		dodir /usr/share/${PN}
 		insinto /usr/share/${PN}
 		doins blg_wheels_woman_1.jpg
 	fi

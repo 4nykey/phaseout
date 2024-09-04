@@ -5,6 +5,6 @@
 		<email>4nykey@gmail.com</email>
 	</maintainer>
 	<use>
-        <flag name="demo">Install demo app</flag>
+		<flag name="demo">Install demo app</flag>
 	</use>
 </pkgmetadata>
