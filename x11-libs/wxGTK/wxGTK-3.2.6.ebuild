@@ -3,15 +3,14 @@
 
 EAPI=8
 
-inherit cmake-multilib virtualx
-
 DESCRIPTION="GTK+ version of wxWidgets, a cross-platform C++ GUI toolkit"
 HOMEPAGE="https://wxwidgets.org/"
-VIRTUALX_REQUIRED="X test"
+VIRTUALX_REQUIRED="X"
+inherit cmake-multilib virtualx
 
 MY_PN="wxWidgets"
 MY_PV="204db7e"
-[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV/_rc/-rc}"
+[[ -n ${PV%%*_p*} ]] && MY_PV="v$(ver_rs 3 -)"
 MY_CA="Catch-5f5e4ce"
 MY_NS="nanosvg-ccdb199"
 SRC_URI="
@@ -24,8 +23,9 @@ SRC_URI="
 	)
 "
 S="${WORKDIR}/${MY_PN}-${MY_PV#v}"
-RESTRICT=primaryuri
 
+LICENSE="wxWinLL-3 GPL-2"
+SLOT="$(ver_cut 1-2)/$(ver_cut 3)"
 KEYWORDS="~amd64 ~x86"
 IUSE="+X curl doc debug gnome-keyring gstreamer libnotify +lzma opengl pch sdl +spell test tiff wayland webkit"
 IUSE+=" chm egl pcre svg threads"
@@ -36,8 +36,7 @@ REQUIRED_USE="
 	spell? ( X )
 	gnome-keyring? ( X )
 "
-
-SLOT="$(ver_cut 1-2)/$(ver_cut 3)"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	app-eselect/eselect-wxwidgets
@@ -87,7 +86,6 @@ BDEPEND="
 	app-eselect/eselect-wxwidgets
 	virtual/pkgconfig
 "
-LICENSE="wxWinLL-3 GPL-2"
 DOCS=(
 	docs/{changes,readme}.txt
 	docs/{base,gtk}
@@ -147,10 +145,11 @@ src_configure() {
 }
 
 src_test() {
-	local -x LD_LIBRARY_PATH="${BUILD_DIR}/lib:${BUILD_DIR}/tests"
-	cd tests
-	./test --reporter compact || die "non-GUI tests failed"
-	use X && virtx ./test_gui --reporter compact || die "GUI tests failed"
+	if use X; then
+		virtx cmake-multilib_src_test
+	else
+		cmake-multilib_src_test
+	fi
 }
 
 src_install() {
