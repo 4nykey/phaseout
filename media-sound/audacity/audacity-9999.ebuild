@@ -3,17 +3,16 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
 # locale/LINGUAS
 PLOCALES="
 af ar be bg bn bs ca ca_ES@valencia co cs cy da de el es eu eu_ES fa fi fr ga
 gl he hi hr hu hy id it ja ka km ko lt mk mr my nb nl oc pl pt_BR pt_PT ro ru
 sk sl sr_RS sr_RS@latin sv ta tg tr uk vi zh_CN zh_TW
 "
+MY_DOC="${PN^}-3.6.2"
 if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/${PN}/${PN}.git"
 	inherit git-r3
-	REQUIRED_USE="!doc"
 else
 	MY_PV="$(ver_rs 3-4 '-')"
 	MY_PV="${MY_PV/-rc-/-RC}"
@@ -31,27 +30,21 @@ else
 		"
 		S="${WORKDIR}/${MY_P}"
 	fi
-	case ${PV} in
-		*_alpha*|*_beta*|*_pre*)
-			S="${WORKDIR}/${MY_P%-*}-20240329+d777d2e"
-			REQUIRED_USE="!doc" ;;
-		*)
-			SRC_URI+=" doc? (
-			https://github.com/${PN}/${PN}/releases/download/${MY_PV}/${PN}-manual-${MY_PV#*-}.tar.gz
-			)" ;;
-	esac
 	KEYWORDS="~amd64"
 fi
+DESCRIPTION="Free crossplatform audio editor"
+HOMEPAGE="https://web.audacityteam.org/"
+
 MY_TP="ThreadPool-9a42ec1"
 SRC_URI+="
 	curl? (
 		mirror://githubcl/progschj/${MY_TP%-*}/tar.gz/${MY_TP##*-} -> ${MY_TP}.tar.gz
 	)
+	doc? (
+		https://github.com/${PN}/${PN}/releases/download/${MY_DOC}/${PN}-manual-${MY_DOC#*-}.tar.gz
+	)
 "
-inherit plocale python-any-r1 cmake xdg
-
-DESCRIPTION="Free crossplatform audio editor"
-HOMEPAGE="https://web.audacityteam.org/"
+inherit plocale cmake xdg
 
 LICENSE="GPL-3"
 SLOT="0"
