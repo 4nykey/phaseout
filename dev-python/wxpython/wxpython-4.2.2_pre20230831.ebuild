@@ -65,6 +65,9 @@ DOCS=(
 )
 PATCHES=(
 	"${FILESDIR}"/cflags.diff
+	"${FILESDIR}/${PN}-4.2.1-integer-division-for-randint.patch"
+	"${FILESDIR}/${PN}-4.2.1-x86-time.patch"
+	"${FILESDIR}/${PN}-4.2.1-doxygen-1.9.7.patch"
 )
 EPYTEST_DESELECT=(
 	unittests/test_asserts.py::asserts_Tests::test_asserts2
@@ -90,11 +93,19 @@ python_prepare_all() {
 	rm -f unittests/test_display.py
 	use webkit || rm -f unittests/test_webview.py
 	cp "${FILESDIR}"/runtests.sh .
+
+	# sip assumes unconditional C99 support since 6.8.4
+	# which breaks when trying to use "sip/siplib/bool.cpp"
+	# https://github.com/Python-SIP/sip/commit/29fb3df49ff37df7aab9d5666fd72de95ac9e7f8
+	if has_version ">=dev-python/sip-6.8.4"; then
+		sed -i '\|sip/siplib/bool\.cpp|d' wscript || die
+	fi
+
 	distutils-r1_python_prepare_all
 }
 
 python_compile() {
-	local -x DOXYGEN="/usr/bin/doxygen" \
+	local -x DOXYGEN="$(type -P doxygen)" \
 		WX_CONFIG="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.2"
 	local _args=(
 		--python="${PYTHON}"
