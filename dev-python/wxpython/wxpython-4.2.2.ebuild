@@ -17,6 +17,7 @@ if [[ -n ${PV%%*_p*} ]]; then
 		https://github.com/wxWidgets/Phoenix/releases/download/${MY_P}/${MY_P}.tar.gz
 		apidocs? (
 			https://extras.wxpython.org/${PYPI_PN}4/extras/${PV}/${PYPI_PN}-docs-${PV}.tar.gz
+			https://wxpython.org/Phoenix/snapshot-builds/${PYPI_PN}-docs-${PV}.tar.gz
 		)
 	"
 else
@@ -30,9 +31,9 @@ else
 	"
 	RESTRICT="primaryuri"
 fi
-S="${WORKDIR}/${MY_P}"
 
 DESCRIPTION="A blending of the wxWindows C++ class library with Python"
+S="${WORKDIR}/${MY_P}"
 HOMEPAGE="https://www.wxpython.org"
 
 LICENSE="wxWinLL-3.1 LGPL-2"
@@ -65,14 +66,9 @@ DOCS=(
 )
 PATCHES=(
 	"${FILESDIR}"/cflags.diff
-	"${FILESDIR}/${PN}-4.2.1-integer-division-for-randint.patch"
 	"${FILESDIR}/${PN}-4.2.1-x86-time.patch"
-	"${FILESDIR}/${PN}-4.2.1-doxygen-1.9.7.patch"
 )
 EPYTEST_DESELECT=(
-	unittests/test_asserts.py::asserts_Tests::test_asserts2
-	unittests/test_asserts.py::asserts_Tests::test_asserts3
-	unittests/test_gbsizer.py::gbsizer_Tests::test_gbsizer_sizer2
 	unittests/test_windowid.py::IdManagerTest::test_newIdRef03
 	unittests/test_frame.py::frame_Tests::test_frameRestore
 	unittests/test_lib_pubsub_provider.py::lib_pubsub_Except::test1
@@ -90,7 +86,6 @@ pkg_setup() {
 
 python_prepare_all() {
 	sed -e '/attrdict/d' -i buildtools/config.py
-	rm -f unittests/test_display.py
 	use webkit || rm -f unittests/test_webview.py
 	cp "${FILESDIR}"/runtests.sh .
 
