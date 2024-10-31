@@ -9,7 +9,7 @@ af ar be bg bn bs ca ca_ES@valencia co cs cy da de el es eu eu_ES fa fi fr ga
 gl he hi hr hu hy id it ja ka km ko lt mk mr my nb nl oc pl pt_BR pt_PT ro ru
 sk sl sr_RS sr_RS@latin sv ta tg tr uk vi zh_CN zh_TW
 "
-MY_DOC="${PN^}-3.6.2"
+MY_DOC="${PN^}-3.7.0"
 if [[ -z ${PV%%*9999} ]]; then
 	EGIT_REPO_URI="https://github.com/${PN}/${PN}.git"
 	inherit git-r3
