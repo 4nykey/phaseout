@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -15,7 +15,7 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 else
 	MY_PV="685e7c7"
-	MY_NY="libnyquist-3678ee6"
+	MY_NY="libnyquist-d4fe08b"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 	SRC_URI="
 		https://codeberg.org/tenacityteam/${PN}/archive/${MY_PV}.tar.gz

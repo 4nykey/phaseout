@@ -1,26 +1,26 @@
 --- a/lib-src/libnyquist/CMakeLists.txt
 +++ b/lib-src/libnyquist/CMakeLists.txt
-@@ -1,6 +1,7 @@
- project(Nyquist)
- 
- add_library(libnyquist
-+      STATIC
-       # libnyquist
- 
-       nyx.c
-@@ -290,9 +290,3 @@ target_compile_options(libnyquist
-    PRIVATE
-       $<$<PLATFORM_ID:Darwin>:-fno-common>
+@@ -259,7 +259,7 @@
+     nyquist/xlisp/xlsys.c
  )
--
+ 
+-add_library(nyquist ${SOURCES})
++add_library(nyquist STATIC ${SOURCES})
+ 
+ set(CMAKE_C_STANDARD 17)
+ 
+@@ -321,8 +321,3 @@ target_compile_options(libnyquist
+         $<$<PLATFORM_ID:Darwin>:-fno-common>
+ )
+ 
 -install(
--   TARGETS libnyquist
--   LIBRARY
--   DESTINATION "${_LIBDIR}"
+-    TARGETS nyquist
+-    LIBRARY
+-    DESTINATION "${_LIBDIR}"
 -)
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -1390,15 +1390,10 @@ else()
+@@ -1392,8 +1392,6 @@ else()
                 FILES_MATCHING PATTERN "*.so*" )
        install( FILES "${_INTDIR}/${APP_NAME}.desktop"
                 DESTINATION "${_DATADIR}/applications" )
@@ -29,32 +29,3 @@
        install( FILES "${_SRCDIR}/tenacity.xml"
                 DESTINATION "${_DATADIR}/mime/packages" )
        install( FILES "${CMAKE_SOURCE_DIR}/presets/EQDefaultCurves.xml"
-                DESTINATION "${_PKGDATA}" )
--      install( PROGRAMS "${PROJECT_SOURCE_DIR}/linux/tenacity.sh"
--               DESTINATION "."
--               RENAME "tenacity" )
-    endif()
- endif()
- 
---- a/src/tracks/labeltrack/ui/LabelGlyphHandle.cpp
-+++ b/src/tracks/labeltrack/ui/LabelGlyphHandle.cpp
-@@ -21,7 +21,7 @@ Paul Licameli split from TrackPanel.cpp
- #include "ViewInfo.h"
- #include "../../../SelectionState.h"
- #include "../../../ProjectAudioIO.h"
--#include "../../../images/Cursors.h"
-+#include "../../images/Cursors.h"
- #include "../../../tracks/ui/TimeShiftHandle.h"
- 
- #include <wx/cursor.h>
---- a/src/tracks/playabletrack/wavetrack/ui/WaveClipTrimHandle.cpp
-+++ b/src/tracks/playabletrack/wavetrack/ui/WaveClipTrimHandle.cpp
-@@ -16,7 +16,7 @@
- #include "../../../../TrackArtist.h"
- #include "../../../../Snap.h"
- #include "../../../../TrackPanelDrawingContext.h"
--#include "../../../images/Cursors.h"
-+#include "../../images/Cursors.h"
- #include "WaveClip.h"
- #include "WaveTrack.h"
- #include "WaveTrackView.h"
