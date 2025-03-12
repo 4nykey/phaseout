@@ -13,6 +13,6 @@ Furthermore an audio file can be specified to setup the background music for the
 slideshow.
 </longdescription>
 	<upstream>
-		<remote-id type="sourceforge">photostoryx</remote-id>
+		<remote-id type="github">PhotoFilmStrip/PFS</remote-id>
 	</upstream>
 </pkgmetadata>

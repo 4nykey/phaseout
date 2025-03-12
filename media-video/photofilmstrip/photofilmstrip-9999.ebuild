@@ -1,11 +1,11 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 PYTHON_COMPAT=( python3_{10..12} )
 PYTHON_REQ_USE="sqlite"
-DISTUTILS_USE_SETUPTOOLS=no
+DISTUTILS_USE_PEP517=setuptools
 PLOCALES="cs de el en es fr it ko nl pt_BR ru ta tr uk"
 
 MY_PN="PFS"
@@ -36,7 +36,7 @@ RDEPEND="
 	dev-python/gst-python[${PYTHON_USEDEP}]
 	media-libs/gstreamer-editing-services[introspection,${PYTHON_USEDEP}]
 	dev-python/pillow[${PYTHON_USEDEP}]
-	dev-python/wxpython:4.0[${PYTHON_USEDEP}]
+	>=dev-python/wxpython-4.2.2:4.0[${PYTHON_USEDEP}]
 	|| (
 		media-libs/gst-plugins-good[jpeg(-)]
 		media-plugins/gst-plugins-jpeg:1.0
@@ -59,10 +59,6 @@ src_prepare() {
 	sed -i '/Version=/d' data/photofilmstrip.desktop || die "Failed to update .desktop file."
 
 	sed -e 's:True if Sphinx else ::' -i setup.py
-}
-
-python_compile() {
-	esetup.py build
 }
 
 python_install_all() {
