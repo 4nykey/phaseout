@@ -56,7 +56,7 @@ RDEPEND="
 	twolame? ( media-sound/twolame )
 	ogg? ( media-libs/libogg )
 	vorbis? ( media-libs/libvorbis )
-	flac? ( media-libs/flac[cxx] )
+	flac? ( media-libs/flac:=[cxx] )
 	sbsms? ( media-libs/libsbsms:= )
 	soundtouch? ( media-libs/libsoundtouch:= )
 	ffmpeg? ( media-video/ffmpeg:= )
@@ -81,8 +81,7 @@ PATCHES=(
 )
 
 src_prepare() {
-	has_version media-sound/audacity && sed \
-		-e '/x-audacity-project\.xpm/d' -i images/CMakeLists.txt
+	sed -e '/x-audacity-project\.xpm/d' -i images/CMakeLists.txt
 
 	rm_locale() {
 		sed -e "/${1}/d" -i locale/LINGUAS

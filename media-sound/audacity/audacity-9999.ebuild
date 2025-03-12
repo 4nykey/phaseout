@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -71,7 +71,7 @@ DEPEND="
 		net-misc/curl
 		dev-libs/rapidjson
 	)
-	flac? ( media-libs/flac[cxx] )
+	flac? ( media-libs/flac:=[cxx] )
 	id3tag? ( media-libs/libid3tag:= )
 	jack? ( virtual/jack )
 	lv2? (
