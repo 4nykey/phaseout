@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -10,13 +10,10 @@ inherit cmake-multilib virtualx
 
 MY_PN="wxWidgets"
 MY_PV="204db7e"
-[[ -n ${PV%%*_p*} ]] && MY_PV="v$(ver_rs 3 -)"
+[[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 MY_CA="Catch-5f5e4ce"
-MY_NS="nanosvg-ccdb199"
 SRC_URI="
 	mirror://githubcl/${MY_PN}/${MY_PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
-	mirror://githubcl/${MY_PN}/${MY_NS%-*}/tar.gz/${MY_NS##*-}
-	-> ${MY_NS}.tar.gz
 	test? (
 		mirror://githubcl/${MY_PN}/${MY_CA%-*}/tar.gz/${MY_CA##*-}
 		-> ${MY_CA}.tar.gz
@@ -27,14 +24,14 @@ S="${WORKDIR}/${MY_PN}-${MY_PV#v}"
 LICENSE="wxWinLL-3 GPL-2"
 SLOT="$(ver_cut 1-2)/$(ver_cut 3)"
 KEYWORDS="~amd64 ~x86"
-IUSE="+X curl doc debug gnome-keyring gstreamer libnotify +lzma opengl pch sdl +spell test tiff wayland webkit"
+IUSE="+X curl doc debug keyring gstreamer libnotify +lzma opengl pch sdl +spell test tiff wayland webkit"
 IUSE+=" chm egl pcre svg threads"
 REQUIRED_USE="
 	egl? ( opengl )
 	test? ( tiff )
 	tiff? ( X )
 	spell? ( X )
-	gnome-keyring? ( X )
+	keyring? ( X )
 "
 RESTRICT="!test? ( test )"
 
@@ -59,7 +56,7 @@ RDEPEND="
 		x11-libs/libXxf86vm[${MULTILIB_USEDEP}]
 		media-libs/fontconfig
 		x11-libs/pango[${MULTILIB_USEDEP}]
-		gnome-keyring? ( app-crypt/libsecret )
+		keyring? ( app-crypt/libsecret )
 		gstreamer? (
 			media-libs/gstreamer:1.0[${MULTILIB_USEDEP}]
 			media-libs/gst-plugins-base:1.0[${MULTILIB_USEDEP}]
@@ -75,11 +72,12 @@ RDEPEND="
 		webkit? ( net-libs/webkit-gtk:4 )
 	)
 	chm? ( dev-libs/libmspack )
+	svg? ( media-libs/nanosvg )
 "
 DEPEND="
 	${RDEPEND}
 	opengl? ( virtual/glu[${MULTILIB_USEDEP}] )
-	X?  ( x11-base/xorg-proto )
+	X? ( x11-base/xorg-proto )
 "
 BDEPEND="
 	test? ( dev-util/cppunit )
@@ -95,7 +93,6 @@ PATCHES=(
 )
 
 src_prepare() {
-	mv "${WORKDIR}"/${MY_NS}/* 3rdparty/nanosvg
 	use test && mv "${WORKDIR}"/${MY_CA}/* 3rdparty/catch
 	cmake_src_prepare
 }
@@ -129,7 +126,7 @@ src_configure() {
 		-DwxUSE_LIBNOTIFY=$(usex libnotify)
 		-DwxUSE_OPENGL=$(usex opengl)
 		-DwxUSE_LIBTIFF=$(usex tiff sys no)
-		-DwxUSE_SECRETSTORE=$(usex gnome-keyring)
+		-DwxUSE_SECRETSTORE=$(usex keyring)
 		-DwxUSE_SPELLCHECK=$(usex spell)
 		-DwxUSE_NANOSVG=$(usex svg sys no)
 		-DwxUSE_GLCANVAS_EGL=$(usex egl)

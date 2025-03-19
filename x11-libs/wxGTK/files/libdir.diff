@@ -22,17 +22,17 @@
      if(wxBUILD_MONOLITHIC)
 --- a/build/cmake/functions.cmake
 +++ b/build/cmake/functions.cmake
-@@ -456,8 +456,8 @@ macro(wx_add_library name)
+@@ -505,8 +505,8 @@ macro(wx_add_library name)
+             set(runtime_default_dir "lib")
          endif()
+ 
+-        wx_get_install_dir(library "lib")
+-        wx_get_install_dir(archive "lib")
++        wx_get_install_dir(library "${CMAKE_INSTALL_LIBDIR}")
++        wx_get_install_dir(archive "${CMAKE_INSTALL_LIBDIR}")
+         wx_get_install_dir(runtime "${runtime_default_dir}")
+ 
          wx_install(TARGETS ${name}
-             EXPORT wxWidgetsTargets
--            LIBRARY DESTINATION "lib${GEN_EXPR_DIR}${wxPLATFORM_LIB_DIR}"
--            ARCHIVE DESTINATION "lib${GEN_EXPR_DIR}${wxPLATFORM_LIB_DIR}"
-+            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}${GEN_EXPR_DIR}${wxPLATFORM_LIB_DIR}"
-+            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}${GEN_EXPR_DIR}${wxPLATFORM_LIB_DIR}"
-             RUNTIME DESTINATION "${runtime_dir}${GEN_EXPR_DIR}${wxPLATFORM_LIB_DIR}"
-             BUNDLE DESTINATION Applications/wxWidgets
-             )
 @@ -581,7 +581,7 @@ function(wx_set_builtin_target_properties target_name)
  
      wx_set_common_target_properties(${target_name} DEFAULT_WARNINGS)
