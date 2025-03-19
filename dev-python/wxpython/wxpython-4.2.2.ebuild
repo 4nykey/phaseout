@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -9,7 +9,7 @@ DISTUTILS_EXT=1
 PYPI_PN="wxPython"
 VIRTUALX_REQUIRED="test"
 
-inherit pypi distutils-r1 multiprocessing virtualx
+inherit toolchain-funcs pypi distutils-r1 multiprocessing virtualx
 if [[ -n ${PV%%*_p*} ]]; then
 	MY_P="${PYPI_PN}-${PV}"
 	SRC_URI="
@@ -33,8 +33,8 @@ else
 fi
 
 DESCRIPTION="A blending of the wxWindows C++ class library with Python"
-S="${WORKDIR}/${MY_P}"
 HOMEPAGE="https://www.wxpython.org"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="wxWinLL-3.1 LGPL-2"
 SLOT="4.0"
@@ -67,6 +67,7 @@ DOCS=(
 PATCHES=(
 	"${FILESDIR}"/cflags.diff
 	"${FILESDIR}/${PN}-4.2.1-x86-time.patch"
+	"${FILESDIR}"/de9aa4b.patch
 )
 EPYTEST_DESELECT=(
 	unittests/test_windowid.py::IdManagerTest::test_newIdRef03
@@ -79,14 +80,14 @@ pkg_setup() {
 	use apidocs && HTML_DOCS=( ../${MY_P/-/-docs-}/docs/html/. )
 	use examples && DOCS+=( demo samples )
 	python_setup
-	use webkit || PATCHES+=(
-		"${FILESDIR}"/${PN}-4.2.0-no-webkit.patch
-	)
 }
 
 python_prepare_all() {
 	sed -e '/attrdict/d' -i buildtools/config.py
-	use webkit || rm -f unittests/test_webview.py
+	if use !webkit; then
+		rm -f unittests/test_webview.py
+		eapply "${FILESDIR}"/${PN}-4.2.0-no-webkit.patch
+	fi
 	cp "${FILESDIR}"/runtests.sh .
 
 	# sip assumes unconditional C99 support since 6.8.4
