@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 PYTHON_REQ_USE="sqlite"
 DISTUTILS_USE_PEP517=setuptools
 PLOCALES="cs de el en es fr it ko nl pt_BR ru ta tr uk"
@@ -20,7 +20,7 @@ else
 		mirror://githubcl/PhotoFilmStrip/${MY_PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 	"
 	RESTRICT="primaryuri"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="~amd64"
 	S="${WORKDIR}/${MY_PN}-${MY_PV#v}"
 fi
 
@@ -37,13 +37,13 @@ RDEPEND="
 	media-libs/gstreamer-editing-services[introspection,${PYTHON_USEDEP}]
 	dev-python/pillow[${PYTHON_USEDEP}]
 	>=dev-python/wxpython-4.2.2:4.0[${PYTHON_USEDEP}]
-	|| (
-		media-libs/gst-plugins-good[jpeg(-)]
-		media-plugins/gst-plugins-jpeg:1.0
-	)
+	media-libs/gst-plugins-bad
+	media-libs/gst-plugins-good
+	media-libs/gst-plugins-ugly
+	media-plugins/gst-plugins-libav
 "
 BDEPEND="
-	nls? ( sys-devel/gettext )
+	dev-python/python-gettext[${PYTHON_USEDEP}]
 "
 distutils_enable_tests pytest
 distutils_enable_sphinx docs/help --no-autodoc
