@@ -4,16 +4,16 @@
 EAPI=8
 
 DISTUTILS_IN_SOURCE_BUILD="1"
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 DISTUTILS_EXT=1
 PYPI_PN="wxPython"
+PYPI_NO_NORMALIZE=1
 VIRTUALX_REQUIRED="test"
 
 inherit toolchain-funcs pypi distutils-r1 multiprocessing virtualx
 if [[ -n ${PV%%*_p*} ]]; then
 	MY_P="${PYPI_PN}-${PV}"
 	SRC_URI="
-		$(pypi_sdist_url --no-normalize)
 		https://github.com/wxWidgets/Phoenix/releases/download/${MY_P}/${MY_P}.tar.gz
 		apidocs? (
 			https://extras.wxpython.org/${PYPI_PN}4/extras/${PV}/${PYPI_PN}-docs-${PV}.tar.gz
@@ -38,7 +38,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="wxWinLL-3.1 LGPL-2"
 SLOT="4.0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64"
 IUSE="apidocs debug examples libnotify opengl test webkit"
 
 RDEPEND="
@@ -67,7 +67,6 @@ DOCS=(
 PATCHES=(
 	"${FILESDIR}"/cflags.diff
 	"${FILESDIR}/${PN}-4.2.1-x86-time.patch"
-	"${FILESDIR}"/de9aa4b.patch
 )
 EPYTEST_DESELECT=(
 	unittests/test_windowid.py::IdManagerTest::test_newIdRef03
