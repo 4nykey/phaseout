@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -32,7 +32,7 @@ v4l? ( fftw opencv qt5 )
 
 DEPEND="
 	fftw? ( sci-libs/fftw:3.0[threads] )
-	gimp? ( media-gfx/gimp )
+	gimp? ( <media-gfx/gimp-3 )
 	krita? ( media-gfx/krita )
 	qt5? ( dev-qt/qtwidgets:5 )
 	graphicsmagick? ( media-gfx/graphicsmagick )
