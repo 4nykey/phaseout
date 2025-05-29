@@ -34,8 +34,8 @@ HOMEPAGE="https://www.mltframework.org/"
 
 LICENSE="GPL-3"
 SLOT="0/7"
-IUSE="debug ffmpeg frei0r gtk jack libsamplerate opencv opengl python qt5 qt6 rtaudio rubberband sdl test vdpau vidstab xine xml"
-IUSE+=" doc glaxnimate sdl1 sox"
+IUSE="debug ffmpeg frei0r gtk jack libsamplerate opencv opengl python qt6 rtaudio rubberband sdl test vdpau vidstab xine xml"
+IUSE+=" doc glaxnimate qt5 sdl1 sox"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 REQUIRED_USE+="
@@ -65,7 +65,13 @@ DEPEND="
 		virtual/jack
 	)
 	libsamplerate? ( >=media-libs/libsamplerate-0.1.2 )
-	opencv? ( >=media-libs/opencv-4.5.1:=[contrib] )
+	opencv? (
+		>=media-libs/opencv-4.5.1:=[contrib]
+		|| (
+			media-libs/opencv[ffmpeg]
+			media-libs/opencv[gstreamer]
+		)
+	)
 	opengl? (
 		media-libs/libglvnd
 		media-video/movit
@@ -148,30 +154,34 @@ src_configure() {
 
 	local mycmakeargs=(
 		-DCMAKE_SKIP_BUILD_RPATH=yes
+		-DCLANG_FORMAT=OFF
 		-DGPL=yes
 		-DGPL3=yes
-		-DBUILD_TESTING=$(usex test)
+		-DMOD_QT=$(usex qt5)
+		-DMOD_GLAXNIMATE=$(usex glaxnimate $(usex qt5))
 		-DMOD_KDENLIVE=ON
-		-DMOD_SDL1=$(usex sdl1)
-		-DMOD_SDL2=$(usex sdl)
-		-DMOD_AVFORMAT=$(usex ffmpeg)
 		-DMOD_PLUS=yes
+		-DMOD_SDL1=$(usex sdl1)
+		-DMOD_SOX=$(usex sox)
+		-DMOD_SPATIALAUDIO=OFF # TODO: package libspatialaudio
+		-DUSE_LV2=OFF	# TODO
+		-DUSE_VST2=OFF	# TODO
+		-DMOD_AVFORMAT=$(usex ffmpeg)
 		-DMOD_FREI0R=$(usex frei0r)
 		-DMOD_GDK=$(usex gtk)
 		-DMOD_JACKRACK=$(usex jack)
 		-DMOD_RESAMPLE=$(usex libsamplerate)
 		-DMOD_OPENCV=$(usex opencv)
 		-DMOD_MOVIT=$(usex opengl)
-		-DMOD_QT=$(usex qt5)
-		-DMOD_GLAXNIMATE=$(usex glaxnimate $(usex qt5))
 		-DMOD_QT6=$(usex qt6)
 		-DMOD_GLAXNIMATE_QT6=$(usex glaxnimate $(usex qt6))
 		-DMOD_RTAUDIO=$(usex rtaudio)
 		-DMOD_RUBBERBAND=$(usex rubberband)
+		-DMOD_SDL2=$(usex sdl)
+		-DBUILD_TESTING=$(usex test)
 		-DMOD_VIDSTAB=$(usex vidstab)
 		-DMOD_XINE=$(usex xine)
 		-DMOD_XML=$(usex xml)
-		-DMOD_SOX=$(usex sox)
 	)
 
 	# TODO: rework upstream CMake to allow controlling MMX/SSE/SSE2
