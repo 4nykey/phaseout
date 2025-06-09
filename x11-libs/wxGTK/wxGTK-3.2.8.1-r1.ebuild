@@ -69,7 +69,7 @@ RDEPEND="
 		)
 		spell? ( app-text/gspell:= )
 		tiff? ( media-libs/tiff:=[${MULTILIB_USEDEP}] )
-		webkit? ( net-libs/webkit-gtk:4 )
+		webkit? ( net-libs/webkit-gtk:4.1= )
 	)
 	chm? ( dev-libs/libmspack )
 	svg? ( media-libs/nanosvg )
