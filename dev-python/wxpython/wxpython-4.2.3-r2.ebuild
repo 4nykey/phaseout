@@ -3,8 +3,8 @@
 
 EAPI=8
 
-DISTUTILS_IN_SOURCE_BUILD="1"
 PYTHON_COMPAT=( python3_{10..13} )
+DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_EXT=1
 PYPI_PN="wxPython"
 PYPI_NO_NORMALIZE=1
@@ -67,6 +67,7 @@ DOCS=(
 PATCHES=(
 	"${FILESDIR}"/cflags.diff
 	"${FILESDIR}/${PN}-4.2.1-x86-time.patch"
+	"${FILESDIR}/${PN}-4.2.2-setuppy.patch"
 )
 EPYTEST_DESELECT=(
 	unittests/test_windowid.py::IdManagerTest::test_newIdRef03
@@ -82,7 +83,6 @@ pkg_setup() {
 }
 
 python_prepare_all() {
-	sed -e '/attrdict/d' -i buildtools/config.py
 	if use !webkit; then
 		rm -f unittests/test_webview.py
 		eapply "${FILESDIR}"/${PN}-4.2.0-no-webkit.patch
@@ -95,15 +95,24 @@ python_prepare_all() {
 	if has_version ">=dev-python/sip-6.8.4"; then
 		sed -i '\|sip/siplib/bool\.cpp|d' wscript || die
 	fi
+	doxygen -u ext/wxWidgets/docs/doxygen/Doxyfile || die
 
 	distutils-r1_python_prepare_all
+
+	# sigh
+	sed -i -e '/from buildtools/i\
+sys.path.insert(0, ".")' setup.py || die
+
+	# sigh, used only when fetching things implicitly which we definitely
+	# don't want; https://bugs.gentoo.org/955593
+	sed -i -e '/requests/d' build.py || die
 }
 
 python_compile() {
 	local -x DOXYGEN="$(type -P doxygen)" \
 		WX_CONFIG="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.2"
 	local _args=(
-		--python="${PYTHON}"
+		--python=${PYTHON}
 		--$(usex debug debug release)
 		--gtk3
 		--use_syswx
@@ -111,18 +120,33 @@ python_compile() {
 		--jobs=$(makeopts_jobs)
 		--verbose
 	)
+	DISTUTILS_ARGS=(
+		--verbose
+		build
+		--buildpy-options="build_py ${_args[*]}"
+	)
+	# Patch will fail if copy of refreshed sip file is not restored
+	# if using multiple Python implementations
 	${PYTHON} ./build.py dox etg sip --nodoc || die
+	cp "${S}/sip/cpp/sip_corewxAppTraits.cpp" "${S}" || die
+
+	eapply "${FILESDIR}/${PN}-4.2.2-no-stacktrace.patch" || die
+
 	CC="$(tc-getCC) ${CFLAGS}" \
 	CXX="$(tc-getCXX) ${CXXFLAGS}" \
-		${PYTHON} ./build.py build_py "${_args[@]}" || die
+	distutils-r1_python_compile
+
+	# This package's built system relies on copying extensions back
+	# to source directory for setuptools to pick them up.  This is
+	# hopeless.
+	find -name "*$(get_modname)" -delete || die
+
+	cp "${S}/sip_corewxAppTraits.cpp" "${S}/sip/cpp/" || die
 }
 
 python_test() {
+	rm -rf wx
 	virtx source ./runtests.sh
-}
-
-python_install() {
-	distutils-r1_python_install --skip-build
 }
 
 python_install_all() {
