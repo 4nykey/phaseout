@@ -39,7 +39,7 @@ RDEPEND="
 		dev-python/dbus-python[${PYTHON_USEDEP}]
 		dev-python/pillow[${PYTHON_USEDEP}]
 		dev-python/numpy[${PYTHON_USEDEP}]
-		dev-python/python-libusb1[${PYTHON_USEDEP}]
+		dev-python/libusb1[${PYTHON_USEDEP}]
 		media-libs/mlt:0[python,sdl1(-),${PYTHON_SINGLE_USEDEP}]
 	')
 	gnome-base/librsvg:2[introspection]
