@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -40,12 +40,10 @@ ${RDEPEND}
 src_prepare() {
 	cmake_src_prepare
 
-	local f=CMakeLists.txt
-
 	# https://bugs.gentoo.org/418243
 	sed -i \
 		-e '/set.*CMAKE_C_FLAGS/s:"): ${CMAKE_C_FLAGS}&:' \
-		src/filter/*/${f} || die
+		src/filter/*/CMakeLists.txt || die
 }
 
 src_configure() {
