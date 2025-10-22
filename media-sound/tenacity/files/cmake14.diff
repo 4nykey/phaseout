@@ -1,0 +1,33 @@
+--- a/lib-src/libnyquist/CMakeLists.txt
++++ b/lib-src/libnyquist/CMakeLists.txt
+@@ -259,7 +259,7 @@
+     nyquist/xlisp/xlsys.c
+ )
+ 
+-add_library(nyquist ${SOURCES})
++add_library(nyquist STATIC ${SOURCES})
+ 
+ set(CMAKE_C_STANDARD 17)
+ 
+@@ -321,8 +321,3 @@ target_compile_options(libnyquist
+         $<$<PLATFORM_ID:Darwin>:-fno-common>
+ )
+ 
+-install(
+-    TARGETS nyquist
+-    LIBRARY
+-    DESTINATION "${_LIBDIR}"
+-)
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1327,9 +1327,8 @@ else()
+         install( FILES "${_INTDIR}/${APP_NAME}.desktop"
+                  DESTINATION "${_DATADIR}/applications" )
+ 
+-        install( FILES "${CMAKE_SOURCE_DIR}/LICENSE.txt" "${CMAKE_SOURCE_DIR}/README.md"
+-                 DESTINATION "${_DATADIR}/doc/${APP_NAME}" )
+         install( FILES "${_SRCDIR}/audacity.xml"
++                 RENAME "tenacity.xml"
+                  DESTINATION "${_DATADIR}/mime/packages" )
+     endif()
+ endif()

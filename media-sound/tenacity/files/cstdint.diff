@@ -1,0 +1,10 @@
+--- a/libraries/lib-utility/MemoryX.cpp
++++ b/libraries/lib-utility/MemoryX.cpp
+@@ -8,6 +8,7 @@
+  
+  **********************************************************************/
+ 
++#include <cstdint>
+ #include "MemoryX.h"
+ 
+ // Make the symbol table non-empty

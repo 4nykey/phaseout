@@ -34,8 +34,8 @@ HOMEPAGE="https://tenacityaudio.org"
 LICENSE="GPL-2 CC-BY-3.0"
 SLOT="0"
 IUSE="
-ffmpeg flac id3tag ladspa lv2 mad matroska nls ogg portmidi
-sbsms soundtouch twolame vamp vorbis vst
+ffmpeg flac id3tag ladspa lv2 mad nls ogg portmidi sbsms soundtouch twolame
+vamp vorbis vst
 "
 RESTRICT="test primaryuri"
 
@@ -69,7 +69,6 @@ RDEPEND="
 		media-libs/sratom
 		media-libs/suil
 	)
-	matroska? ( media-libs/libmatroska:= )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -78,7 +77,8 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/cmake14.diff
+	"${FILESDIR}"/cmake.diff
+	"${FILESDIR}"/cstdint.diff
 )
 
 src_prepare() {
@@ -107,22 +107,20 @@ src_configure() {
 		-DwxWidgets_CONFIG_EXECUTABLE="${_w}"
 		-DCCACHE=no
 		-DSCCACHE=no
-		-DPCH=no
-		-DMIDI=$(usex portmidi)
-		-DID3TAG=$(usex id3tag)
-		-DMP3_DECODING=$(usex mad)
-		-DMP2=$(usex twolame)
-		-DOGG=$(usex ogg)
-		-DVORBIS=$(usex vorbis)
-		-DFLAC=$(usex flac)
-		-DSBSMS=$(usex sbsms)
-		-DSOUNDTOUCH=$(usex soundtouch)
-		-DFFMPEG=$(usex ffmpeg)
-		-DVAMP=$(usex vamp)
-		-DLV2=$(usex lv2)
+		-DMIDI=$(usex portmidi system off)
+		-DID3TAG=$(usex id3tag system off)
+		-DMP3_DECODING=$(usex mad system off)
+		-DMP2=$(usex twolame system off)
+		-DOGG=$(usex ogg system off)
+		-DVORBIS=$(usex vorbis system off)
+		-DFLAC=$(usex flac system off)
+		-DSBSMS=$(usex sbsms system off)
+		-DSOUNDTOUCH=$(usex soundtouch system off)
+		-DFFMPEG=$(usex ffmpeg system off)
+		-DVAMP=$(usex vamp system off)
+		-DLV2=$(usex lv2 system off)
 		-DLADSPA=$(usex ladspa)
 		-DVST2=$(usex vst)
-		-DMATROSKA=$(usex matroska)
 	)
 	if [[ -n ${PV%%*9999} ]]; then
 		mycmakeargs+=(
