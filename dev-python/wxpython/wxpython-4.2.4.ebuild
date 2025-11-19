@@ -2,12 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-
-PYTHON_COMPAT=( python3_{10..13} )
-DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_EXT=1
-PYPI_PN="wxPython"
+DISTUTILS_USE_PEP517=setuptools
+PYTHON_COMPAT=( python3_{11..14} )
 PYPI_NO_NORMALIZE=1
+PYPI_PN="wxPython"
 VIRTUALX_REQUIRED="test"
 
 inherit toolchain-funcs pypi distutils-r1 multiprocessing virtualx
@@ -49,13 +48,14 @@ DEPEND="
 "
 BDEPEND="
 	app-text/doxygen
-	>=dev-python/sip-6.6.2:5[${PYTHON_USEDEP}]
 	dev-python/cython[${PYTHON_USEDEP}]
+	>=dev-python/sip-6.11.1-r1[${PYTHON_USEDEP}]
 	test? (
 		${VIRTUALX_DEPEND}
 		dev-python/appdirs[${PYTHON_USEDEP}]
 		dev-python/numpy[${PYTHON_USEDEP}]
 		dev-python/pillow[${PYTHON_USEDEP}]
+		dev-python/pytest-forked[${PYTHON_USEDEP}]
 		dev-python/pytest-xdist[${PYTHON_USEDEP}]
 		dev-python/pytest-timeout[${PYTHON_USEDEP}]
 	)
@@ -87,25 +87,10 @@ python_prepare_all() {
 		rm -f unittests/test_webview.py
 		eapply "${FILESDIR}"/${PN}-4.2.0-no-webkit.patch
 	fi
-	cp "${FILESDIR}"/runtests.sh .
 
-	# sip assumes unconditional C99 support since 6.8.4
-	# which breaks when trying to use "sip/siplib/bool.cpp"
-	# https://github.com/Python-SIP/sip/commit/29fb3df49ff37df7aab9d5666fd72de95ac9e7f8
-	if has_version ">=dev-python/sip-6.8.4"; then
-		sed -i '\|sip/siplib/bool\.cpp|d' wscript || die
-	fi
 	doxygen -u ext/wxWidgets/docs/doxygen/Doxyfile || die
 
 	distutils-r1_python_prepare_all
-
-	# sigh
-	sed -i -e '/from buildtools/i\
-sys.path.insert(0, ".")' setup.py || die
-
-	# sigh, used only when fetching things implicitly which we definitely
-	# don't want; https://bugs.gentoo.org/955593
-	sed -i -e '/requests/d' build.py || die
 }
 
 python_compile() {
@@ -130,7 +115,7 @@ python_compile() {
 	${PYTHON} ./build.py dox etg sip --nodoc || die
 	cp "${S}/sip/cpp/sip_corewxAppTraits.cpp" "${S}" || die
 
-	eapply "${FILESDIR}/${PN}-4.2.2-no-stacktrace.patch" || die
+	eapply "${FILESDIR}/${PN}-4.2.2-no-stacktrace.patch"
 
 	CC="$(tc-getCC) ${CFLAGS}" \
 	CXX="$(tc-getCXX) ${CXXFLAGS}" \
@@ -146,7 +131,9 @@ python_compile() {
 
 python_test() {
 	rm -rf wx
-	virtx source ./runtests.sh
+	# We use pytest-forked as opensuse does to avoid tests corrupting each
+	# other.
+	virtx epytest --forked unittests
 }
 
 python_install_all() {
