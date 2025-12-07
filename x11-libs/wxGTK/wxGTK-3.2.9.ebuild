@@ -46,7 +46,7 @@ RDEPEND="
 		>=dev-libs/glib-2.22:2[${MULTILIB_USEDEP}]
 		media-libs/libjpeg-turbo:=[${MULTILIB_USEDEP}]
 		media-libs/libpng:0=[${MULTILIB_USEDEP}]
-		sys-libs/zlib[${MULTILIB_USEDEP}]
+		virtual/zlib[${MULTILIB_USEDEP}]
 		x11-libs/cairo[${MULTILIB_USEDEP}]
 		x11-libs/gtk+:3[wayland?,${MULTILIB_USEDEP}]
 		x11-libs/gdk-pixbuf:2[${MULTILIB_USEDEP}]
@@ -89,7 +89,7 @@ DOCS=(
 	docs/{base,gtk}
 )
 PATCHES=(
-	"${FILESDIR}"/libdir.diff
+	"${FILESDIR}"/cmake.diff
 )
 
 src_prepare() {
