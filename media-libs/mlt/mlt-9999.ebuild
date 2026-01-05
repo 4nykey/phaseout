@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -26,7 +26,7 @@ else
 	S="${WORKDIR}/${PN}-${MY_PV#v}"
 fi
 
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{10..14} )
 inherit python-single-r1 cmake flag-o-matic
 
 DESCRIPTION="Open source multimedia framework for television broadcasting"
@@ -34,17 +34,15 @@ HOMEPAGE="https://www.mltframework.org/"
 
 LICENSE="GPL-3"
 SLOT="0/7"
-IUSE="debug ffmpeg frei0r gtk jack libsamplerate opencv opengl python qt6 rtaudio rubberband sdl test vdpau vidstab xine xml"
-IUSE+=" doc glaxnimate qt5 sdl1 sox"
+IUSE="debug ffmpeg frei0r gtk jack libsamplerate opencv opengl python qt6
+rtaudio rubberband sdl test vdpau vidstab vorbis xine xml"
+IUSE+=" doc glaxnimate sdl1 sox"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 REQUIRED_USE+="
-	test? ( qt5 )
-	glaxnimate? ( || ( qt5 qt6 ) )
+	glaxnimate? ( qt6 )
 "
 
-# Needs unpackaged 'kwalify'
-RESTRICT="test"
 RESTRICT+=" primaryuri"
 
 # rtaudio will use OSS on non linux OSes
@@ -60,7 +58,7 @@ DEPEND="
 		x11-libs/pango
 	)
 	jack? (
-		>=dev-libs/libxml2-2.5
+		>=dev-libs/libxml2-2.5:=
 		media-libs/ladspa-sdk
 		virtual/jack
 	)
@@ -77,16 +75,6 @@ DEPEND="
 		media-video/movit
 	)
 	python? ( ${PYTHON_DEPS} )
-	qt5? (
-		dev-qt/qtcore:5
-		dev-qt/qtgui:5
-		dev-qt/qtnetwork:5
-		dev-qt/qtsvg:5
-		dev-qt/qtwidgets:5
-		dev-qt/qtxml:5
-		media-libs/libexif
-		x11-libs/libX11
-	)
 	qt6? (
 		dev-qt/qt5compat:6
 		dev-qt/qtbase:6[gui,network,opengl,widgets,xml]
@@ -104,8 +92,9 @@ DEPEND="
 		media-libs/sdl2-image
 	)
 	vidstab? ( media-libs/vidstab )
+	vorbis? ( media-libs/libvorbis )
 	xine? ( >=media-libs/xine-lib-1.1.2_pre20060328-r7 )
-	xml? ( >=dev-libs/libxml2-2.5 )
+	xml? ( >=dev-libs/libxml2-2.5:= )
 	sdl1? (
 		media-libs/libsdl[X,opengl=,video]
 		media-libs/sdl-image
@@ -129,6 +118,9 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-6.10.0-swig-underlinking.patch
 	"${FILESDIR}"/${PN}-6.22.1-no_lua_bdepend.patch
 	"${FILESDIR}"/${PN}-7.0.1-cmake-symlink.patch
+)
+PATCHES+=(
+	"${FILESDIR}"/tests.diff
 )
 
 pkg_setup() {
@@ -157,8 +149,7 @@ src_configure() {
 		-DCLANG_FORMAT=OFF
 		-DGPL=yes
 		-DGPL3=yes
-		-DMOD_QT=$(usex qt5)
-		-DMOD_GLAXNIMATE=$(usex glaxnimate $(usex qt5))
+		-DMOD_GLAXNIMATE_QT6=$(usex glaxnimate)
 		-DMOD_KDENLIVE=ON
 		-DMOD_PLUS=yes
 		-DMOD_SDL1=$(usex sdl1)
@@ -180,6 +171,7 @@ src_configure() {
 		-DMOD_SDL2=$(usex sdl)
 		-DBUILD_TESTING=$(usex test)
 		-DMOD_VIDSTAB=$(usex vidstab)
+		-DMOD_VORBIS=$(usex vorbis)
 		-DMOD_XINE=$(usex xine)
 		-DMOD_XML=$(usex xml)
 	)
