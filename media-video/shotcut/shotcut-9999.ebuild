@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -26,7 +26,7 @@ SLOT="0"
 IUSE="jack vulkan"
 
 DEPEND="
-	>=media-libs/mlt-7.32:=[ffmpeg,frei0r,jack?,qt6,sdl,xml]
+	>=media-libs/mlt-7.36:=[ffmpeg,frei0r,jack?,qt6,sdl,xml]
 	sci-libs/fftw:=
 	dev-qt/qtbase:6=[dbus,gui,opengl,sql,vulkan?,widgets,xml]
 	dev-qt/qtmultimedia:6=
