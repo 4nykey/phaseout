@@ -1,7 +1,7 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit qmake-utils
 MY_PS="ps3muxer-f435b1a"
@@ -9,14 +9,14 @@ if [[ -z ${PV%%*9999} ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/clark15b/${PN}"
 else
-	inherit vcs-snapshot
 	MY_PV="764962e"
 	SRC_URI="
 		mirror://githubcl/clark15b/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 		mirror://githubcl/clark15b/${MY_PS%-*}/tar.gz/${MY_PS##*-} -> ${MY_PS}.tar.gz
 	"
+	S="${WORKDIR}/${PN}-${MY_PV}"
 	RESTRICT="primaryuri"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="~amd64"
 fi
 
 DESCRIPTION="AVCHD/Blu-Ray HDMV Transport Stream demultiplexer"
@@ -41,12 +41,12 @@ src_unpack() {
 		EGIT_REPO_URI="https://github.com/clark15b/${MY_PS%-*}" \
 			git-r3_src_unpack
 	else
-		vcs-snapshot_src_unpack
+		default
 	fi
 }
 
 src_prepare() {
-	mv "${WORKDIR}"/${MY_PS} "${S}"/${MY_PS%-*}
+	mv ../${MY_PS} ${MY_PS%-*}
 	default
 	tc-export CXX
 	sed \
