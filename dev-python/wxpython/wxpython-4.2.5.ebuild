@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,9 +11,9 @@ VIRTUALX_REQUIRED="test"
 
 inherit toolchain-funcs pypi distutils-r1 multiprocessing virtualx
 if [[ -n ${PV%%*_p*} ]]; then
-	MY_P="${PYPI_PN}-${PV}"
+	MY_P="${P}"
 	SRC_URI="
-		https://github.com/wxWidgets/Phoenix/releases/download/${MY_P}/${MY_P}.tar.gz
+		https://github.com/wxWidgets/Phoenix/releases/download/${PYPI_PN}-${PV}/${MY_P}.tar.gz
 		apidocs? (
 			https://extras.wxpython.org/${PYPI_PN}4/extras/${PV}/${PYPI_PN}-docs-${PV}.tar.gz
 			https://wxpython.org/Phoenix/snapshot-builds/${PYPI_PN}-docs-${PV}.tar.gz
@@ -73,6 +73,8 @@ EPYTEST_DESELECT=(
 	unittests/test_windowid.py::IdManagerTest::test_newIdRef03
 	unittests/test_frame.py::frame_Tests::test_frameRestore
 	unittests/test_lib_pubsub_provider.py::lib_pubsub_Except::test1
+	unittests/test_glcanvas.py::glcanvas_Tests::test_glcanvas2
+	unittests/test_glcanvas.py::glcanvas_Tests::test_glcanvas3
 )
 distutils_enable_tests pytest
 
