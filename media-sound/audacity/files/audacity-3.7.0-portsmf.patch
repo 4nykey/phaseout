@@ -2,10 +2,10 @@
 +++ b/libraries/lib-note-track/WrapAllegro.h
 @@ -13,7 +13,7 @@
  #elif defined(__linux__)
-
+ 
  #include <cstring> // Allegro include fails if this header isn't included due to no memcpy
 -#include "allegro.h"
 +#include <portsmf/allegro.h>
-
+ 
  #else //_MSC_VER
  

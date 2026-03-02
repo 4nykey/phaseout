@@ -1,8 +1,9 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
+inherit plocale cmake xdg virtualx
 # locale/LINGUAS
 PLOCALES="
 af ar be bg bn bs ca ca_ES@valencia co cs cy da de el es eu eu_ES fa fi fr ga
@@ -44,12 +45,11 @@ SRC_URI+="
 		https://github.com/${PN}/${PN}/releases/download/${MY_DOC}/${PN}-manual-${MY_DOC#*-}.tar.gz
 	)
 "
-inherit plocale cmake xdg
 
 LICENSE="GPL-3"
 SLOT="0"
 IUSE="
-alsa curl doc ffmpeg +flac id3tag jack +ladspa +lv2 mp3
+alsa curl doc ffmpeg +flac id3tag jack +ladspa +lv2 mpg123
 nls ogg opus oss pch +portmixer sbsms +soundtouch twolame vamp +vorbis
 vst wavpack
 "
@@ -82,7 +82,7 @@ DEPEND="
 		media-libs/sratom
 		media-libs/suil
 	)
-	mp3? ( media-sound/mpg123 )
+	mpg123? ( media-sound/mpg123-base )
 	ogg? ( media-libs/libogg )
 	opus? (
 		media-libs/opus
@@ -110,13 +110,32 @@ BDEPEND="
 "
 
 PATCHES=(
+	# fixes include path
+	"${FILESDIR}/audacity-3.7.0-portsmf.patch"
+
+	# disables ccache
+	"${FILESDIR}/audacity-3.7.0-disable-ccache.patch"
+
+	# Disables some header-based detection
+	"${FILESDIR}/audacity-3.7.0-allow-overriding-alsa-jack.patch"
+
+	# For has_networking
+	"${FILESDIR}/audacity-3.7.0-local-threadpool-libraries.patch"
+
+	# Allows running tests without conan
+	"${FILESDIR}/audacity-3.3.3-remove-conan-test-dependency.patch"
+
+	# #920363
+	"${FILESDIR}/audacity-3.7.0-audiocom-std-string.patch"
+
+	# 915041
+	"${FILESDIR}/audacity-3.7.0-do-not-include-template-on-unix-to-fix-clang-compile.patch"
+)
+PATCHES+=(
 	"${FILESDIR}"/vst3.diff
-	"${FILESDIR}"/portsmf.diff
 )
 
 src_prepare() {
-	sed -e 's:\<ccache\>:no_&:' -i CMakeLists.txt
-
 	rm_locale() {
 		sed -e "/${1}/d" -i locale/LINGUAS
 	}
@@ -143,6 +162,7 @@ src_prepare() {
 }
 
 src_configure() {
+	append-flags -fno-strict-aliasing
 	local _w="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.2"
 	local _r=2
 	case ${PV} in
@@ -155,31 +175,48 @@ src_configure() {
 		-DAUDACITY_BUILD_LEVEL=${_r}
 		-DwxWidgets_CONFIG_EXECUTABLE="${_w}"
 		-Daudacity_conan_enabled=off
-		-Daudacity_lib_preference=system
-		-Daudacity_obey_system_dependencies=yes
-		-Daudacity_use_pch=$(usex pch)
 		-Daudacity_has_networking=$(usex curl)
 		-Daudacity_has_updates_check=off
 		-Daudacity_has_crashreports=off
 		-Daudacity_has_sentry_reporting=off
+
+		-Daudacity_has_tests=$(usex test)
+
+		-Daudacity_lib_preference=system
+		-Daudacity_obey_system_dependencies=yes
+		-Daudacity_use_expat=system
 		-Daudacity_use_ffmpeg=$(usex ffmpeg loaded off)
-		-Daudacity_use_libflac=$(usex flac system off)
-		-Daudacity_use_libid3tag=$(usex id3tag system off)
 		-Daudacity_use_ladspa=$(usex ladspa)
-		-Daudacity_use_lv2=$(usex lv2 system off)
-		-Daudacity_use_libmpg123=$(usex mp3 system off)
-		-Daudacity_use_midi=system
-		-Daudacity_use_libopus=$(usex opus system off)
-		-Daudacity_use_opusfile=$(usex opus system off)
+		-Daudacity_use_lame=system
+		-Daudacity_use_libid3tag=$(usex id3tag system off)
+		-Daudacity_use_libflac=$(usex flac system off)
+		-Daudacity_use_libmp3lame=system
+		-Daudacity_use_libmpg123=$(usex mpg123 system off)
 		-Daudacity_use_libogg=$(usex ogg system off)
+		-Daudacity_use_libopus=$(usex opus system off)
+		-Daudacity_use_libsndfile=system
+		-Daudacity_use_libvorbis=$(usex vorbis system off)
+		-Daudacity_use_lv2=$(usex lv2 system off)
+		-Daudacity_use_midi=system
+		-Daudacity_use_nyquist=local
+		-Daudacity_use_opusfile=$(usex opus system off)
+		-Daudacity_use_pch=$(usex pch)
 		-Daudacity_use_portaudio=system
 		-Daudacity_use_portmixer=$(usex portmixer system off)
 		-Daudacity_use_portsmf=system
+		-Daudacity_use_rapidjson=system
 		-Daudacity_use_sbsms=$(usex sbsms system off)
+		-Daudacity_use_soundtouch=$(usex soundtouch system off)
+		-Daudacity_use_soxr=system
 		-Daudacity_use_twolame=$(usex twolame system off)
 		-Daudacity_use_vamp=$(usex vamp system off)
 		-Daudacity_use_libvorbis=$(usex vorbis system off)
 		-Daudacity_use_wavpack=$(usex wavpack system off)
+		-Daudacity_use_wxwidgets=system
+
+		# See the allow-overriding-alsa-jack.patch patch
+		-DPA_HAS_ALSA=$(usex alsa on off)
+
 		-Daudacity_has_vst3=$(usex vst)
 	)
 	[[ -n ${PV%%*9999} ]] && mycmakeargs+=(
@@ -191,6 +228,10 @@ src_configure() {
 src_compile() {
 	LD_LIBRARY_PATH="${BUILD_DIR}/Gentoo/$(get_libdir)/${PN}" \
 	cmake_src_compile
+}
+
+src_test() {
+	virtx cmake_src_test
 }
 
 src_install() {

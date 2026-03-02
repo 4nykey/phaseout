@@ -1,0 +1,11 @@
+--- a/src/ListNavigationPanel.h
++++ b/src/ListNavigationPanel.h
+@@ -13,7 +13,7 @@
+ #include <wx/window.h>
+ #include <wx/containr.h>
+ 
+-#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
++#ifndef __clang__
+ extern template class WXDLLIMPEXP_CORE wxNavigationEnabled<wxWindow>;
+ #endif
+ 

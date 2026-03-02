@@ -1,31 +1,57 @@
---- a/lib-src/libnyquist/CMakeLists.txt
-+++ b/lib-src/libnyquist/CMakeLists.txt
-@@ -259,7 +259,7 @@
-     nyquist/xlisp/xlsys.c
- )
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -354,7 +354,7 @@ set( _DATADIR "${CMAKE_INSTALL_DATADIR}" )
+ set( _PKGLIB "${_LIBDIR}/tenacity" )
+ set( _PKGDATA "${_DATADIR}/tenacity/" )
+ set( _MANDIR "${CMAKE_INSTALL_MANDIR}" )
+-set( _MODDIR "${_DEST}/modules" )
++set( _MODDIR "${_PKGLIB}/modules" )
+ set( _EXEDIR "${_DEST}" )
  
--add_library(nyquist ${SOURCES})
-+add_library(nyquist STATIC ${SOURCES})
+ # Setup RPATH handling
+--- a/cmake-modules/tenacity/TenacityFunctions.cmake
++++ b/cmake-modules/tenacity/TenacityFunctions.cmake
+@@ -213,7 +213,9 @@ function( tenacity_module_fn NAME SOURCES IMPORT_TARGETS
  
- set(CMAKE_C_STANDARD 17)
+    if (LIBTYPE STREQUAL "MODULE")
+       set( ATTRIBUTES "shape=box" )
+-      set_target_property_all( ${TARGET} ${DIRECTORY_PROPERTY} "${_MODDIR}" )
++      set_target_property_all( ${TARGET} ${DIRECTORY_PROPERTY} "${_DESTDIR}/${_MODDIR}" )
++      set_target_property_all(${TARGET} INSTALL_RPATH "$ORIGIN:$ORIGIN/..")
++      set_target_property_all(${TARGET} BUILD_RPATH "$ORIGIN:$ORIGIN/..")
+       set_target_properties( ${TARGET}
+          PROPERTIES
+             PREFIX ""
+@@ -230,6 +232,9 @@ function( tenacity_module_fn NAME SOURCES IMPORT_TARGETS
+       endif()
+    else()
+       set( ATTRIBUTES "shape=octagon" )
++      set_target_property_all( ${TARGET} ${DIRECTORY_PROPERTY} "${_DESTDIR}/${_PKGLIB}" )
++      set_target_property_all(${TARGET} INSTALL_RPATH "$ORIGIN")
++      set_target_property_all(${TARGET} BUILD_RPATH "$ORIGIN")
+       set_target_properties( ${TARGET}
+          PROPERTIES
+             PREFIX ""
+--- a/images/CMakeLists.txt
++++ b/images/CMakeLists.txt
+@@ -9,7 +9,6 @@ def_vars()
+ # This isn't really a target...
  
-@@ -321,8 +321,3 @@ target_compile_options(libnyquist
-         $<$<PLATFORM_ID:Darwin>:-fno-common>
- )
- 
--install(
--    TARGETS nyquist
--    LIBRARY
--    DESTINATION "${_LIBDIR}"
--)
+ list( APPEND PIXMAPS
+-   ${_SRCDIR}/gnome-mime-application-x-audacity-project.xpm
+    ${_SRCDIR}/icons/16x16/${APP_NAME}16.xpm
+    ${_SRCDIR}/icons/32x32/${APP_NAME}32.xpm
+    ${_SRCDIR}/icons/48x48/${APP_NAME}.xpm
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -1392,8 +1392,6 @@ else()
-                FILES_MATCHING PATTERN "*.so*" )
-       install( FILES "${_INTDIR}/${APP_NAME}.desktop"
-                DESTINATION "${_DATADIR}/applications" )
--      install( FILES "${CMAKE_SOURCE_DIR}/LICENSE.txt" "${CMAKE_SOURCE_DIR}/README.md"
--               DESTINATION "${_DATADIR}/doc/${APP_NAME}" )
-       install( FILES "${_SRCDIR}/tenacity.xml"
-                DESTINATION "${_DATADIR}/mime/packages" )
-       install( FILES "${CMAKE_SOURCE_DIR}/presets/EQDefaultCurves.xml"
+@@ -1327,9 +1327,8 @@ else()
+         install( FILES "${_INTDIR}/${APP_NAME}.desktop"
+                  DESTINATION "${_DATADIR}/applications" )
+ 
+-        install( FILES "${CMAKE_SOURCE_DIR}/LICENSE.txt" "${CMAKE_SOURCE_DIR}/README.md"
+-                 DESTINATION "${_DATADIR}/doc/${APP_NAME}" )
+         install( FILES "${_SRCDIR}/audacity.xml"
++                 RENAME "tenacity.xml"
+                  DESTINATION "${_DATADIR}/mime/packages" )
+     endif()
+ endif()

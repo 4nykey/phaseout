@@ -1,0 +1,20 @@
+--- a/lib-src/libnyquist/CMakeLists.txt
++++ b/lib-src/libnyquist/CMakeLists.txt
+@@ -259,7 +259,7 @@
+     nyquist/xlisp/xlsys.c
+ )
+ 
+-add_library(nyquist ${SOURCES})
++add_library(nyquist STATIC ${SOURCES})
+ 
+ set(CMAKE_C_STANDARD 17)
+ 
+@@ -321,8 +321,3 @@ target_compile_options(libnyquist
+         $<$<PLATFORM_ID:Darwin>:-fno-common>
+ )
+ 
+-install(
+-    TARGETS nyquist
+-    LIBRARY
+-    DESTINATION "${_LIBDIR}"
+-)

@@ -1,0 +1,70 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -701,14 +701,14 @@ endif()
+ 
+ # FIXME: Figure out how to use the VST 3 SDK. For now, set VST 3 to disabled.
+ #find_package(VST3SDK)
+-#cmake_dependent_option(VST3 "VST3 plugin host support" ON "VST3SDK_FOUND" OFF)
+-#if (VST3)
+-#   set(USE_VST3 ON)
+-#   message(STATUS "VST3 plugin host support enabled.")
+-#else()
+-#   message(STATUS "VST3 plugin host support disabled.")
+-#endif()
+-set(VST3 OFF)
++pkg_check_modules( vst3sdk vst3sdk )
++cmake_dependent_option(VST3 "VST3 plugin host support" ON "vst3sdk_FOUND" OFF)
++if (VST3)
++   set(USE_VST3 ON)
++   message(STATUS "VST3 plugin host support enabled.")
++else()
++   message(STATUS "VST3 plugin host support disabled.")
++endif()
+ 
+ if(NOT CMAKE_SYSTEM_NAME MATCHES "Darwin|Windows")
+     find_package(GLIB REQUIRED)
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -971,6 +971,7 @@ set( LDFLAGS
+     PRIVATE
+         $<$<CXX_COMPILER_ID:MSVC>:/MANIFEST:NO>
+         $<$<CXX_COMPILER_ID:GNU>:-Wl,--disable-new-dtags>
++        $<$<BOOL:${${_OPT}has_vst3}>:${vst3sdk_LDFLAGS_OTHER}>
+ )
+ 
+ find_package( Threads QUIET )
+--- a/libraries/lib-vst3/module_linux.cpp
++++ b/libraries/lib-vst3/module_linux.cpp
+@@ -50,7 +50,7 @@
+ #define USE_EXPERIMENTAL_FS 1
+ #endif
+ #else
+-#define USE_EXPERIMENTAL_FS 1
++#define USE_EXPERIMENTAL_FS 0
+ #endif
+ 
+ #if USE_EXPERIMENTAL_FS == 1
+--- a/libraries/lib-vst3/CMakeLists.txt
++++ b/libraries/lib-vst3/CMakeLists.txt
+@@ -32,16 +32,17 @@ set( SOURCES
+    >
+ )
+ set( LIBRARIES
+-   vst3sdk::base
+-   vst3sdk::pluginterfaces
+-   vst3sdk::sdk_hosting
+-   vst3sdk::sdk_common
++   ${vst3sdk_LIBRARIES}
++   X11
+    lib-effects-interface
+    lib-files-interface
+ )
+ tenacity_library( lib-vst3 "${SOURCES}" "${LIBRARIES}"
+    "" ""
+ )
++target_include_directories(lib-vst3 PUBLIC "${vst3sdk_INCLUDEDIR}")
++target_link_directories(lib-vst3 PUBLIC "${vst3sdk_LIBRARY_DIRS}")
++target_link_options(lib-vst3 PRIVATE ${vst3sdk_LDFLAGS_OTHER} )
+ 
+ if(${wxIS_MAC})
+    set_source_files_properties(
