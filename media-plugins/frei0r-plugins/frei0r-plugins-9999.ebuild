@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -17,7 +17,7 @@ else
 		mirror://githubcl/dyne/${MY_PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
 	"
 	RESTRICT="primaryuri"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="~amd64"
 	S="${WORKDIR}/${MY_PN}-${MY_PV#v}"
 fi
 
@@ -30,11 +30,15 @@ IUSE="doc +facedetect +scale0tilt"
 
 RDEPEND="
 	x11-libs/cairo[${MULTILIB_USEDEP}]
-	facedetect? ( >=media-libs/opencv-2.3.0:=[contribdnn,features2d,${MULTILIB_USEDEP}] )
+	facedetect? ( >=media-libs/opencv-2.3.0:=[contrib,contribdnn,features2d,ffmpeg,${MULTILIB_USEDEP}] )
 	scale0tilt? ( >=media-libs/gavl-1.2.0[${MULTILIB_USEDEP}] )
 "
 DEPEND="
-${RDEPEND}
+	${RDEPEND}
+"
+BDEPEND="
+	virtual/pkgconfig
+	doc? ( app-text/doxygen[dot] )
 "
 
 src_prepare() {
