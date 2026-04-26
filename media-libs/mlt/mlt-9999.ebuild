@@ -26,7 +26,7 @@ else
 	S="${WORKDIR}/${PN}-${MY_PV#v}"
 fi
 
-PYTHON_COMPAT=( python3_{10..14} )
+PYTHON_COMPAT=( python3_{12..14} )
 inherit python-single-r1 cmake flag-o-matic
 
 DESCRIPTION="Open source multimedia framework for television broadcasting"
@@ -174,6 +174,9 @@ src_configure() {
 		-DMOD_VORBIS=$(usex vorbis)
 		-DMOD_XINE=$(usex xine)
 		-DMOD_XML=$(usex xml)
+	)
+	mycmakeargs+=(
+		-DGENTOO_IS_NOT_KWALIFIED=yes
 	)
 
 	# TODO: rework upstream CMake to allow controlling MMX/SSE/SSE2
