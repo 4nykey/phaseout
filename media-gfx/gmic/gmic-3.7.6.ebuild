@@ -6,12 +6,19 @@ EAPI=8
 inherit bash-completion-r1 toolchain-funcs xdg cmake desktop
 
 if [[ -z ${PV%%*9999} ]]; then
-	EGIT_REPO_URI="https://github.com/GreycLab/gmic.git"
+	EGIT_REPO_URI="https://github.com/GreycLab/${PN}.git"
 	inherit git-r3
 else
 	MY_PV="15d552d"
 	[[ -n ${PV%%*_p*} ]] && MY_PV="v.${PV}"
-	SRC_URI="https://gmic.eu/files/source/${PN}_${PV}.tar.gz"
+	MY_CI="CImg-${MY_PV}"
+	MY_ST="gmic_stdlib_community$(ver_rs 1-2 '').h"
+	SRC_URI="
+		https://gmic.eu/files/source/${PN}_${PV}.tar.gz
+		https://gmic.eu/${MY_ST}
+		mirror://githubcl/GreycLab/${MY_CI%-*}/tar.gz/${MY_CI#*-}
+		-> ${MY_CI}.tar.gz
+	"
 	KEYWORDS="~amd64"
 	RESTRICT="primaryuri"
 fi
@@ -64,6 +71,14 @@ PATCHES=(
 
 pkg_setup() {
 	[[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
+}
+
+src_prepare() {
+	cp "${DISTDIR}"/${MY_ST} ../gmic_stdlib_community.h
+	mv --target-directory=src --update=none \
+		../${MY_CI}/CImg.h ../gmic_stdlib_community.h
+	sed -e '/STRIP_TOOL/ s:\<strip\>:no_&:' -i CMakeLists.txt
+	cmake_src_prepare
 }
 
 src_configure() {
