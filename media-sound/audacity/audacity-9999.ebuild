@@ -133,6 +133,7 @@ PATCHES=(
 )
 PATCHES+=(
 	"${FILESDIR}"/vst3.diff
+	"${FILESDIR}"/rapidjson.diff
 )
 
 src_prepare() {
