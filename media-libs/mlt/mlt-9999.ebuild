@@ -35,8 +35,8 @@ HOMEPAGE="https://www.mltframework.org/"
 LICENSE="GPL-3"
 SLOT="0/7"
 IUSE="debug ffmpeg frei0r gtk jack libsamplerate opencv opengl python qt6
-rtaudio rubberband sdl test vdpau vidstab vorbis xine xml"
-IUSE+=" doc glaxnimate sdl1 sox"
+rtaudio rubberband sdl sox test vdpau vidstab vorbis xine xml"
+IUSE+=" doc glaxnimate sdl1"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 REQUIRED_USE+="
@@ -54,10 +54,13 @@ DEPEND="
 	ffmpeg? ( media-video/ffmpeg:0=[vdpau?] )
 	frei0r? ( media-plugins/frei0r-plugins )
 	gtk? (
+		media-libs/fontconfig
 		media-libs/libexif
+		x11-libs/gdk-pixbuf:2
 		x11-libs/pango
 	)
 	jack? (
+		dev-libs/glib:2
 		>=dev-libs/libxml2-2.5:=
 		media-libs/ladspa-sdk
 		virtual/jack
@@ -83,7 +86,7 @@ DEPEND="
 		x11-libs/libX11
 	)
 	rtaudio? (
-		>=media-libs/rtaudio-4.1.2
+		>=media-libs/rtaudio-4.1.2:=
 		kernel_linux? ( media-libs/alsa-lib )
 	)
 	rubberband? ( media-libs/rubberband:= )
@@ -91,6 +94,7 @@ DEPEND="
 		media-libs/libsdl2[X,opengl,video]
 		media-libs/sdl2-image
 	)
+	sox? ( media-sound/sox:= )
 	vidstab? ( media-libs/vidstab )
 	vorbis? ( media-libs/libvorbis )
 	xine? ( >=media-libs/xine-lib-1.1.2_pre20060328-r7 )
@@ -99,7 +103,6 @@ DEPEND="
 		media-libs/libsdl[X,opengl=,video]
 		media-libs/sdl-image
 	)
-	sox? ( media-sound/sox )
 "
 #	java? ( >=virtual/jre-1.8:* )
 #	perl? ( dev-lang/perl )
@@ -137,6 +140,9 @@ src_prepare() {
 		python_fix_shebang src/swig/python
 	fi
 
+	# Workaround kwalify dependency. Its not required on MSVC, we can ignore it as well.
+	sed -e '/find_package(Kwalify/ s/REQUIRED//' -i CMakeLists.txt || die
+
 	cmake_src_prepare
 }
 
@@ -144,39 +150,44 @@ src_configure() {
 	# Workaround for bug #919981
 	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
 
+	# match order in CMakeLists.txt
 	local mycmakeargs=(
-		-DCMAKE_SKIP_BUILD_RPATH=yes
+		-DCMAKE_SKIP_RPATH=ON
+
+		-DGPL=ON
+		-DGPL3=ON
+		-DBUILD_TESTING=$(usex test)
 		-DCLANG_FORMAT=OFF
-		-DGPL=yes
-		-DGPL3=yes
-		-DMOD_GLAXNIMATE_QT6=$(usex glaxnimate)
-		-DMOD_KDENLIVE=ON
-		-DMOD_PLUS=yes
-		-DMOD_SDL1=$(usex sdl1)
-		-DMOD_SOX=$(usex sox)
-		-DMOD_SPATIALAUDIO=OFF # TODO: package libspatialaudio
-		-DUSE_LV2=OFF	# TODO
-		-DUSE_VST2=OFF	# TODO
+		-DBUILD_TESTS_WITH_QT6=ON
+
 		-DMOD_AVFORMAT=$(usex ffmpeg)
+		#-DMOD_DECKLINK=
 		-DMOD_FREI0R=$(usex frei0r)
 		-DMOD_GDK=$(usex gtk)
-		-DMOD_JACKRACK=$(usex jack)
-		-DMOD_RESAMPLE=$(usex libsamplerate)
-		-DMOD_OPENCV=$(usex opencv)
-		-DMOD_MOVIT=$(usex opengl)
-		-DMOD_QT6=$(usex qt6)
 		-DMOD_GLAXNIMATE_QT6=$(usex glaxnimate $(usex qt6))
+		-DMOD_JACKRACK=$(usex jack)
+		-DUSE_LV2=OFF	# TODO
+		-DUSE_VST2=OFF	# TODO
+		-DMOD_KDENLIVE=ON
+		-DMOD_MOVIT=$(usex opengl)
+		#-DMOD_NDI=
+		#-DMOD_NORMALIZE=
+		#-DMOD_OLDFILM=
+		-DMOD_OPENCV=$(usex opencv)
+		# -DMOD_OPENFX=
+		-DMOD_PLUS=ON
+		#-DMOD_PLUSGPL=
+		-DMOD_QT6=$(usex qt6)
+		-DMOD_RESAMPLE=$(usex libsamplerate)
 		-DMOD_RTAUDIO=$(usex rtaudio)
 		-DMOD_RUBBERBAND=$(usex rubberband)
 		-DMOD_SDL2=$(usex sdl)
-		-DBUILD_TESTING=$(usex test)
+		-DMOD_SOX=$(usex sox)
+		-DMOD_SPATIALAUDIO=OFF # TODO: package libspatialaudio
 		-DMOD_VIDSTAB=$(usex vidstab)
 		-DMOD_VORBIS=$(usex vorbis)
 		-DMOD_XINE=$(usex xine)
 		-DMOD_XML=$(usex xml)
-	)
-	mycmakeargs+=(
-		-DGENTOO_IS_NOT_KWALIFIED=yes
 	)
 
 	# TODO: rework upstream CMake to allow controlling MMX/SSE/SSE2
