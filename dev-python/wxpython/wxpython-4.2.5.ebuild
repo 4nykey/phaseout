@@ -8,8 +8,9 @@ PYTHON_COMPAT=( python3_{12..14} )
 PYPI_NO_NORMALIZE=1
 PYPI_PN="wxPython"
 VIRTUALX_REQUIRED="test"
+WX_GTK_VER="3.2-gtk3"
 
-inherit toolchain-funcs pypi distutils-r1 multiprocessing virtualx
+inherit toolchain-funcs distutils-r1 multiprocessing virtualx wxwidgets pypi
 if [[ -n ${PV%%*_p*} ]]; then
 	MY_P="${P}"
 	SRC_URI="
@@ -41,7 +42,7 @@ KEYWORDS="~amd64"
 IUSE="apidocs debug examples libnotify opengl test webkit"
 
 RDEPEND="
-	x11-libs/wxGTK:3.2=[gstreamer,webkit?,libnotify=,opengl?,tiff,X]
+	x11-libs/wxGTK:${WX_GTK_VER}=[gstreamer,webkit?,libnotify=,opengl?,tiff,X]
 "
 DEPEND="
 	${RDEPEND}
