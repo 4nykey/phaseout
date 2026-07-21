@@ -3,7 +3,8 @@
 
 EAPI=8
 
-inherit plocale cmake xdg virtualx
+WX_GTK_VER="3.2-gtk3"
+inherit plocale cmake flag-o-matic wxwidgets xdg virtualx
 # locale/LINGUAS
 PLOCALES="
 af ar be bg bn bs ca ca_ES@valencia co cs cy da de el es eu eu_ES fa fi fr ga
@@ -64,7 +65,7 @@ DEPEND="
 	media-libs/libsoundtouch
 	media-libs/soxr
 	>=media-sound/lame-3.100-r3
-	x11-libs/wxGTK:3.2=[X,regex(+)]
+	x11-libs/wxGTK:${WX_GTK_VER}=[X,regex(+)]
 	dev-db/sqlite:3
 	alsa? ( media-libs/alsa-lib )
 	curl? (
@@ -164,6 +165,7 @@ src_prepare() {
 
 src_configure() {
 	append-flags -fno-strict-aliasing
+	setup-wxwidgets
 	local _w="${EPREFIX}/usr/$(get_libdir)/wx/config/gtk3-unicode-3.2"
 	local _r=2
 	case ${PV} in
