@@ -5,16 +5,21 @@
 		<email>4nykey@gmail.com</email>
 	</maintainer>
 	<use>
-		<flag name="gstreamer">
-			Enable the wxMediaCtrl class for playing audio and video through
-			gstreamer.
+		<flag name="gtk3">
+			Build wxGTK3
 		</flag>
-		<flag name="legacy">
-			Enable wxwidgets.eclass compatibility
+		<flag name="gtk4">
+			Build wxGTK4
+		</flag>
+		<flag name="chm">
+			Enable support for Microsoft Compiled HTML Help files.
 		</flag>
 		<flag name="sdl">
 			Use Simple Directmedia Layer (<pkg>media-libs/libsdl</pkg>) for
 			audio.
+		</flag>
+		<flag name="stc">
+			Use wxStyledTextCtrl library
 		</flag>
 	</use>
 </pkgmetadata>

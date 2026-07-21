@@ -8,14 +8,3 @@
      if(ARGC EQUAL 2)
          set(default ON)
      else()
---- a/src/html/helpctrl.cpp
-+++ b/src/html/helpctrl.cpp
-@@ -30,7 +30,7 @@
- 
- #if wxUSE_LIBMSPACK
- #include "wx/html/forcelnk.h"
--FORCE_LINK(wxhtml_chm_support)
-+FORCE_LINK_ME(wxhtml_chm_support)
- #endif
- 
- wxIMPLEMENT_DYNAMIC_CLASS(wxHtmlHelpController, wxHelpControllerBase);
