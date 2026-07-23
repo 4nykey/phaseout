@@ -3,7 +3,8 @@
 
 EAPI=8
 
-inherit cmake virtualx
+WX_GTK_VER="3.2-gtk3"
+inherit wxwidgets cmake virtualx
 
 DESCRIPTION="A cross-platform C++ GUI toolkit"
 HOMEPAGE="https://wxwidgets.org"
@@ -75,6 +76,7 @@ RDEPEND="
 	gtk3? (
 		>=x11-libs/gtk+-3.24.41-r1:3[wayland?,X?]
 		x11-libs/gdk-pixbuf:2
+		x11-libs/wxGTK:${WX_GTK_VER}[legacy(-)]
 	)
 	gtk4? (
 		gui-libs/gtk:4[wayland?,X?]
@@ -96,9 +98,6 @@ BDEPEND="
 	>=app-eselect/eselect-wxwidgets-20131230
 	virtual/pkgconfig
 "
-PDEPEND="
-	gtk3? ( x11-libs/wxGTK:${SLOT%/*}-gtk3[legacy(-)] )
-"
 DOCS=(
 	docs/{changes,readme}.txt
 	docs/{base,gtk}
@@ -111,6 +110,7 @@ src_prepare() {
 	use test && mv "${WORKDIR}"/${MY_CA}/* 3rdparty/catch
 	sed -e '/find_package(QT NAMES Qt5/d' -i build/cmake/toolkit.cmake
 	cmake_src_prepare
+	MY_TOOLKITS=( $(usev gtk3) $(usev gtk4) $(usev qt6) )
 }
 
 src_configure() {
@@ -145,29 +145,20 @@ src_configure() {
 			-DwxUSE_STC=$(usex stc)
 			-DwxUSE_DETECT_SM=yes
 		)
-		if use gtk3; then
+		local _t
+		for _t in ${MY_TOOLKITS[@]}; do
+			_c=( ${mycmakeargs[*]} )
 			mycmakeargs+=(
-				-DwxBUILD_TOOLKIT=gtk3
+				-DwxBUILD_TOOLKIT=${_t}
+			)
+			[[ ${_t} == 'gtk3' ]] && \
+			mycmakeargs+=(
 				-DwxUSE_WEBVIEW=$(usex webkit)
 			)
-			BUILD_DIR="${CMAKE_USE_DIR}_gtk3" \
+			BUILD_DIR="${CMAKE_USE_DIR}_${_t}" \
 				cmake_src_configure
-		fi
-		if use gtk4; then
-			mycmakeargs+=(
-				-DwxBUILD_TOOLKIT=gtk4
-			)
-			BUILD_DIR="${CMAKE_USE_DIR}_gtk4" \
-				cmake_src_configure
-		fi
-		if use qt6; then
-			mycmakeargs+=(
-				-DwxBUILD_TOOLKIT=qt
-				-DQT_VERSION_MAJOR=6
-			)
-			BUILD_DIR="${CMAKE_USE_DIR}_qt6" \
-				cmake_src_configure
-		fi
+			mycmakeargs=( ${_c[*]} )
+		done
 	else
 		cmake_src_configure
 	fi
@@ -175,12 +166,11 @@ src_configure() {
 
 src_compile() {
 	if use X; then
-		use gtk3 && BUILD_DIR="${CMAKE_USE_DIR}_gtk3" \
+		local _t
+		for _t in ${MY_TOOLKITS[@]}; do
+			BUILD_DIR="${CMAKE_USE_DIR}_${_t}" \
 				cmake_src_compile
-		use gtk4 && BUILD_DIR="${CMAKE_USE_DIR}_gtk4" \
-				cmake_src_compile
-		use qt6 && BUILD_DIR="${CMAKE_USE_DIR}_qt6" \
-				cmake_src_compile
+		done
 	else
 		cmake_src_compile
 	fi
@@ -188,12 +178,11 @@ src_compile() {
 
 src_test() {
 	if use X; then
-		use gtk3 && BUILD_DIR="${CMAKE_USE_DIR}_gtk3" \
-			virtx cmake_src_test
-		use gtk4 && BUILD_DIR="${CMAKE_USE_DIR}_gtk4" \
-			virtx cmake_src_test
-		use qt6 && BUILD_DIR="${CMAKE_USE_DIR}_qt6" \
-			virtx cmake_src_test
+		local _t
+		for _t in ${MY_TOOLKITS[@]}; do
+			BUILD_DIR="${CMAKE_USE_DIR}_${_t}" \
+				cmake_src_compile
+		done
 	else
 		cmake_src_test
 	fi
@@ -201,28 +190,14 @@ src_test() {
 
 src_install() {
 	if use X; then
-		local _c _p=( ) _e
-		if use gtk3; then
-			_c=/usr/share/wx/gtk3
+		local _t _c _p=( ) _e
+		for _t in ${MY_TOOLKITS[@]}; do
+			_c=/usr/share/wx/${_t}
 			dodir "${_c}"
 			BUILD_DIR="${CMAKE_USE_DIR}_${_c##*/}" cmake_src_install
 			mv "${ED}"/usr/lib64/cmake "${ED}${_c}"
 			_p+=( "${EPREFIX}${_c}" )
-		fi
-		if use gtk4; then
-			_c=/usr/share/wx/gtk4
-			dodir "${_c}"
-			BUILD_DIR="${CMAKE_USE_DIR}_${_c##*/}" cmake_src_install
-			mv "${ED}"/usr/lib64/cmake "${ED}${_c}"
-			_p+=( "${EPREFIX}${_c}" )
-		fi
-		if use qt6; then
-			_c=/usr/share/wx/qt6
-			dodir "${_c}"
-			BUILD_DIR="${CMAKE_USE_DIR}_${_c##*/}" cmake_src_install
-			mv "${ED}"/usr/lib64/cmake "${ED}${_c}"
-			_p+=( "${EPREFIX}${_c}" )
-		fi
+		done
 		_c="$(printf '%s/cmake:' ${_p[@]})"
 		_e="${T}/99${PN}${SLOT%/*}"
 		printf 'CMAKE_PREFIX_PATH="%s:${CMAKE_PREFIX_PATH}"\n' "${_c}" >\
