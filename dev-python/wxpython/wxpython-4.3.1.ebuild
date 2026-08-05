@@ -15,15 +15,8 @@ if [[ -n ${PV%%*_p*} ]]; then
 	SRC_URI="
 		https://github.com/wxWidgets/Phoenix/releases/download/${PYPI_PN}-${PV}/${MY_P}.tar.gz
 		apidocs? (
-			https://extras.wxpython.org/${PYPI_PN}4/extras/${PV}/${PYPI_PN}-docs-${PV}.tar.gz
+			https://github.com/wxWidgets/Phoenix/releases/download/${PYPI_PN}-${PV}/${PYPI_PN}-docs-${PV}.tar.gz
 			https://wxpython.org/Phoenix/snapshot-builds/${PYPI_PN}-docs-${PV}.tar.gz
-		)
-	"
-	# temporary
-	SRC_URI+="
-		apidocs? (
-			https://wxpython.org/Phoenix/snapshot-builds/${PYPI_PN}-docs-4.3.0a16068+96cb1d0c.tar.gz
-			-> ${PYPI_PN}-docs-${PV}.tar.gz
 		)
 	"
 else
