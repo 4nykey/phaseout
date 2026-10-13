@@ -10,30 +10,24 @@ PYPI_PN="wxPython"
 VIRTUALX_REQUIRED="test"
 
 inherit toolchain-funcs distutils-r1 multiprocessing virtualx pypi
-if [[ -n ${PV%%*_p*} ]]; then
-	MY_P="${P}"
-	SRC_URI="
-		https://github.com/wxWidgets/Phoenix/releases/download/${PYPI_PN}-${PV}/${MY_P}.tar.gz
-		apidocs? (
-			https://github.com/wxWidgets/Phoenix/releases/download/${PYPI_PN}-${PV}/${PYPI_PN}-docs-${PV}.tar.gz
-			https://wxpython.org/Phoenix/snapshot-builds/${PYPI_PN}-docs-${PV}.tar.gz
-		)
-	"
-else
-	MY_PV="$(ver_cut 1-3)a1.dev5626+a1184286"
-	MY_P="${PYPI_PN}-${MY_PV}"
-	SRC_URI="
-		https://wxpython.org/Phoenix/snapshot-builds/${MY_P}.tar.gz
-		apidocs? (
-			https://wxpython.org/Phoenix/snapshot-builds/${PYPI_PN}-docs-${MY_PV}.tar.gz
-		)
-	"
-	RESTRICT="primaryuri"
+MY_PV="${PV}"
+MY_P="${PYPI_PN}-${PV}"
+if [[ -z ${PV%%*_*} ]]; then
+	MY_PV="f0785b3c"
+	MY_PV="$(ver_cut 1-3)a$(ver_cut 5)+${MY_PV}"
+	MY_P="${MY_PV}"
 fi
+SRC_URI="
+	https://github.com/wxWidgets/Phoenix/releases/download/${MY_P}/${PN}-${MY_PV}.tar.gz
+	apidocs? (
+		https://github.com/wxWidgets/Phoenix/releases/download/${MY_P}/${PYPI_PN}-docs-${MY_PV}.tar.gz
+	)
+"
+RESTRICT="primaryuri"
 
 DESCRIPTION="A blending of the wxWindows C++ class library with Python"
 HOMEPAGE="https://www.wxpython.org"
-S="${WORKDIR}/${MY_P}"
+S="${WORKDIR}/${PN}-${MY_PV}"
 
 LICENSE="wxWinLL-3.1 LGPL-2"
 SLOT="4.0"
