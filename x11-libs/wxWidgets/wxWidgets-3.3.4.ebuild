@@ -12,7 +12,7 @@ VIRTUALX_REQUIRED="X"
 MY_PV="204db7e"
 [[ -n ${PV%%*_p*} ]] && MY_PV="v${PV}"
 MY_CA="Catch-5f5e4ce"
-MY_LEX="lexilla-bf6ad20"
+MY_LEX="lexilla-696ee98"
 MY_SCI="scintilla-0b90f31"
 SRC_URI="
 	mirror://githubcl/${PN}/${PN}/tar.gz/${MY_PV} -> ${P}.tar.gz
